@@ -1,60 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-  
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propagate Faster, DNS!</title>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 0;
-}
+    <title>Music Genre Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('bgimg'); /* Background image added here */
+            background-size: cover; /* Ensures the background covers the whole page */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-attachment: fixed; /* Makes the background fixed during scroll */
+            margin: 0;
+            padding: 0;
+            color: #fff; /* Change text color for better readability */
+        }
 
-.container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
-    padding: 20px;
-}
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay for better readability */
+        }
 
-.cell {
-    background-color: #ffffff;
-    border: 1px solid #dddddd;
-    padding: 15px;
-    text-align: center;
-    font-size: 1.2em;
-}
+        .cell {
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent cells */
+            border: 1px solid #dddddd;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+        }
 
-.header {
-    background-color: #4CAF50;
-    color: white;
-    font-weight: bold;
-}
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
 
-.genre {
-    background-color: #2196F3;
-    color: white;
-    font-weight: bold;
-}
+        .genre {
+            background-color: #2196F3;
+            color: white;
+            font-weight: bold;
+        }
 
-@media (max-width: 600px) {
-    .container {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    }
-}
-.bgimg {
-  background-image: url('/bgimg');
-  min-height: 100%;
-  background-position: center;
-  background-size: cover;
-}
-    <link rel="stylesheet" href="style.css">
+        @media (max-width: 600px) {
+            .container {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+    </style>
 </head>
 <body>
-  
-<div class="bgimg w3-display-container w3-animate-opacity w3-text-white">
     <div class="container">
         <div class="header-row">
             <!-- Add artist names here -->
@@ -75,10 +72,9 @@ body {
             <!-- Add cells for artists' songs under Genre 2 -->
             <div class="cell">Song 2A</div>
             <div class="cell">Song 2B</div>
-            <div class="cell">Song 2C</div>
+            <div the="cell">Song 2C</div>
         </div>
         <!-- Add more genres and songs as needed -->
     </div>
-</div></div>
 </body>
 </html>
