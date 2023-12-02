@@ -18,73 +18,96 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            flex-direction: column; /* Align items vertically */
         }
 
+        .header {
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background for legibility */
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px; /* Space above the grid */
+            text-align: center; /* Centering text */
+        }
+
+        .title {
+            font-size: 2.5em;
+            margin: 0;
+        }
+
+        .subheader {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        /* Container and cell styles unchanged, included here for completeness */
         .container {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 60%; /* Reduced width */
-            max-width: 800px; /* Adjusted for a more box-shaped layout */
-            margin: auto;
+            width: 60%;
+            max-width: 800px;
+            margin: 20px 0; /* Added margin for spacing */
             padding: 20px;
         }
 
         .row {
             display: flex;
             width: 100%;
+            position: relative;
         }
 
         .cell {
-            border: 1px solid #ddd; /* Border for each cell */
+            border: none;
             padding: 15px 20px;
             text-align: center;
             font-size: 1.1em;
             flex: 1;
-            min-height: 50px; /* Minimum height for cells */
+            min-height: 50px;
+            background-color: #e3f2fd;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .genre-header {
-            text-align: left;
-            font-weight: bold;
-            color: #2196F3;
+        .genre-header, .artist {
+            background-color: #bbdefb;
         }
 
         .invisible {
-            visibility: hidden; /* Makes the top left cell invisible */
+            visibility: hidden;
+        }
+
+        /* Tic-tac-toe lines */
+        .row:not(:last-child) .cell::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #333;
+        }
+
+        .cell:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: -10px;
+            width: 1px;
+            background-color: #333;
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <div class="title">musicgrid.io</div>
+        <div class="subheader">Guess the song that matches each artist and genre</div>
+    </div>
     <div class="container">
-        <div class="row">
-            <div class="cell invisible"></div> <!-- Invisible cell for alignment -->
-            <div class="cell">Artist 1</div>
-            <div class="cell">Artist 2</div>
-            <div class="cell">Artist 3</div>
-        </div>
-
-        <div class="row">
-            <div class="cell genre-header">Genre 1</div>
-            <div class="cell">Song 1A</div>
-            <div class="cell">Song 1B</div>
-            <div class="cell">Song 1C</div>
-        </div>
-
-        <div class="row">
-            <div class="cell genre-header">Genre 2</div>
-            <div class="cell">Song 2A</div>
-            <div class="cell">Song 2B</div>
-            <div class="cell">Song 2C</div>
-        </div>
-
-        <div class="row">
-            <div class="cell genre-header">Genre 3</div> <!-- New Genre 3 row -->
-            <div class="cell">Song 3A</div>
-            <div class="cell">Song 3B</div>
-            <div class="cell">Song 3C</div>
-        </div>
+        <!-- Grid rows and cells -->
     </div>
 </body>
 </html>
