@@ -39,7 +39,6 @@
             margin-top: 10px;
         }
 
-        /* Container and cell styles unchanged, included here for completeness */
         .container {
             display: flex;
             flex-direction: column;
@@ -107,7 +106,33 @@
         <div class="subheader">Guess the song that matches each artist and genre</div>
     </div>
     <div class="container">
-        <!-- Grid rows and cells -->
+        <div class="row">
+            <div class="cell invisible"></div> <!-- Invisible cell for alignment -->
+            <div class="cell artist">Artist 1</div>
+            <div class="cell artist">Artist 2</div>
+            <div class="cell artist">Artist 3</div>
+        </div>
+
+        <div class="row">
+            <div class="cell genre-header">Genre 1</div>
+            <div class="cell">Song 1A</div>
+            <div class="cell">Song 1B</div>
+            <div class="cell">Song 1C</div>
+        </div>
+
+        <div class="row">
+            <div class="cell genre-header">Genre 2</div>
+            <div class="cell">Song 2A</div>
+            <div class="cell">Song 2B</div>
+            <div class="cell">Song 2C</div>
+        </div>
+
+        <div class="row">
+            <div class="cell genre-header">Genre 3</div>
+            <div class="cell">Song 3A</div>
+            <div class="cell">Song 3B</div>
+            <div class="cell">Song 3C</div>
+        </div>
     </div>
 </body>
 </html>
