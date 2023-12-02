@@ -21,42 +21,51 @@
         }
 
         .container {
-            display: grid;
-            grid-template-columns: auto auto auto auto; /* Adjust the number of columns based on number of artists */
-            grid-gap: 1px;
-            background-color: #ccc; /* Grid lines color */
-            padding: 1px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .row {
+            display: flex;
         }
 
         .cell {
-            background-color: #fff;
+            border: 1px solid #ccc;
             padding: 15px;
             text-align: center;
             font-size: 1.2em;
+            min-width: 100px; /* Adjust width as needed */
         }
 
         .genre-header {
-            grid-column-start: 1; /* Makes the genre header span the first column */
-            grid-column-end: 2;
+            flex: 1;
+            text-align: left;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="cell genre-header"></div> <!-- Empty cell for alignment -->
-        <div class="cell">Artist 1</div>
-        <div class="cell">Artist 2</div>
-        <div class="cell">Artist 3</div>
+        <div class="row">
+            <div class="cell genre-header"></div> <!-- Empty cell for alignment -->
+            <div class="cell">Artist 1</div>
+            <div class="cell">Artist 2</div>
+            <div class="cell">Artist 3</div>
+        </div>
 
-        <div class="cell genre-header">Genre 1</div>
-        <div class="cell">Song 1A</div>
-        <div class="cell">Song 1B</div>
-        <div class="cell">Song 1C</div>
+        <div class="row">
+            <div class="cell genre-header">Genre 1</div>
+            <div class="cell">Song 1A</div>
+            <div class="cell">Song 1B</div>
+            <div class="cell">Song 1C</div>
+        </div>
 
-        <div class="cell genre-header">Genre 2</div>
-        <div class="cell">Song 2A</div>
-        <div class="cell">Song 2B</div>
-        <div class="cell">Song 2C</div>
+        <div class="row">
+            <div class="cell genre-header">Genre 2</div>
+            <div class="cell">Song 2A</div>
+            <div class="cell">Song 2B</div>
+            <div class="cell">Song 2C</div>
+        </div>
 
         <!-- Add more genres and songs as needed -->
     </div>
