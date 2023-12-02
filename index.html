@@ -10,7 +10,7 @@
             background-image: url('bgimg');
             background-size: cover;
             background-repeat: no-repeat;
-            background-position: center; /* Centers the background image */
+            background-position: center;
             margin: 0;
             padding: 0;
             color: #333;
@@ -25,38 +25,24 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 80%;
-            max-width: 1200px;
+            width: 60%; /* Reduced width */
+            max-width: 800px; /* Adjusted for a more box-shaped layout */
             margin: auto;
             padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .row {
             display: flex;
-            justify-content: center;
             width: 100%;
-            margin-bottom: 10px;
         }
 
         .cell {
-            border: 1px solid #ddd;
+            border: 1px solid #ddd; /* Border for each cell */
             padding: 15px 20px;
             text-align: center;
             font-size: 1.1em;
-            flex: 1; /* Ensures equal width for all cells */
-            margin: 0 5px;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-
-        .cell:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            flex: 1;
+            min-height: 50px; /* Minimum height for cells */
         }
 
         .genre-header {
@@ -64,12 +50,16 @@
             font-weight: bold;
             color: #2196F3;
         }
+
+        .invisible {
+            visibility: hidden; /* Makes the top left cell invisible */
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="row">
-            <div class="cell genre-header"></div> <!-- Empty cell for alignment -->
+            <div class="cell invisible"></div> <!-- Invisible cell for alignment -->
             <div class="cell">Artist 1</div>
             <div class="cell">Artist 2</div>
             <div class="cell">Artist 3</div>
@@ -89,7 +79,12 @@
             <div class="cell">Song 2C</div>
         </div>
 
-        <!-- Add more genres and songs as needed -->
+        <div class="row">
+            <div class="cell genre-header">Genre 3</div> <!-- New Genre 3 row -->
+            <div class="cell">Song 3A</div>
+            <div class="cell">Song 3B</div>
+            <div class="cell">Song 3C</div>
+        </div>
     </div>
 </body>
 </html>
