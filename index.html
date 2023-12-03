@@ -51,32 +51,35 @@
         }
 
         .row {
-            display: flex;
-            width: 100%;
-            position: relative;
+        display: flex;
+        width: 100%;
+        position: relative;
         }
 
         .cell {
-            flex: 1; /* Uniform flex growth */
-            border: none;
+            flex: 0 0 25%; /* Each cell takes up 25% width of the row */
             padding: 15px 20px;
             text-align: center;
             font-size: 1.1em;
-            min-height: 50px;
+            min-height: 50px; /* Minimum height for cells */
             background-color: #e3f2fd;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            word-break: break-word; /* Ensures text breaks to prevent widening */
         }
-
+    
         .genre-header, .artist {
             background-color: #bbdefb;
         }
-
+    
         .invisible {
             visibility: hidden;
-            flex: 1; /* Same flex growth as genre cells */
+        }
+    
+        .song-cell {
+            cursor: pointer;
         }
 
         /* Tic-tac-toe lines */
@@ -153,15 +156,15 @@
     </div>
 
     <script>
-        function toggleVisibility(cell) {
-            if (cell.classList.contains('hidden')) {
-                cell.textContent = cell.getAttribute('data-answer');
-                cell.classList.remove('hidden');
-            } else {
-                cell.textContent = 'Click to reveal';
-                cell.classList.add('hidden');
-            }
+    function toggleVisibility(cell) {
+        if (cell.classList.contains('hidden')) {
+            cell.textContent = cell.getAttribute('data-answer');
+            cell.classList.remove('hidden');
+        } else {
+            cell.textContent = 'Click to reveal';
+            cell.classList.add('hidden');
         }
+    }
     </script>
 </body>
 </html>
