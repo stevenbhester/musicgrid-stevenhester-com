@@ -3,9 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Genre Guessing Game</title>
+    <title>We weren't lying, it's here</title>
     <style>
-        /* Add your CSS styles here */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-image: url('bgimg.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 2.5em;
+            margin: 0;
+        }
+
+        .subheader {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80%;
+            max-width: 800px;
+            margin: 20px 0;
+            padding: 20px;
+        }
+
+        .row {
+        display: flex;
+        width: 100%;
+        position: relative;
+        }
+
+        .cell {
+            flex: 0 0 25%; /* Each cell takes up 25% width of the row */
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1.1em;
+            min-height: 50px; /* Minimum height for cells */
+            background-color: #e3f2fd;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-word; /* Ensures text breaks to prevent widening */
+        }
+    
+        .genre-header, .artist {
+            background-color: #bbdefb;
+        }
+    
+        .invisible {
+            visibility: hidden;
+        }
+    
+        .song-cell {
+            cursor: pointer;
+        }
+
+        /* Tic-tac-toe lines */
+        .row:not(:last-child) .cell::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #333;
+        }
+
+        .cell:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: -10px;
+            width: 1px;
+            background-color: #333;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+            }
+
+            .title, .subheader {
+                font-size: 1.5em;
+            }
+
+            .cell {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+        }
     </style>
 </head>
 <body>
