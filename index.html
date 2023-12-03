@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DNS Stop Embarassing Us Pls</title>
+    <title>Music Genre Guessing Game</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -18,15 +18,15 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            flex-direction: column; /* Align items vertically */
+            flex-direction: column;
         }
 
         .header {
-            background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background for legibility */
+            background-color: rgba(255, 255, 255, 0.8);
             padding: 10px 20px;
             border-radius: 5px;
-            margin-bottom: 20px; /* Space above the grid */
-            text-align: center; /* Centering text */
+            margin-bottom: 20px;
+            text-align: center;
         }
 
         .title {
@@ -44,9 +44,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 60%;
+            width: 80%; /* Adjusted for better mobile view */
             max-width: 800px;
-            margin: 20px 0; /* Added margin for spacing */
+            margin: 20px 0;
             padding: 20px;
         }
 
@@ -61,7 +61,7 @@
             padding: 15px 20px;
             text-align: center;
             font-size: 1.1em;
-            flex: 1;
+            flex-grow: 1; /* Ensure cells grow evenly */
             min-height: 50px;
             background-color: #e3f2fd;
             position: relative;
@@ -97,6 +97,22 @@
             right: -10px;
             width: 1px;
             background-color: #333;
+        }
+
+        /* Responsive adjustments for mobile devices */
+        @media (max-width: 600px) {
+            .container {
+                width: 95%; /* Wider container on smaller screens */
+            }
+
+            .title, .subheader {
+                font-size: 1.5em; /* Smaller font size for mobile */
+            }
+
+            .cell {
+                padding: 10px 15px; /* Smaller padding for cells */
+                font-size: 0.9em; /* Smaller font size for cell text */
+            }
         }
     </style>
 </head>
