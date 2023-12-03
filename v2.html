@@ -5,89 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>We weren't lying, it's here</title>
     <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-image: url('bgimg.png');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            margin: 0;
-            padding: 0;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-        }
+    /* General styles */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
 
-        .header {
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+    .container, .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
 
-        .title {
-            font-size: 2.5em;
-            margin: 0;
-        }
-
-        .subheader {
-            font-size: 1.2em;
-            margin-top: 10px;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 80%;
-            max-width: 800px;
-            margin: 20px 0;
-            padding: 20px;
-        }
-
-        .row {
+    .row {
         display: flex;
-        width: 100%;
-        position: relative;
-        }
+        justify-content: center;
+    }
 
-        .cell {
-            flex: 0 0 25%; /* Each cell takes up 25% width of the row */
-            padding: 15px 20px;
-            text-align: center;
-            font-size: 1.1em;
-            min-height: 50px; /* Minimum height for cells */
-            background-color: #e3f2fd;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            word-break: break-word; /* Ensures text breaks to prevent widening */
-        }
-    
-        .genre-header, .artist {
-            background-color: #bbdefb;
-        }
-    
-        .invisible {
-            visibility: hidden;
-        }
-    
-        .song-cell {
-            cursor: pointer;
-        }
+    .cell {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
 
-        .correct {
-            background-color: #c8e6c9; /* Green background for correct answers */
-        }
-        .incorrect {
-            background-color: #ffcdd2; /* Red background for incorrect answers */
-        }
+    .artist, .genre-header {
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .artist {
+        background-color: #4caf50;
+    }
+
+    .genre-header {
+        background-color: #2196f3;
+    }
+
+    .song-cell {
+        background-color: #fdd835;
+    }
+
+    .correct {
+        background-color: #c8e6c9; /* Green for correct answers */
+    }
+
+    .incorrect {
+        background-color: #ffcdd2; /* Red for incorrect answers */
+    }
+
 
         /* Tic-tac-toe lines */
         .row:not(:last-child) .cell::after {
@@ -197,14 +166,21 @@
             }
         }
 
-        function guessSong(cell, correctAnswer) {
-            const userGuess = prompt("Enter your guess:");
-            if(userGuess && userGuess.toLowerCase() === correctAnswer.toLowerCase()) {
+        function guessSong(cell, correctAnswer, artist, genre) {
+            const promptMessage = `Guess the song by ${artist} in the genre '${genre}'.\nType your guess or cancel to skip:`;
+            const userGuess = prompt(promptMessage);
+    
+            if (userGuess === null) {
+                // User cancelled the guess
+                return;
+            }
+    
+            if (userGuess.toLowerCase() === correctAnswer.toLowerCase()) {
                 cell.classList.add('correct');
                 cell.textContent = 'Correct!';
             } else {
                 cell.classList.add('incorrect');
-                cell.textContent = 'Incorrect! Correct answer: ' + correctAnswer;
+                cell.textContent = `Incorrect! Correct answer: ${correctAnswer}`;
             }
         }
     </script>
