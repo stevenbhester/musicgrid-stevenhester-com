@@ -119,7 +119,7 @@
 <body>
     <div class="header">
         <div class="title">musicgrid.io</div>
-        <div class="subheader">Guess the song that matches each artist and genre</div>
+        <div class="subheader">Guess the song that matches each artist and category</div>
         <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div>
     </div>
     <div class="container">
@@ -130,26 +130,28 @@
             <div class="cell artist">Kanye</div>
         </div>
 
+        <!-- Rows with song answers -->
         <div class="row">
             <div class="cell genre-header">Charted above 5 in Billboard 100</div>
-            <div class="cell">Anti-Hero, a billion others (prob Teardrops on my Guitar)</div>
-            <div class="cell">Radioactive, Believer, Thunder</div>
-            <div class="cell">Gold Digger, Stronger, etc.</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)">Click to reveal</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)">Click to reveal</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)">Click to reveal</div>
         </div>
 
-        <div class="row">
-            <div class="cell genre-header">Released 2008 - 2012</div>
-            <div class="cell">Love Story, You Belong With Me, Etc.</div>
-            <div class="cell">Radioactive, other songs from Night Visions</div>
-            <div class="cell">Heartless, Say You Will, etc. from 808s and Heartbreak</div>
-        </div>
+        <!-- ... Other rows ... -->
 
-        <div class="row">
-            <div class="cell genre-header">Feat. Kendrick Lamar</div>
-            <div class="cell">Bad Blood</div>
-            <div class="cell">Radioactive</div>
-            <div class="cell">No More Parties in LA</div>
-        </div>
     </div>
+
+    <script>
+        function toggleVisibility(cell) {
+            if (cell.classList.contains('hidden')) {
+                cell.textContent = cell.getAttribute('data-answer');
+                cell.classList.remove('hidden');
+            } else {
+                cell.textContent = 'Click to reveal';
+                cell.classList.add('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
