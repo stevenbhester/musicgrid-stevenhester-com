@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Genre Guessing Game</title>
+    <style>
+        /* Add your CSS styles here */
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">musicgrid.io</div>
+        <div class="subheader">Guess the song that matches each artist and category</div>
+        <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div>
+    </div>
+
+    <div class="guess-section">
+        <input type="text" id="guessInput" placeholder="Type your guess here">
+        <button onclick="searchSpotify()">Search Song</button>
+    </div>
+
+    <div id="searchResults"></div>
+
+    <div class="container">
+        <div class="row">
+            <div class="cell invisible"></div>
+            <div class="cell artist">Taylor Swift</div>
+            <div class="cell artist">Imagine Dragons</div>
+            <div class="cell artist">Kanye</div>
+        </div>
+
+        <div class="row">
+            <div class="cell genre-header">Charted above 5 in Billboard 100</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Anti-Hero, a billion others (prob Teardrops on my Guitar)">Click to reveal</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Radioactive, Believer, Thunder">Click to reveal</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Gold Digger, Stronger, etc.">Click to reveal</div>
+        </div>
+
+        <div class="row">
+            <div class="cell genre-header">Released 2008 - 2012</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Love Story, You Belong With Me, Etc.">Click to reveal</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Radioactive, other songs from Night Visions">Click to reveal</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Heartless, Say You Will, etc. from 808s and Heartbreak">Click to reveal</div>
+        </div>
+
+        <div class="row">
+            <div class="cell genre-header">Feat. Kendrick Lamar</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Bad Blood">Click to reveal</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Radioactive">Click to reveal</div>
+            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="No More Parties in LA">Click to reveal</div>
+        </div>
+    </div>
+
+    <script>
+        async function searchSpotify() {
+            const guess = document.getElementById('guessInput').value;
+            const resultsContainer = document.getElementById('searchResults');
+            
+            // Call the function to search Spotify API
+            const results = await searchSongs(guess);
+            
+            // Display the results
+            resultsContainer.innerHTML = results.map(song => 
+                `<div>${song.name} by ${song.artists.join(', ')}</div>`
+            ).join('');
+        }
+
+        async function searchSongs(query) {
+            // Placeholder function for Spotify API call
+            // Replace this with an actual API request to your server
+            return [
+                { name: 'Song Name 1', artists: ['Artist 1', 'Artist 2'] },
+                { name: 'Song Name 2', artists: ['Artist 3'] }
+                // ... more results ...
+            ];
+        }
+
+        function toggleVisibility(cell) {
+            if (cell.classList.contains('hidden')) {
+                cell.textContent = cell.getAttribute('data-answer');
+                cell.classList.remove('hidden');
+            } else {
+                cell.textContent = 'Click to reveal';
+                cell.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
