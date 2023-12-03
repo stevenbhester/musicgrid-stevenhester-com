@@ -82,6 +82,13 @@
             cursor: pointer;
         }
 
+        .correct {
+            background-color: #c8e6c9; /* Green background for correct answers */
+        }
+        .incorrect {
+            background-color: #ffcdd2; /* Red background for incorrect answers */
+        }
+
         /* Tic-tac-toe lines */
         .row:not(:last-child) .cell::after {
             content: '';
@@ -124,7 +131,9 @@
         <div class="title">musicgrid.io</div>
         <div class="subheader">Guess the song that matches each artist and category</div>
         <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div>
+        <div class="subheader"></i>(only one answer works for each category rn even though several have multiple possible answers)</i></div>
     </div>
+
     <div class="container">
         <div class="row">
             <div class="cell invisible"></div>
@@ -135,36 +144,70 @@
 
         <div class="row">
             <div class="cell genre-header">Charted above 5 in Billboard 100</div>
-            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Anti-Hero, a billion others (prob Teardrops on my Guitar)">Click to reveal</div>
-            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Radioactive, Believer, Thunder">Click to reveal</div>
-            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Gold Digger, Stronger, etc.">Click to reveal</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Anti-Hero')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Radioactive')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Gold Digger')">Click to guess</div>
         </div>
 
         <div class="row">
             <div class="cell genre-header">Released 2008 - 2012</div>
-            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Love Story, You Belong With Me, Etc.">Click to reveal</div>
-            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Radioactive, other songs from Night Visions">Click to reveal</div>
-            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Heartless, Say You Will, etc. from 808s and Heartbreak">Click to reveal</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Love Story')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Radioactive')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Heartless')">Click to guess</div>
         </div>
 
         <div class="row">
             <div class="cell genre-header">Feat. Kendrick Lamar</div>
-            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Bad Blood">Click to reveal</div>
-            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="Radioactive">Click to reveal</div>
-            <div class="cell song-cell hidden" onclick="toggleVisibility(this)" data-answer="No More Parties in LA">Click to reveal</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Bad Blood')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Radioactive')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'No More Parties in LA')">Click to guess</div>
         </div>
     </div>
 
     <script>
-    function toggleVisibility(cell) {
-        if (cell.classList.contains('hidden')) {
-            cell.textContent = cell.getAttribute('data-answer');
-            cell.classList.remove('hidden');
-        } else {
-            cell.textContent = 'Click to reveal';
-            cell.classList.add('hidden');
+        async function searchSpotify() {
+            const guess = document.getElementById('guessInput').value;
+            const resultsContainer = document.getElementById('searchResults');
+            
+            // Call the function to search Spotify API
+            const results = await searchSongs(guess);
+            
+            // Display the results
+            resultsContainer.innerHTML = results.map(song => 
+                `<div>${song.name} by ${song.artists.join(', ')}</div>`
+            ).join('');
         }
-    }
+
+        async function searchSongs(query) {
+            // Placeholder function for Spotify API call
+            // Replace this with an actual API request to your server
+            return [
+                { name: 'Song Name 1', artists: ['Artist 1', 'Artist 2'] },
+                { name: 'Song Name 2', artists: ['Artist 3'] }
+                // ... more results ...
+            ];
+        }
+
+        function toggleVisibility(cell) {
+            if (cell.classList.contains('hidden')) {
+                cell.textContent = cell.getAttribute('data-answer');
+                cell.classList.remove('hidden');
+            } else {
+                cell.textContent = 'Click to reveal';
+                cell.classList.add('hidden');
+            }
+        }
+
+        function guessSong(cell, correctAnswer) {
+            const userGuess = prompt("Enter your guess:");
+            if(userGuess && userGuess.toLowerCase() === correctAnswer.toLowerCase()) {
+                cell.classList.add('correct');
+                cell.textContent = 'Correct!';
+            } else {
+                cell.classList.add('incorrect');
+                cell.textContent = 'Incorrect! Correct answer: ' + correctAnswer;
+            }
+        }
     </script>
 </body>
 </html>
