@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-image: url('bgimg.png');
+            background-image: url('bgimg');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
@@ -44,7 +44,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 80%; /* Adjusted for better mobile view */
+            width: 80%;
             max-width: 800px;
             margin: 20px 0;
             padding: 20px;
@@ -57,11 +57,11 @@
         }
 
         .cell {
+            flex: 1; /* Uniform flex growth */
             border: none;
             padding: 15px 20px;
             text-align: center;
             font-size: 1.1em;
-            flex-grow: 1; /* Ensure cells grow evenly */
             min-height: 50px;
             background-color: #e3f2fd;
             position: relative;
@@ -76,22 +76,42 @@
 
         .invisible {
             visibility: hidden;
+            flex: 1; /* Same flex growth as genre cells */
         }
 
+        /* Tic-tac-toe lines */
+        .row:not(:last-child) .cell::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #333;
+        }
 
-        /* Responsive adjustments for mobile devices */
+        .cell:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: -10px;
+            width: 1px;
+            background-color: #333;
+        }
+
         @media (max-width: 600px) {
             .container {
-                width: 95%; /* Wider container on smaller screens */
+                width: 95%;
             }
 
             .title, .subheader {
-                font-size: 1.5em; /* Smaller font size for mobile */
+                font-size: 1.5em;
             }
 
             .cell {
-                padding: 10px 15px; /* Smaller padding for cells */
-                font-size: 0.9em; /* Smaller font size for cell text */
+                padding: 10px 15px;
+                font-size: 0.9em;
             }
         }
     </style>
