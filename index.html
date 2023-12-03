@@ -78,26 +78,6 @@
             visibility: hidden;
         }
 
-        /* Tic-tac-toe lines */
-        .row:not(:last-child) .cell::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background-color: #333;
-        }
-
-        .cell:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            right: -10px;
-            width: 1px;
-            background-color: #333;
-        }
 
         /* Responsive adjustments for mobile devices */
         @media (max-width: 600px) {
