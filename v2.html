@@ -133,33 +133,33 @@
         <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div>
     </div>
 
-    <div class="container">
+        <div class="container">
         <div class="row">
             <div class="cell invisible"></div>
-            <div class="cell artist">Taylor Swift</div>
-            <div class="cell artist">Imagine Dragons</div>
-            <div class="cell artist">Kanye</div>
+            <div class="cell artist">Adele</div>
+            <div class="cell artist">Ed Sheeran</div>
+            <div class="cell artist">Beyoncé</div>
         </div>
 
         <div class="row">
-            <div class="cell genre-header">Charted above 5 in Billboard 100</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Anti-Hero', 'Taylor Swift', 'Top 5 Hit')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Thunder', 'Imagine Dragons', 'Top 5 Hit')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Gold Digger', 'Kanye', 'Top 5 Hit')">Click to guess</div>
+            <div class="cell genre-header">Won a Grammy Award</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Rolling in the Deep', 'Someone Like You', 'Hello'], 'Adele', 'Won a Grammy Award')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Thinking Out Loud', 'Shape of You'], 'Ed Sheeran', 'Won a Grammy Award')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Single Ladies (Put a Ring on It)', 'Drunk in Love', 'Formation'], 'Beyoncé', 'Won a Grammy Award')">Click to guess</div>
         </div>
 
         <div class="row">
-            <div class="cell genre-header">Released 2008 - 2012</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Love Story', 'Taylor Swift', '2008 Release')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Radioactive', 'Imagine Dragons', '2008 Release')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Heartless', 'Kanye', '2008 Release')">Click to guess</div>
+            <div class="cell genre-header">Featured in a Movie Soundtrack</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Skyfall'], 'Adele', 'Featured in a Movie Soundtrack')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['I See Fire', 'All of the Stars'], 'Ed Sheeran', 'Featured in a Movie Soundtrack')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Spirit', 'Crazy in Love'], 'Beyoncé', 'Featured in a Movie Soundtrack')">Click to guess</div>
         </div>
 
         <div class="row">
-            <div class="cell genre-header">Feat. Kendrick Lamar</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Bad Blood', 'Taylor Swift', 'Feat. Kendrick')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Radioactive', 'Imagine Dragons', 'Feat. Kendrick')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'No More Parties in LA', 'Kanye', 'Feat. Kendrick')">Click to guess</div>
+            <div class="cell genre-header">Has a Song with a Title Referring to a City</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Hometown Glory'], 'Adele', 'Has a Song with a Title Referring to a City')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Galway Girl', 'Barcelona'], 'Ed Sheeran', 'Has a Song with a Title Referring to a City')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Check On It', 'Mi Gente'], 'Beyoncé', 'Has a Song with a Title Referring to a City')">Click to guess</div>
         </div>
     </div>
 
@@ -197,23 +197,26 @@
             }
         }
 
-        function guessSong(cell, correctAnswer, artist, genre) {
-            const promptMessage = `Guess the song by ${artist} in the genre '${genre}'.\nType your guess or cancel to skip:`;
-            const userGuess = prompt(promptMessage);
-    
-            if (userGuess === null) {
-                // User cancelled the guess
-                return;
-            }
-    
-            if (userGuess.toLowerCase() === correctAnswer.toLowerCase()) {
-                cell.classList.add('correct');
-                cell.textContent = 'Correct!';
-            } else {
-                cell.classList.add('incorrect');
-                cell.textContent = `Incorrect! Correct answer: ${correctAnswer}`;
-            }
+        function guessSong(cell, correctAnswers, artist, genre) {
+        const promptMessage = `Guess the song by ${artist} in the genre '${genre}'.\nType your guess or cancel to skip:`;
+        const userGuess = prompt(promptMessage).trim().toLowerCase();
+
+        if (userGuess === null) {
+            // User cancelled the guess
+            return;
         }
+
+        // Check if the guess matches any of the correct answers
+        const isCorrect = correctAnswers.map(answer => answer.toLowerCase()).includes(userGuess);
+
+        if (isCorrect) {
+            cell.classList.add('correct');
+            cell.textContent = 'Correct!';
+        } else {
+            cell.classList.add('incorrect');
+            cell.textContent = `Incorrect! Possible answers: ${correctAnswers.join(', ')}`;
+        }
+    }
     </script>
 </body>
 </html>
