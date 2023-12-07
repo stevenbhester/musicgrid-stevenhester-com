@@ -11,7 +11,7 @@
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
-            margin: 0;
+            margin: auto;
             padding: 0;
             color: #333;
             display: flex;
@@ -27,14 +27,6 @@
             border-radius: 5px;
             margin-bottom: 20px;
             text-align: center;
-        }
-        .header2 {
-            background-color: rgba(255, 180, 255, 0.8);
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 0.9em;
         }
 
         .title {
@@ -54,7 +46,7 @@
             justify-content: center;
             width: 80%;
             max-width: 800px;
-            margin: 20px 0;
+            margin: 20px auto; /* Updated margin to 'auto' to horizontally center the container */
             padding: 20px;
         }
 
@@ -140,37 +132,41 @@
         <div class="subheader">Guess the song that matches each artist and category</div>
         <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div>
     </div>
-     <div class="header2">
-        <div class="subheader"></i>(only one answer works for each category rn even though several have multiple possible answers)</i></div>
+    <div class="header">
+        <div class="subheader"><i>no guarantees on accuracy, ChatGPT made this grid</i></div>
     </div>
 
-    <div class="container">
+         <div class="container">
+        <!-- Artists Row -->
         <div class="row">
             <div class="cell invisible"></div>
-            <div class="cell artist">Taylor Swift</div>
-            <div class="cell artist">Imagine Dragons</div>
-            <div class="cell artist">Kanye</div>
+            <div class="cell artist">Lady Gaga</div>
+            <div class="cell artist">Maroon 5</div>
+            <div class="cell artist">Katy Perry</div>
         </div>
 
+        <!-- Category 1: Song Title Includes a Color -->
         <div class="row">
-            <div class="cell genre-header">Charted above 5 in Billboard 100</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Anti-Hero', 'Taylor Swift', 'Top 5 Hit')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Thunder', 'Imagine Dragons', 'Top 5 Hit')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Gold Digger', 'Kanye', 'Top 5 Hit')">Click to guess</div>
+            <div class="cell genre-header">Song Title Includes a Color</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Brown Eyes', 'Black Jesus'], 'Lady Gaga', 'Song Title Includes a Color')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Red Pill Blues'], 'Maroon 5', 'Song Title Includes a Color')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Black and Gold'], 'Katy Perry', 'Song Title Includes a Color')">Click to guess</div>
         </div>
 
+        <!-- Category 2: Reached No.1 on the US Billboard Hot 100 -->
         <div class="row">
-            <div class="cell genre-header">Released 2008 - 2012</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Love Story', 'Taylor Swift', '2008 Release')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Radioactive', 'Imagine Dragons', '2008 Release')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Heartless', 'Kanye', '2008 Release')">Click to guess</div>
+            <div class="cell genre-header">Reached No.1 on the US Billboard Hot 100</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Shallow', 'Born This Way', 'Poker Face', 'Just Dance'], 'Lady Gaga', 'Reached No.1 on the US Billboard Hot 100')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Girls Like You', 'Moves Like Jagger', 'One More Night', 'Makes Me Wonder'], 'Maroon 5', 'Reached No.1 on the US Billboard Hot 100')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Firework', 'Teenage Dream', 'E.T.', 'ET', 'E.T', 'Dark Horse', 'Roar'], 'Katy Perry', 'Reached No.1 on the US Billboard Hot 100')">Click to guess</div>
         </div>
 
+        <!-- Category 3: Features Another Artist -->
         <div class="row">
-            <div class="cell genre-header">Feat. Kendrick Lamar</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Bad Blood', 'Taylor Swift', 'Feat. Kendrick')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Radioactive', 'Imagine Dragons', 'Feat. Kendrick')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'No More Parties in LA', 'Kanye', 'Feat. Kendrick')">Click to guess</div>
+            <div class="cell genre-header">Features Another Artist</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Rain on Me', 'Shallow'], 'Lady Gaga', 'Features Another Artist')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Girls Like You', 'Moves Like Jagger', 'Payphone'], 'Maroon 5', 'Features Another Artist')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, ['Dark Horse', 'E.T.', 'ET', 'E.T', 'California Gurls'], 'Katy Perry', 'Features Another Artist')">Click to guess</div>
         </div>
     </div>
 
@@ -208,23 +204,26 @@
             }
         }
 
-        function guessSong(cell, correctAnswer, artist, genre) {
-            const promptMessage = `Guess the song by ${artist} in the category '${genre}'.\nType your guess or cancel to skip:`;
-            const userGuess = prompt(promptMessage);
-    
-            if (userGuess === null) {
-                // User cancelled the guess
-                return;
-            }
-    
-            if (userGuess.toLowerCase() === correctAnswer.toLowerCase()) {
-                cell.classList.add('correct');
-                cell.textContent = 'Correct!';
-            } else {
-                cell.classList.add('incorrect');
-                cell.textContent = `Incorrect! Correct answer: ${correctAnswer}`;
-            }
+        function guessSong(cell, correctAnswers, artist, genre) {
+        const promptMessage = `Guess the song by ${artist} in the genre '${genre}'.\nType your guess or cancel to skip:`;
+        const userGuess = prompt(promptMessage).trim().toLowerCase();
+
+        if (userGuess === null) {
+            // User cancelled the guess
+            return;
         }
+
+        // Check if the guess matches any of the correct answers
+        const isCorrect = correctAnswers.map(answer => answer.toLowerCase()).includes(userGuess);
+
+        if (isCorrect) {
+            cell.classList.add('correct');
+            cell.textContent = 'Correct!';
+        } else {
+            cell.classList.add('incorrect');
+            cell.textContent = `Incorrect! Possible answers: ${correctAnswers.join(', ')}`;
+        }
+    }
     </script>
 </body>
 </html>
