@@ -137,89 +137,76 @@
     </div>
 
         <div class="container">
+        <!-- Artists Row -->
         <div class="row">
             <div class="cell invisible"></div>
-            <div class="cell artist">Adele</div>
-            <div class="cell artist">Ed Sheeran</div>
-            <div class="cell artist">Beyoncé</div>
+            <div class="cell artist">Nirvana</div>
+            <div class="cell artist">Whitney Houston</div>
+            <div class="cell artist">Backstreet Boys</div>
         </div>
 
+        <!-- Category 1: Songs from Debut Albums -->
         <div class="row">
-            <div class="cell genre-header">Won a Grammy Award</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Rolling in the Deep', 'Someone Like You', 'Hello'], 'Adele', 'Won a Grammy Award')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Thinking Out Loud', 'Shape of You'], 'Ed Sheeran', 'Won a Grammy Award')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Single Ladies (Put a Ring on It)', 'Drunk in Love', 'Formation'], 'Beyoncé', 'Won a Grammy Award')">Click to guess</div>
+            <div class="cell genre-header">Songs from Debut Albums</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Nirvana', 'Songs from Debut Albums')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Whitney Houston', 'Songs from Debut Albums')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Backstreet Boys', 'Songs from Debut Albums')">Click to guess</div>
         </div>
 
+        <!-- Category 2: Songs Nominated for Grammy Awards -->
         <div class="row">
-            <div class="cell genre-header">Featured in a Movie Soundtrack</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Skyfall'], 'Adele', 'Featured in a Movie Soundtrack')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['I See Fire', 'All of the Stars'], 'Ed Sheeran', 'Featured in a Movie Soundtrack')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Spirit', 'Crazy in Love'], 'Beyoncé', 'Featured in a Movie Soundtrack')">Click to guess</div>
+            <div class="cell genre-header">Songs Nominated for Grammy Awards</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Nirvana', 'Songs Nominated for Grammy Awards')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Whitney Houston', 'Songs Nominated for Grammy Awards')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Backstreet Boys', 'Songs Nominated for Grammy Awards')">Click to guess</div>
         </div>
 
+        <!-- Category 3: Songs That Topped Billboard's Mainstream Top 40 Chart -->
         <div class="row">
-            <div class="cell genre-header">Has a number in the name</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Million Years Ago', 'One and Only'], 'Adele', 'Has a Song with a Title Referring to a City')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['One'], 'Ed Sheeran', 'Has a Song with a Title Referring to a City')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['1+1', '6 Inch'], 'Beyoncé', 'Has a number in the name')">Click to guess</div>
+            <div class="cell genre-header">Songs That Topped Billboard's Mainstream Top 40 Chart</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Nirvana', 'Songs That Topped Billboard\'s Mainstream Top 40 Chart')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Whitney Houston', 'Songs That Topped Billboard\'s Mainstream Top 40 Chart')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Backstreet Boys', 'Songs That Topped Billboard\'s Mainstream Top 40 Chart')">Click to guess</div>
         </div>
     </div>
 
     <script>
-        async function searchSpotify() {
-            const guess = document.getElementById('guessInput').value;
-            const resultsContainer = document.getElementById('searchResults');
-            
-            // Call the function to search Spotify API
-            const results = await searchSongs(guess);
-            
-            // Display the results
-            resultsContainer.innerHTML = results.map(song => 
-                `<div>${song.name} by ${song.artists.join(', ')}</div>`
-            ).join('');
-        }
+        async function guessSong(cell, artist, category) {
+            const userGuess = prompt(`Guess a song by ${artist} in the category '${category}'.`);
+            if (!userGuess) return;
 
-        async function searchSongs(query) {
-            // Placeholder function for Spotify API call
-            // Replace this with an actual API request to your server
-            return [
-                { name: 'Song Name 1', artists: ['Artist 1', 'Artist 2'] },
-                { name: 'Song Name 2', artists: ['Artist 3'] }
-                // ... more results ...
-            ];
-        }
-
-        function toggleVisibility(cell) {
-            if (cell.classList.contains('hidden')) {
-                cell.textContent = cell.getAttribute('data-answer');
-                cell.classList.remove('hidden');
-            } else {
-                cell.textContent = 'Click to reveal';
-                cell.classList.add('hidden');
+            try {
+                const results = await searchSpotify(userGuess);
+                displaySpotifyResults(results, cell);
+            } catch (error) {
+                console.error('Error fetching Spotify data:', error);
             }
         }
 
-        function guessSong(cell, correctAnswers, artist, genre) {
-        const promptMessage = `Guess the song by ${artist} in the genre '${genre}'.\nType your guess or cancel to skip:`;
-        const userGuess = prompt(promptMessage).trim().toLowerCase();
-
-        if (userGuess === null) {
-            // User cancelled the guess
-            return;
+        async function searchSpotify(searchTerm) {
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ searchTerm })
+            });
+            if (!response.ok) throw new Error('Failed to fetch');
+            return response.json();
         }
 
-        // Check if the guess matches any of the correct answers
-        const isCorrect = correctAnswers.map(answer => answer.toLowerCase()).includes(userGuess);
-
-        if (isCorrect) {
-            cell.classList.add('correct');
-            cell.textContent = 'Correct!';
-        } else {
-            cell.classList.add('incorrect');
-            cell.textContent = `Incorrect! Possible answers: ${correctAnswers.join(', ')}`;
+        function displaySpotifyResults(songs, cell) {
+            const resultsContainer = document.getElementById('spotifyResults');
+            resultsContainer.innerHTML = songs.map(song => {
+                const songInfo = `${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`;
+                return `<div onclick="selectSong('${songInfo}', cell)">${songInfo}</div>`;
+            }).join('');
         }
-    }
+
+        function selectSong(songInfo, cell) {
+            // Here you can handle the user's selection, e.g., displaying the chosen song in the cell
+            cell.textContent = songInfo; // Example: update cell text with the chosen song
+            // You might want to add additional logic based on the game's rules
+        }
+    </script>
     </script>
 </body>
 </html>
