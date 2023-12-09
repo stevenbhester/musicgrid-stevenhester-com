@@ -132,130 +132,88 @@
         <div class="subheader">Guess the song that matches each artist and category</div>
         <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div>
     </div>
-    <div class="header">
-        <div class="subheader"><i>no guarantees on accuracy, ChatGPT made this grid</i></div>
-    </div>
 
-       <div class="container">
-        <!-- Artists Row -->
+    <div class="container">
         <div class="row">
             <div class="cell invisible"></div>
-            <div class="cell artist">Nirvana</div>
-            <div class="cell artist">Whitney Houston</div>
-            <div class="cell artist">Backstreet Boys</div>
+            <div class="cell artist">Taylor Swift</div>
+            <div class="cell artist">Imagine Dragons</div>
+            <div class="cell artist">Kanye</div>
         </div>
 
-        <!-- Category Rows with Input Fields for Live Search -->
-        <!-- Category 1 -->
         <div class="row">
-            <div class="cell genre-header">Songs from Debut Albums</div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
+            <div class="cell genre-header">Charted above 5 in Billboard 100</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Anti-Hero', 'Taylor Swift', 'Top 5 Hit')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Thunder', 'Imagine Dragons', 'Top 5 Hit')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Gold Digger', 'Kanye', 'Top 5 Hit')">Click to guess</div>
         </div>
 
-        <!-- Category 2 -->
         <div class="row">
-            <div class="cell genre-header">Songs Nominated for Grammy Awards</div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
+            <div class="cell genre-header">Released 2008 - 2012</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Love Story', 'Taylor Swift', '2008 Release')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Radioactive', 'Imagine Dragons', '2008 Release')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Heartless', 'Kanye', '2008 Release')">Click to guess</div>
         </div>
 
-        <!-- Category 3 -->
         <div class="row">
-            <div class="cell genre-header">Songs That Topped Billboard's Mainstream Top 40 Chart</div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
+            <div class="cell genre-header">Feat. Kendrick Lamar</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Bad Blood', 'Taylor Swift', 'Feat. Kendrick')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'Radioactive', 'Imagine Dragons', 'Feat. Kendrick')">Click to guess</div>
+            <div class="cell song-cell" onclick="guessSong(this, 'No More Parties in LA', 'Kanye', 'Feat. Kendrick')">Click to guess</div>
         </div>
     </div>
 
-    <!-- Div for Displaying Live Search Results -->
-    <div id="liveSearchResults" style="margin-top: 20px;"></div>
-    
-    <div id="spotifyResults" style="margin-top: 20px;"></div>
-
     <script>
-        async function guessSong(cell, artist, category) {
-            const userGuess = prompt(`Guess a song by ${artist} in the category '${category}'.`);
-            if (!userGuess) return;
-
-            try {
-                const results = await searchSpotify(userGuess);
-                displaySpotifyResults(results, cell);
-            } catch (error) {
-                console.error('Error fetching Spotify data:', error);
-            }
+        async function searchSpotify() {
+            const guess = document.getElementById('guessInput').value;
+            const resultsContainer = document.getElementById('searchResults');
+            
+            // Call the function to search Spotify API
+            const results = await searchSongs(guess);
+            
+            // Display the results
+            resultsContainer.innerHTML = results.map(song => 
+                `<div>${song.name} by ${song.artists.join(', ')}</div>`
+            ).join('');
         }
 
-        async function searchSpotify(searchTerm) {
-            const response = await fetch('/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ searchTerm })
-            });
-            if (!response.ok) throw new Error('Failed to fetch');
-            return response.json();
+        async function searchSongs(query) {
+            // Placeholder function for Spotify API call
+            // Replace this with an actual API request to your server
+            return [
+                { name: 'Song Name 1', artists: ['Artist 1', 'Artist 2'] },
+                { name: 'Song Name 2', artists: ['Artist 3'] }
+                // ... more results ...
+            ];
         }
 
-        function displaySpotifyResults(songs, cell) {
-            const resultsContainer = document.getElementById('spotifyResults');
-            resultsContainer.innerHTML = songs.map(song => {
-                const songInfo = `${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`;
-                return `<div onclick="selectSong('${songInfo}', cell)">${songInfo}</div>`;
-            }).join('');
-        }
-
-        function selectSong(songInfo, cell) {
-            // Here you can handle the user's selection, e.g., displaying the chosen song in the cell
-            cell.textContent = songInfo; // Example: update cell text with the chosen song
-            // You might want to add additional logic based on the game's rules
-        }
-        function liveSearch(inputElement) {
-            if (inputElement.value.length > 2) { // Minimum number of characters for search
-                searchSpotify(inputElement.value).then(displaySpotifyResults);
+        function toggleVisibility(cell) {
+            if (cell.classList.contains('hidden')) {
+                cell.textContent = cell.getAttribute('data-answer');
+                cell.classList.remove('hidden');
             } else {
-                document.getElementById('liveSearchResults').innerHTML = '';
+                cell.textContent = 'Click to reveal';
+                cell.classList.add('hidden');
             }
         }
 
-        async function searchSpotify(searchTerm) {
-            const response = await fetch('/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ searchTerm })
-            });
-            if (!response.ok) throw new Error('Failed to fetch');
-            return response.json();
+        function guessSong(cell, correctAnswer, artist, genre) {
+            const promptMessage = `Guess the song by ${artist} in the genre '${genre}'.\nType your guess or cancel to skip:`;
+            const userGuess = prompt(promptMessage);
+    
+            if (userGuess === null) {
+                // User cancelled the guess
+                return;
+            }
+    
+            if (userGuess.toLowerCase() === correctAnswer.toLowerCase()) {
+                cell.classList.add('correct');
+                cell.textContent = 'Correct!';
+            } else {
+                cell.classList.add('incorrect');
+                cell.textContent = `Incorrect! Correct answer: ${correctAnswer}`;
+            }
         }
-
-        function displaySpotifyResults(songs) {
-            const resultsContainer = document.getElementById('liveSearchResults');
-            resultsContainer.innerHTML = songs.map(song => {
-                const songInfo = `${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`;
-                return `<div>${songInfo}</div>`; // You can add onclick handlers here for selection
-            }).join('');
-        }
-    </script>
     </script>
 </body>
 </html>
