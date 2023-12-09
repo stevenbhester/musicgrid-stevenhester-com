@@ -115,59 +115,56 @@
             <div class="cell artist">Whitney Houston</div>
             <div class="cell artist">Backstreet Boys</div>
         </div>
-
+    
         <!-- Category 1: Songs from Debut Albums -->
         <div class="row">
             <div class="cell genre-header">Songs from Debut Albums</div>
-            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
-            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
-            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['About a Girl', 'Love Buzz'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['You Give Good Love', 'Saving All My Love for You'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['We\'ve Got It Goin\' On', 'I\'ll Never Break Your Heart'])" placeholder="Type to search...">
+            </div>
         </div>
-
+    
         <!-- Category 2: Songs Nominated for Grammy Awards -->
         <div class="row">
             <div class="cell genre-header">Songs Nominated for Grammy Awards</div>
-            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
-            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
-            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Smells Like Teen Spirit', 'Heart-Shaped Box'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['I Will Always Love You', 'Saving All My Love for You', 'I Wanna Dance with Somebody'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['I Want It That Way', 'Shape of My Heart'])" placeholder="Type to search...">
+            </div>
         </div>
-
+    
         <!-- Category 3: Songs That Topped Billboard's Mainstream Top 40 Chart -->
         <div class="row">
             <div class="cell genre-header">Songs That Topped Billboard's Mainstream Top 40 Chart</div>
-            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
-            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
-            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Come As You Are'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['I Will Always Love You', 'Exhale (Shoop Shoop)', 'Heartbreak Hotel'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['I Want It That Way', 'Everybody (Backstreet\'s Back)', 'As Long as You Love Me'])" placeholder="Type to search...">
+            </div>
         </div>
     </div>
 
     <script>
-        const answers = {
-            'NirvanaSongs from Debut Albums': ["About a Girl", "Love Buzz"],
-            'NirvanaSongs Nominated for Grammy Awards': ["Smells Like Teen Spirit", "Heart-Shaped Box"],
-            'NirvanaSongs That Topped Billboard\'s Mainstream Top 40 Chart': ["Come As You Are"],
-            'Whitney HoustonSongs from Debut Albums': ["You Give Good Love", "Saving All My Love for You"],
-            'Whitney HoustonSongs Nominated for Grammy Awards': ["I Will Always Love You", "Saving All My Love for You", "I Wanna Dance with Somebody"],
-            'Whitney HoustonSongs That Topped Billboard\'s Mainstream Top 40 Chart': ["I Will Always Love You", "Exhale (Shoop Shoop)", "Heartbreak Hotel"],
-            'Backstreet BoysSongs from Debut Albums': ["We've Got It Goin' On", "I'll Never Break Your Heart"],
-            'Backstreet BoysSongs Nominated for Grammy Awards': ["I Want It That Way", "Shape of My Heart"],
-            'Backstreet BoysSongs That Topped Billboard\'s Mainstream Top 40 Chart': ["I Want It That Way", "Everybody (Backstreet's Back)", "As Long as You Love Me"]
-        };
 
-        function getPredefinedAnswerForCell(inputElement) {
-            // Navigate up to the container of the entire row, then find the artist and genre header
-            const row = inputElement.closest('.row');
-            const artist = row.querySelector('.artist')?.textContent.trim();
-            const genreHeaderRow = row.previousElementSibling; // Assuming the genre header is in the previous row
-            const category = genreHeaderRow.querySelector('.genre-header')?.textContent.trim();
-        
-            return answers[artist + category] || [];
-        }
-
-        function liveSearch(inputElement) {
+        function liveSearch(inputElement, answers) {
             if (inputElement.value.length > 2) {
                 searchSpotify(inputElement.value)
-                    .then(songs => displaySpotifyResults(songs, inputElement))
+                    .then(songs => displaySpotifyResults(songs, inputElement, answers))
                     .catch(error => console.error('Error fetching Spotify data:', error));
             } else {
                 removeDropdown(inputElement);
@@ -184,32 +181,32 @@
             return response.json();
         }
 
-        function displaySpotifyResults(songs, inputElement) {
+        function displaySpotifyResults(songs, inputElement, answers) {
             const resultsContainer = document.createElement('div');
             resultsContainer.className = 'results-dropdown';
-
+            // ... rest of the function ...
+        
             songs.forEach(song => {
                 const songInfo = `${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`;
                 const songElement = document.createElement('div');
                 songElement.textContent = songInfo;
-                songElement.onclick = () => selectSong(songInfo, inputElement);
+                songElement.onclick = () => selectSong(songInfo, inputElement, answers);
                 resultsContainer.appendChild(songElement);
             });
-
-            removeDropdown(inputElement); // Remove existing dropdown if present
+        
+            removeDropdown(inputElement);
             inputElement.parentNode.appendChild(resultsContainer);
         }
 
-        function selectSong(songInfo, inputElement) {
-            const predefinedAnswers = getPredefinedAnswerForCell(inputElement);
-            if (predefinedAnswers.includes(songInfo)) {
+        function selectSong(songInfo, inputElement, answers) {
+            if (answers.includes(songInfo)) {
                 alert("Correct! The song matches the answer.");
             } else {
-                alert("Incorrect! The correct answer was: " + predefinedAnswers.join(', '));
+                alert("Incorrect! The correct answer was: " + answers.join(', '));
             }
-
+        
             removeDropdown(inputElement);
-            inputElement.value = songInfo; // Optionally set the selected song as the input value
+            inputElement.value = songInfo; // Set the selected song as the input value
         }
 
         function removeDropdown(inputElement) {
