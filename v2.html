@@ -136,7 +136,7 @@
         <div class="subheader"><i>no guarantees on accuracy, ChatGPT made this grid</i></div>
     </div>
 
-        <div class="container">
+       <div class="container">
         <!-- Artists Row -->
         <div class="row">
             <div class="cell invisible"></div>
@@ -145,30 +145,52 @@
             <div class="cell artist">Backstreet Boys</div>
         </div>
 
-        <!-- Category 1: Songs from Debut Albums -->
+        <!-- Category Rows with Input Fields for Live Search -->
+        <!-- Category 1 -->
         <div class="row">
             <div class="cell genre-header">Songs from Debut Albums</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Nirvana', 'Songs from Debut Albums')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Whitney Houston', 'Songs from Debut Albums')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Backstreet Boys', 'Songs from Debut Albums')">Click to guess</div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
+            </div>
         </div>
 
-        <!-- Category 2: Songs Nominated for Grammy Awards -->
+        <!-- Category 2 -->
         <div class="row">
             <div class="cell genre-header">Songs Nominated for Grammy Awards</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Nirvana', 'Songs Nominated for Grammy Awards')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Whitney Houston', 'Songs Nominated for Grammy Awards')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Backstreet Boys', 'Songs Nominated for Grammy Awards')">Click to guess</div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
+            </div>
         </div>
 
-        <!-- Category 3: Songs That Topped Billboard's Mainstream Top 40 Chart -->
+        <!-- Category 3 -->
         <div class="row">
             <div class="cell genre-header">Songs That Topped Billboard's Mainstream Top 40 Chart</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Nirvana', 'Songs That Topped Billboard\'s Mainstream Top 40 Chart')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Whitney Houston', 'Songs That Topped Billboard\'s Mainstream Top 40 Chart')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, 'Backstreet Boys', 'Songs That Topped Billboard\'s Mainstream Top 40 Chart')">Click to guess</div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
+            </div>
         </div>
     </div>
+
+    <!-- Div for Displaying Live Search Results -->
+    <div id="liveSearchResults" style="margin-top: 20px;"></div>
     
     <div id="spotifyResults" style="margin-top: 20px;"></div>
 
@@ -207,6 +229,31 @@
             // Here you can handle the user's selection, e.g., displaying the chosen song in the cell
             cell.textContent = songInfo; // Example: update cell text with the chosen song
             // You might want to add additional logic based on the game's rules
+        }
+        function liveSearch(inputElement) {
+            if (inputElement.value.length > 2) { // Minimum number of characters for search
+                searchSpotify(inputElement.value).then(displaySpotifyResults);
+            } else {
+                document.getElementById('liveSearchResults').innerHTML = '';
+            }
+        }
+
+        async function searchSpotify(searchTerm) {
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ searchTerm })
+            });
+            if (!response.ok) throw new Error('Failed to fetch');
+            return response.json();
+        }
+
+        function displaySpotifyResults(songs) {
+            const resultsContainer = document.getElementById('liveSearchResults');
+            resultsContainer.innerHTML = songs.map(song => {
+                const songInfo = `${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`;
+                return `<div>${songInfo}</div>`; // You can add onclick handlers here for selection
+            }).join('');
         }
     </script>
     </script>
