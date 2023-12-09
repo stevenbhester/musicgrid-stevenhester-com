@@ -199,15 +199,27 @@
             inputElement.parentNode.appendChild(resultsContainer);
         }
 
+        // Add a utility function for basic similarity check
+        function isSimilar(guess, correctAnswers) {
+            return correctAnswers.some(answer => guess.toLowerCase().includes(answer.toLowerCase()));
+        }
+        
         function selectSong(songInfo, inputElement, answers) {
-            if (answers.includes(songInfo)) {
-                alert("Correct! The song matches the answer.");
+            const cell = inputElement.closest('.cell');
+            const isCorrect = isSimilar(songInfo, answers);
+        
+            if (isCorrect) {
+                cell.style.backgroundColor = '#c8e6c9'; // Green for correct
+                cell.textContent = 'Correct: ' + songInfo;
             } else {
-                alert("Incorrect! The correct answer was: " + answers.join(', '));
+                cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
+                cell.textContent = 'Incorrect! Possible answers: ' + answers.join(', ');
             }
         
             removeDropdown(inputElement);
-            inputElement.value = songInfo; // Set the selected song as the input value
+        
+            // Disable the input field to prevent further guesses
+            inputElement.disabled = true;
         }
 
         function removeDropdown(inputElement) {
