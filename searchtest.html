@@ -109,7 +109,14 @@
             width: 1px;
             background-color: #333;
         }
-
+        .results-dropdown {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            max-height: 200px;
+            overflow-y: auto; /* Enable scrolling for long lists */
+        }
+        .results-dropdown div:hover {
+            background-color: #f0f0f0;
+        }
         @media (max-width: 600px) {
             .container {
                 width: 95%;
@@ -237,13 +244,52 @@
             }
         }
 
-        function displaySpotifyResults(songs) {
-            console.log("Displaying songs:", songs); // Log the songs to be displayed
-            const resultsContainer = document.getElementById('liveSearchResults');
-            resultsContainer.innerHTML = songs.map(song => {
+        function displaySpotifyResults(songs, inputElement) {
+            const resultsContainer = document.createElement('div');
+            resultsContainer.className = 'results-dropdown';
+            resultsContainer.style.position = 'absolute';
+            resultsContainer.style.backgroundColor = '#fff';
+            resultsContainer.style.border = '1px solid #ddd';
+            resultsContainer.style.borderRadius = '5px';
+            resultsContainer.style.padding = '10px';
+            resultsContainer.style.marginTop = '5px';
+            resultsContainer.style.width = inputElement.offsetWidth + 'px'; // Match the width of the input field
+            resultsContainer.style.zIndex = 10; // Ensure dropdown is above other elements
+        
+            songs.forEach(song => {
                 const songInfo = `${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`;
-                return `<div>${songInfo}</div>`;
-            }).join('');
+                const songElement = document.createElement('div');
+                songElement.textContent = songInfo;
+                songElement.style.padding = '5px';
+                songElement.style.cursor = 'pointer';
+                songElement.onclick = () => selectSong(songInfo, inputElement);
+                resultsContainer.appendChild(songElement);
+            });
+        
+            // Remove any existing results container before appending a new one
+            const existingContainer = inputElement.parentNode.querySelector('.results-dropdown');
+            if (existingContainer) {
+                inputElement.parentNode.removeChild(existingContainer);
+            }
+        
+            inputElement.parentNode.appendChild(resultsContainer);
+        }
+
+        function selectSong(songInfo, inputElement) {
+            // Assuming you have a way to get the predefined answer for each cell
+            const predefinedAnswer = getPredefinedAnswerForCell(inputElement); // Implement this function based on your application logic
+        
+            if (songInfo === predefinedAnswer) {
+                alert("Correct! The song matches the answer.");
+            } else {
+                alert("Incorrect! The correct answer was: " + predefinedAnswer);
+            }
+        
+            // Hide the results dropdown
+            const resultsContainer = inputElement.parentNode.querySelector('.results-dropdown');
+            if (resultsContainer) {
+                inputElement.parentNode.removeChild(resultsContainer);
+            }
         }
     </script>
     </script>
