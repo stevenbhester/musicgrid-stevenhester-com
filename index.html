@@ -3,17 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>We weren't lying, it's here</title>
+    <title>Music Grid Game</title>
     <link rel="icon" type="image/x-icon" href="favicon.png">
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-image: url('bgimg.png');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            margin: auto;
-            padding: 0;
             color: #333;
             display: flex;
             justify-content: center;
@@ -47,83 +42,59 @@
             justify-content: center;
             width: 80%;
             max-width: 800px;
-            margin: 20px auto; /* Updated margin to 'auto' to horizontally center the container */
+            margin: 20px auto;
             padding: 20px;
         }
 
         .row {
-        display: flex;
-        width: 100%;
-        position: relative;
+            display: flex;
+            width: 100%;
+            position: relative;
         }
 
         .cell {
-            flex: 0 0 25%; /* Each cell takes up 25% width of the row */
+            flex: 1;
             padding: 15px 20px;
             text-align: center;
             font-size: 1.1em;
-            min-height: 50px; /* Minimum height for cells */
+            min-height: 50px;
             background-color: #e3f2fd;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            word-break: break-word; /* Ensures text breaks to prevent widening */
+            word-break: break-word;
         }
-    
+
         .genre-header, .artist {
             background-color: #bbdefb;
         }
-    
+
         .invisible {
             visibility: hidden;
         }
-    
-        .song-cell {
-            cursor: pointer;
-        }
 
-        .correct {
-            background-color: #c8e6c9; /* Green background for correct answers */
-        }
-        .incorrect {
-            background-color: #ffcdd2; /* Red background for incorrect answers */
-        }
-
-        /* Tic-tac-toe lines */
-        .row:not(:last-child) .cell::after {
-            content: '';
+        .results-dropdown {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
             position: absolute;
-            bottom: -10px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background-color: #333;
+            width: 100%;
+            z-index: 1000;
         }
 
-        .cell:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            right: -10px;
-            width: 1px;
-            background-color: #333;
+        .results-dropdown div:hover {
+            background-color: #f0f0f0;
         }
 
-        @media (max-width: 600px) {
-            .container {
-                width: 95%;
-            }
-
-            .title, .subheader {
-                font-size: 1.5em;
-            }
-
-            .cell {
-                padding: 10px 15px;
-                font-size: 0.9em;
-            }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -135,99 +106,132 @@
     </div>
     <div class="header">
         <div class="subheader"><i>no guarantees on accuracy, ChatGPT made this grid</i></div>
-        <div class="subheader">click a theme below for our special <i>themed music grids</i></div>
-        <div class="subheader"><a href="/90s">90s Throwbacks</a></div>
-        <div class="subheader"><a href="/v2">Yesterday's grid</a></div>\
     </div>
 
-         <div class="container">
+    
+
+    <div class="container">
         <!-- Artists Row -->
         <div class="row">
             <div class="cell invisible"></div>
-            <div class="cell artist">Lady Gaga</div>
-            <div class="cell artist">Maroon 5</div>
-            <div class="cell artist">Katy Perry</div>
+            <div class="cell artist">Adele</div>
+            <div class="cell artist">Bruno Mars</div>
+            <div class="cell artist">Taylor Swift</div>
         </div>
-
-        <!-- Category 1: Song Title Includes a Color -->
+    
+        <!-- Category 1: Songs From Debut Albums -->
         <div class="row">
-            <div class="cell genre-header">Song Title Includes a Color</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Brown Eyes', 'Black Jesus'], 'Lady Gaga', 'Song Title Includes a Color')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Red Pill Blues'], 'Maroon 5', 'Song Title Includes a Color')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Black and Gold'], 'Katy Perry', 'Song Title Includes a Color')">Click to guess</div>
+            <div class="cell genre-header">Songs From Debut Albums</div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Chasing Pavements', 'Hometown Glory', 'Cold Shoulder', 'Daydreamer', 'Best for Last', 'Crazy for You', 'Melt My Heart to Stone', 'First Love', 'Right as Rain', 'Make You Feel My Love', 'My Same', 'Tired'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Just the Way You Are', 'Grenade', 'The Lazy Song', 'Marry You', 'Talking to the Moon', 'Liquor Store Blues', 'Count On Me', 'The Other Side'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Picture to Burn', 'Teardrops on My Guitar', 'A Place in This World', 'Cold as You', 'The Outside', 'Tied Together with a Smile', 'Stay Beautiful', 'Should’ve Said No', 'Mary’s Song', 'Our Song', 'I’m Only Me When I’m with You', 'Invisible', 'A Perfectly Good Heart'])" placeholder="Type to search...">
+            </div>
         </div>
-
-        <!-- Category 2: Reached No.1 on the US Billboard Hot 100 -->
+    
+    
+        <!-- Category 2: Songs That Won Grammy Awards -->
         <div class="row">
-            <div class="cell genre-header">Reached No.1 on the US Billboard Hot 100</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Shallow', 'Born This Way', 'Poker Face', 'Just Dance'], 'Lady Gaga', 'Reached No.1 on the US Billboard Hot 100')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Girls Like You', 'Moves Like Jagger', 'One More Night', 'Makes Me Wonder'], 'Maroon 5', 'Reached No.1 on the US Billboard Hot 100')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Firework', 'Teenage Dream', 'E.T.', 'ET', 'E.T', 'Dark Horse', 'Roar'], 'Katy Perry', 'Reached No.1 on the US Billboard Hot 100')">Click to guess</div>
+            <div class="cell genre-header">Songs That Won Grammy Awards</div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Rolling in the Deep', 'Someone Like You', 'Set Fire to the Rain', 'Skyfall', 'Hello', 'Water Under the Bridge', 'When We Were Young'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Just the Way You Are', 'Grenade', 'Locked Out of Heaven', 'When I Was Your Man', 'Uptown Funk', '24K Magic', 'That’s What I Like', 'Please Me'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['White Horse', 'Mean', 'Safe & Sound', 'We Are Never Ever Getting Back Together', 'Shake It Off', 'Blank Space', 'Bad Blood', 'Lover', 'Exile', 'Cardigan', 'August', 'Willow'])" placeholder="Type to search...">
+            </div>
         </div>
-
-        <!-- Category 3: Features Another Artist -->
+    
+    
+        <!-- Category 3: Songs Released in the 2010s -->
         <div class="row">
-            <div class="cell genre-header">Features Another Artist</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Rain on Me', 'Shallow'], 'Lady Gaga', 'Features Another Artist')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Girls Like You', 'Moves Like Jagger', 'Payphone'], 'Maroon 5', 'Features Another Artist')">Click to guess</div>
-            <div class="cell song-cell" onclick="guessSong(this, ['Dark Horse', 'E.T.', 'ET', 'E.T', 'California Gurls'], 'Katy Perry', 'Features Another Artist')">Click to guess</div>
+            <div class="cell genre-header">Songs Released in the 2010s</div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Rolling in the Deep', 'Someone Like You', 'Set Fire to the Rain', 'Rumour Has It', 'Turning Tables', 'Skyfall', 'Hello', 'Send My Love', 'When We Were Young', 'Water Under the Bridge'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Grenade', 'Just the Way You Are', 'The Lazy Song', 'Marry You', 'It Will Rain', 'Locked Out of Heaven', 'When I Was Your Man', 'Treasure', 'Gorilla', 'Young Girls', '24K Magic', 'That’s What I Like', 'Versace on the Floor', 'Finesse'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Mine', 'Back to December', 'Mean', 'The Story of Us', 'Sparks Fly', 'Ours', 'We Are Never Ever Getting Back Together', 'Red', 'I Knew You Were Trouble', '22', 'Everything Has Changed', 'Shake It Off', 'Blank Space', 'Style', 'Bad Blood', 'Wildest Dreams', 'Out of the Woods', 'New Romantics', 'Lover', 'Me!', 'You Need to Calm Down', 'The Man', 'Cardigan', 'Willow'])" placeholder="Type to search...">
+            </div>
         </div>
     </div>
 
     <script>
-        async function searchSpotify() {
-            const guess = document.getElementById('guessInput').value;
-            const resultsContainer = document.getElementById('searchResults');
-            
-            // Call the function to search Spotify API
-            const results = await searchSongs(guess);
-            
-            // Display the results
-            resultsContainer.innerHTML = results.map(song => 
-                `<div>${song.name} by ${song.artists.join(', ')}</div>`
-            ).join('');
-        }
 
-        async function searchSongs(query) {
-            // Placeholder function for Spotify API call
-            // Replace this with an actual API request to your server
-            return [
-                { name: 'Song Name 1', artists: ['Artist 1', 'Artist 2'] },
-                { name: 'Song Name 2', artists: ['Artist 3'] }
-                // ... more results ...
-            ];
-        }
-
-        function toggleVisibility(cell) {
-            if (cell.classList.contains('hidden')) {
-                cell.textContent = cell.getAttribute('data-answer');
-                cell.classList.remove('hidden');
+        function liveSearch(inputElement, answers) {
+            if (inputElement.value.length > 2) {
+                searchSpotify(inputElement.value)
+                    .then(songs => displaySpotifyResults(songs, inputElement, answers))
+                    .catch(error => console.error('Error fetching Spotify data:', error));
             } else {
-                cell.textContent = 'Click to reveal';
-                cell.classList.add('hidden');
+                removeDropdown(inputElement);
             }
         }
 
-        function guessSong(cell, correctAnswers, artist, genre) {
-        const promptMessage = `Guess the song by ${artist} in the genre '${genre}'.\nType your guess or cancel to skip:`;
-        const userGuess = prompt(promptMessage).trim().toLowerCase();
-
-        if (userGuess === null) {
-            // User cancelled the guess
-            return;
+        async function searchSpotify(searchTerm) {
+            const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ searchTerm })
+            });
+            if (!response.ok) throw new Error('Failed to fetch');
+            return response.json();
         }
 
-        // Check if the guess matches any of the correct answers
-        const isCorrect = correctAnswers.map(answer => answer.toLowerCase()).includes(userGuess);
-
-        if (isCorrect) {
-            cell.classList.add('correct');
-            cell.textContent = 'Correct!';
-        } else {
-            cell.classList.add('incorrect');
-            cell.textContent = `Incorrect! Possible answers: ${correctAnswers.join(', ')}`;
+        function displaySpotifyResults(songs, inputElement, answers) {
+            const resultsContainer = document.createElement('div');
+            resultsContainer.className = 'results-dropdown';
+            // ... rest of the function ...
+        
+            songs.forEach(song => {
+                const songInfo = `${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`;
+                const songElement = document.createElement('div');
+                songElement.textContent = songInfo;
+                songElement.onclick = () => selectSong(songInfo, inputElement, answers);
+                resultsContainer.appendChild(songElement);
+            });
+        
+            removeDropdown(inputElement);
+            inputElement.parentNode.appendChild(resultsContainer);
         }
-    }
+
+        // Add a utility function for basic similarity check
+        function isSimilar(guess, correctAnswers) {
+            return correctAnswers.some(answer => guess.toLowerCase().includes(answer.toLowerCase()));
+        }
+        
+        function selectSong(songInfo, inputElement, answers) {
+            const cell = inputElement.closest('.cell');
+            const isCorrect = isSimilar(songInfo, answers);
+        
+            if (isCorrect) {
+                cell.style.backgroundColor = '#c8e6c9'; // Green for correct
+                cell.textContent = 'Correct: ' + songInfo;
+            } else {
+                cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
+                cell.textContent = 'Incorrect! Possible answers: ' + answers.join(', ');
+            }
+        
+            removeDropdown(inputElement);
+        
+            // Disable the input field to prevent further guesses
+            inputElement.disabled = true;
+        }
+
+        function removeDropdown(inputElement) {
+            const existingContainer = inputElement.parentNode.querySelector('.results-dropdown');
+            if (existingContainer) {
+                inputElement.parentNode.removeChild(existingContainer);
+            }
+        }
     </script>
 </body>
 </html>
