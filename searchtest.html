@@ -155,8 +155,12 @@
         };
 
         function getPredefinedAnswerForCell(inputElement) {
-            const artist = inputElement.closest('.row').querySelector('.artist').textContent.trim();
-            const category = inputElement.closest('.container').querySelector('.genre-header').textContent.trim();
+            // Navigate up to the container of the entire row, then find the artist and genre header
+            const row = inputElement.closest('.row');
+            const artist = row.querySelector('.artist')?.textContent.trim();
+            const genreHeaderRow = row.previousElementSibling; // Assuming the genre header is in the previous row
+            const category = genreHeaderRow.querySelector('.genre-header')?.textContent.trim();
+        
             return answers[artist + category] || [];
         }
 
