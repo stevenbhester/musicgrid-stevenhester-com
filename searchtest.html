@@ -1,18 +1,15 @@
+</body>
+</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>We weren't lying, it's here</title>
+    <title>Music Grid Game</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-image: url('bgimg.png');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            margin: auto;
-            padding: 0;
             color: #333;
             display: flex;
             justify-content: center;
@@ -46,90 +43,59 @@
             justify-content: center;
             width: 80%;
             max-width: 800px;
-            margin: 20px auto; /* Updated margin to 'auto' to horizontally center the container */
+            margin: 20px auto;
             padding: 20px;
         }
 
         .row {
-        display: flex;
-        width: 100%;
-        position: relative;
+            display: flex;
+            width: 100%;
+            position: relative;
         }
 
         .cell {
-            flex: 0 0 25%; /* Each cell takes up 25% width of the row */
+            flex: 1;
             padding: 15px 20px;
             text-align: center;
             font-size: 1.1em;
-            min-height: 50px; /* Minimum height for cells */
+            min-height: 50px;
             background-color: #e3f2fd;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            word-break: break-word; /* Ensures text breaks to prevent widening */
+            word-break: break-word;
         }
-    
+
         .genre-header, .artist {
             background-color: #bbdefb;
         }
-    
+
         .invisible {
             visibility: hidden;
         }
-    
-        .song-cell {
-            cursor: pointer;
-        }
 
-        .correct {
-            background-color: #c8e6c9; /* Green background for correct answers */
-        }
-        .incorrect {
-            background-color: #ffcdd2; /* Red background for incorrect answers */
-        }
-
-        /* Tic-tac-toe lines */
-        .row:not(:last-child) .cell::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background-color: #333;
-        }
-
-        .cell:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            right: -10px;
-            width: 1px;
-            background-color: #333;
-        }
         .results-dropdown {
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             max-height: 200px;
-            overflow-y: auto; /* Enable scrolling for long lists */
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            position: absolute;
+            width: 100%;
+            z-index: 1000;
         }
+
         .results-dropdown div:hover {
             background-color: #f0f0f0;
         }
-        @media (max-width: 600px) {
-            .container {
-                width: 95%;
-            }
 
-            .title, .subheader {
-                font-size: 1.5em;
-            }
-
-            .cell {
-                padding: 10px 15px;
-                font-size: 0.9em;
-            }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -143,7 +109,7 @@
         <div class="subheader"><i>no guarantees on accuracy, ChatGPT made this grid</i></div>
     </div>
 
-       <div class="container">
+    <div class="container">
         <!-- Artists Row -->
         <div class="row">
             <div class="cell invisible"></div>
@@ -152,150 +118,104 @@
             <div class="cell artist">Backstreet Boys</div>
         </div>
 
-        <!-- Category Rows with Input Fields for Live Search -->
-        <!-- Category 1 -->
+        <!-- Category 1: Songs from Debut Albums -->
         <div class="row">
             <div class="cell genre-header">Songs from Debut Albums</div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
+            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
+            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
+            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
         </div>
 
-        <!-- Category 2 -->
+        <!-- Category 2: Songs Nominated for Grammy Awards -->
         <div class="row">
             <div class="cell genre-header">Songs Nominated for Grammy Awards</div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
+            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
+            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
+            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
         </div>
 
-        <!-- Category 3 -->
+        <!-- Category 3: Songs That Topped Billboard's Mainstream Top 40 Chart -->
         <div class="row">
             <div class="cell genre-header">Songs That Topped Billboard's Mainstream Top 40 Chart</div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this)" placeholder="Type to search...">
-            </div>
+            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
+            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
+            <div class="cell song-cell"><input type="text" oninput="liveSearch(this)" placeholder="Type to search..."></div>
         </div>
     </div>
 
-    <!-- Div for Displaying Live Search Results -->
-    <div id="liveSearchResults" style="margin-top: 20px;"></div>
-    
-    <div id="spotifyResults" style="margin-top: 20px;"></div>
-
     <script>
-        async function guessSong(cell, artist, category) {
-            const userGuess = prompt(`Guess a song by ${artist} in the category '${category}'.`);
-            if (!userGuess) return;
+        const answers = {
+            'NirvanaSongs from Debut Albums': ["About a Girl", "Love Buzz"],
+            'NirvanaSongs Nominated for Grammy Awards': ["Smells Like Teen Spirit", "Heart-Shaped Box"],
+            'NirvanaSongs That Topped Billboard\'s Mainstream Top 40 Chart': ["Come As You Are"],
+            'Whitney HoustonSongs from Debut Albums': ["You Give Good Love", "Saving All My Love for You"],
+            'Whitney HoustonSongs Nominated for Grammy Awards': ["I Will Always Love You", "Saving All My Love for You", "I Wanna Dance with Somebody"],
+            'Whitney HoustonSongs That Topped Billboard\'s Mainstream Top 40 Chart': ["I Will Always Love You", "Exhale (Shoop Shoop)", "Heartbreak Hotel"],
+            'Backstreet BoysSongs from Debut Albums': ["We've Got It Goin' On", "I'll Never Break Your Heart"],
+            'Backstreet BoysSongs Nominated for Grammy Awards': ["I Want It That Way", "Shape of My Heart"],
+            'Backstreet BoysSongs That Topped Billboard\'s Mainstream Top 40 Chart': ["I Want It That Way", "Everybody (Backstreet's Back)", "As Long as You Love Me"]
+        };
 
-            try {
-                const results = await searchSpotify(userGuess);
-                displaySpotifyResults(results, cell);
-            } catch (error) {
-                console.error('Error fetching Spotify data:', error);
-            }
+        function getPredefinedAnswerForCell(inputElement) {
+            const artist = inputElement.closest('.row').querySelector('.artist').textContent.trim();
+            const category = inputElement.closest('.container').querySelector('.genre-header').textContent.trim();
+            return answers[artist + category] || [];
         }
 
-        function selectSong(songInfo, cell) {
-            // Here you can handle the user's selection, e.g., displaying the chosen song in the cell
-            cell.textContent = songInfo; // Example: update cell text with the chosen song
-            // You might want to add additional logic based on the game's rules
-        }
         function liveSearch(inputElement) {
             if (inputElement.value.length > 2) {
                 searchSpotify(inputElement.value)
                     .then(songs => displaySpotifyResults(songs, inputElement))
                     .catch(error => console.error('Error fetching Spotify data:', error));
             } else {
-                const resultsContainer = inputElement.parentNode.querySelector('.results-dropdown');
-                if (resultsContainer) {
-                    inputElement.parentNode.removeChild(resultsContainer);
-                }
+                removeDropdown(inputElement);
             }
         }
+
         async function searchSpotify(searchTerm) {
-            console.log("Searching for:", searchTerm); // Log the search term
-            try {
-                const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ searchTerm })
-                });
-                if (!response.ok) throw new Error('Failed to fetch');
-                const data = await response.json();
-                console.log("Search results:", data); // Log the response data
-                return data;
-            } catch (error) {
-                console.error('Error fetching Spotify data:', error);
-            }
+            const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ searchTerm })
+            });
+            if (!response.ok) throw new Error('Failed to fetch');
+            return response.json();
         }
 
         function displaySpotifyResults(songs, inputElement) {
             const resultsContainer = document.createElement('div');
             resultsContainer.className = 'results-dropdown';
-            resultsContainer.style.position = 'absolute';
-            resultsContainer.style.backgroundColor = '#fff';
-            resultsContainer.style.border = '1px solid #ddd';
-            resultsContainer.style.borderRadius = '5px';
-            resultsContainer.style.padding = '10px';
-            resultsContainer.style.marginTop = '5px';
-            resultsContainer.style.width = inputElement.width + 'px'; // Match the width of the input field
-            resultsContainer.style.zIndex = 10; // Ensure dropdown is above other elements
-        
+
             songs.forEach(song => {
                 const songInfo = `${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`;
                 const songElement = document.createElement('div');
                 songElement.textContent = songInfo;
-                songElement.style.padding = '5px';
-                songElement.style.cursor = 'pointer';
                 songElement.onclick = () => selectSong(songInfo, inputElement);
                 resultsContainer.appendChild(songElement);
             });
-        
-            // Remove any existing results container before appending a new one
-            const existingContainer = inputElement.parentNode.querySelector('.results-dropdown');
-            if (existingContainer) {
-                inputElement.parentNode.removeChild(existingContainer);
-            }
-        
+
+            removeDropdown(inputElement); // Remove existing dropdown if present
             inputElement.parentNode.appendChild(resultsContainer);
         }
 
         function selectSong(songInfo, inputElement) {
-            // Assuming you have a way to get the predefined answer for each cell
-            const predefinedAnswer = getPredefinedAnswerForCell(inputElement); // Implement this function based on your application logic
-        
-            if (songInfo === predefinedAnswer) {
+            const predefinedAnswers = getPredefinedAnswerForCell(inputElement);
+            if (predefinedAnswers.includes(songInfo)) {
                 alert("Correct! The song matches the answer.");
             } else {
-                alert("Incorrect! The correct answer was: " + predefinedAnswer);
+                alert("Incorrect! The correct answer was: " + predefinedAnswers.join(', '));
             }
-        
-            // Hide the results dropdown
-            const resultsContainer = inputElement.parentNode.querySelector('.results-dropdown');
-            if (resultsContainer) {
-                inputElement.parentNode.removeChild(resultsContainer);
+
+            removeDropdown(inputElement);
+            inputElement.value = songInfo; // Optionally set the selected song as the input value
+        }
+
+        function removeDropdown(inputElement) {
+            const existingContainer = inputElement.parentNode.querySelector('.results-dropdown');
+            if (existingContainer) {
+                inputElement.parentNode.removeChild(existingContainer);
             }
         }
-    </script>
     </script>
 </body>
 </html>
