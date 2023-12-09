@@ -220,11 +220,15 @@
             // You might want to add additional logic based on the game's rules
         }
         function liveSearch(inputElement) {
-            console.log("Live search input:", inputElement.value); // Log the current input value
             if (inputElement.value.length > 2) {
-                searchSpotify(inputElement.value).then(displaySpotifyResults);
+                searchSpotify(inputElement.value)
+                    .then(songs => displaySpotifyResults(songs, inputElement))
+                    .catch(error => console.error('Error fetching Spotify data:', error));
             } else {
-                document.getElementById('liveSearchResults').innerHTML = '';
+                const resultsContainer = inputElement.parentNode.querySelector('.results-dropdown');
+                if (resultsContainer) {
+                    inputElement.parentNode.removeChild(resultsContainer);
+                }
             }
         }
         async function searchSpotify(searchTerm) {
