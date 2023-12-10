@@ -301,8 +301,10 @@
             removeDropdown(inputElement);
             console.log('Requesting scoring for guess: '+songInfo)
             // Disable the input field to prevent further guesses
-            updateScoreForGuess(popularity,answers);
             inputElement.disabled = true;
+            if (isCorrect) {
+                updateScoreForGuess(popularity,answers);
+            }
         }
 
         function removeDropdown(inputElement) {
@@ -322,10 +324,10 @@
         // Function to update the score based on the user's guess
         async function updateScoreForGuess(popularity, answers) {
             const answerPops = await checkPopularity(answers);
-            cellScoreMax = 0;
-            cellScoreMin = 0;
-            normedGuessScore = 0;
-            popInt = parseInt(popularity);
+            var cellScoreMax = 0;
+            var cellScoreMin = 0;
+            var normedGuessScore = 0;
+            var popInt = parseInt(popularity);
             console.log('Norming score off popularity of '+popInt+' from string '+popularity);
             answerPops = checkPopularity(answers);
             console.log('Popularities returned to score updater: '+answers.toString());
