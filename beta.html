@@ -317,6 +317,7 @@
         
         // Function to update the score based on the user's guess
         function updateScoreForGuess(popularity, answers) {
+            const answerPops = await checkPopularity(answers);
             cellScoreMax = 0;
             cellScoreMin = 0;
             normedGuessScore = 0;
@@ -346,14 +347,15 @@
             document.getElementById("totalScore").textContent=scoreReadable;
         }
         
-        function checkPopularity(answers) {
-            answerPops = Array(len(answers));
+        async function checkPopularity(answers) {
+            let answerPops = [];
             console.log('Checking popularity of answer key')
-            answers.forEach(searchSpotify(currentElement))
-            for (let i=0; i<len(answers); i++) {
-                searchSpotify(inputElement.value).then(songs => answerPops[i]=song.popularity)
+            for (const answer of answers) {
+                const songs = await searchSpotify(answer); // Assume this returns an array of songs with popularity
+                const popularities = songs.map(song => song.popularity);
+                answerPops.push(...popularities);
             }
-            return answerPops
+            return answerPops;
         }
         
     </script>
