@@ -323,7 +323,7 @@
         
         // Function to update the score based on the user's guess
         async function updateScoreForGuess(popularity, answers) {
-            const answerPops = await checkPopularity(answers);
+            var answerPops = await checkPopularity(answers);
             var cellScoreMax = 0;
             var cellScoreMin = 0;
             var normedGuessScore = 0;
