@@ -207,7 +207,9 @@
 
         function liveSearch(inputElement, answers) {
             if (inputElement.value.length > 2) {
+                console.log('Requesting search for '+inputElement.value)
                 searchSpotify(inputElement.value)
+                    console.log('Requesting display for results')
                     .then(songs => displaySpotifyResults(songs, inputElement, answers))
                     .catch(error => console.error('Error fetching Spotify data:', error));
             } else {
@@ -216,23 +218,27 @@
         }
 
         async function searchSpotify(searchTerm) {
+            console.log('Searching for '+searchTerm)
             const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/search', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ searchTerm })
             });
+            response.json().forEach(song => console.log('Received response: '+song)
             if (!response.ok) throw new Error('Failed to fetch');
             return response.json();
         }
         function displaySpotifyResults(songs, inputElement) {
+            console.log('Creating results container')
             const resultsContainer = document.createElement('div');
             resultsContainer.className = 'results-dropdown';
             resultsContainer.style.top = '100%'; 
             resultsContainer.style.left = '0';
-            
+            console.log('Populating results container')
             songs.forEach(song => {
                 const songElement = document.createElement('div');
                 const songTitleSpan = document.createElement('span');
+                console.log('Populating '+song.name)
                 songTitleSpan.className = 'song-title'; // Apply bold styling to the song title
                 songTitleSpan.textContent = song.name;
                 songElement.appendChild(songTitleSpan);
