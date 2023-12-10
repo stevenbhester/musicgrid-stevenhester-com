@@ -316,7 +316,7 @@
         var TotalScore = 1; 
         
         // Function to update the score based on the user's guess
-        function updateScoreForGuess(popularity, answers) {
+        async function updateScoreForGuess(popularity, answers) {
             const answerPops = await checkPopularity(answers);
             cellScoreMax = 0;
             cellScoreMin = 0;
