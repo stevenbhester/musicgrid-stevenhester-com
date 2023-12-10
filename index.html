@@ -236,13 +236,13 @@
             }
         }
 
-        async function searchAnswers(answerTerms) {
+        function searchAnswers(answerTerms) {
             console.log('Initializing evaluation of answers '+answerTerms);
             let answerPopsArr = {}
             let j = 0
             answerTerms.forEach(answerTerm => {
                 console.log('Evaluating answer: '+answerTerm);
-                searchSpotify(answerTerm);
+                searchSpotify(answerTerm)
                     .then(pops => answerPopsArr[j] = pops.json())
                     .catch(error => console.error('Error fetching Spotify data:', error));
                 console.log('Answer Pops Array now at: 'answerPopsArr.toString());
