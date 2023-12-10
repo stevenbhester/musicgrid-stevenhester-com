@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Grid Game</title>
+    <title>musicgrid.io game of royalty</title>
     <link rel="icon" type="image/x-icon" href="favicon.png">
     <style>
         body {
@@ -210,12 +210,24 @@
             </div>
         </div>
     </div>
+    <!-- Add a submit button to your existing HTML -->
+    <button onclick="submitGuesses()">Submit Guesses</button>
+    
+    <!-- Placeholder for the final score -->
+    <div class="header">
+        <div class="subheader">
+            Total Score:<span id="totalScore"> 1</span>
+        </div>
+    </div>
+        
+        
+    </div>
 
     <script>
 
         function liveSearch(inputElement, answers) {
             if (inputElement.value.length > 2) {
-                console.log('Requesting search for '+inputElement.value)
+                console.log('Requesting search for '+inputElement.value);
                 searchSpotify(inputElement.value)
                     .then(songs => displaySpotifyResults(songs, inputElement, answers))
                     .catch(error => console.error('Error fetching Spotify data:', error));
@@ -237,7 +249,7 @@
         }
         function displaySpotifyResults(songs, inputElement, answers) {
             removeDropdown(inputElement); // Remove existing dropdown if present
-            console.log('Creating results container')
+            console.log('Creating results container');
             const resultsContainer = document.createElement('div');
             resultsContainer.className = 'results-dropdown';
             resultsContainer.style.top = '100%'; 
@@ -254,7 +266,7 @@
                 resultsContainer.appendChild(songElement);
                 songElement.onclick = () => {
                     console.log('Selected song '+`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`)
-                    selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement, answers);
+                    selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement, answers, song.popularity);
                     // Clear the dropdown after selection
                     resultsContainer.innerHTML = '';
                     resultsContainer.appendChild(songElement);
@@ -268,36 +280,90 @@
 
         // Add a utility function for basic similarity check
         function isSimilar(guess, correctAnswers) {
-            console.log('Evaluating guess: '+guess)
-            console.log('By answers: '+correctAnswers)
+            console.log('Evaluating guess: '+guess);
+            console.log('By answers: '+correctAnswers);
             return correctAnswers.some(answer => guess.toLowerCase().includes(answer.toLowerCase()));
         }
         
-        function selectSong(songInfo, inputElement, answers) {
-            console.log('Checking guess '+songInfo)
+        function selectSong(songInfo, inputElement, answers, popularity) {
+            console.log('Checking guess '+songInfo);
             const cell = inputElement.closest('.cell');
             const isCorrect = isSimilar(songInfo, answers);
         
             if (isCorrect) {
                 cell.style.backgroundColor = '#c8e6c9'; // Green for correct
-                cell.textContent = 'Correct: ' + songInfo;
+                cell.textContent = 'Correct: ' + songInfo + '(pop: '+popularity+')';
             } else {
                 cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
                 cell.textContent = 'Incorrect! Possible answers: ' + answers.join(', ');
             }
         
             removeDropdown(inputElement);
-        
+            console.log('Requesting scoring for guess: '+songInfo)
             // Disable the input field to prevent further guesses
             inputElement.disabled = true;
+            if (isCorrect) {
+                updateScoreForGuess(popularity,answers);
+            }
         }
 
         function removeDropdown(inputElement) {
-            const existingContainer = inputElement.parentNode.querySelector('.results-dropdown');
-            if (existingContainer) {
-                inputElement.parentNode.removeChild(existingContainer);
+            if (inputElement && inputElement.parentNode) {
+                const existingContainer = inputElement.parentNode.querySelector('.results-dropdown');
+                if (existingContainer) {
+                    inputElement.parentNode.removeChild(existingContainer);
+                }
+            } else {
+                console.error('Input element is not in the DOM or has no parent.');
             }
         }
+
+        // You get one point just for being here
+        let totalScore = 1; 
+        
+        // Function to update the score based on the user's guess
+        async function updateScoreForGuess(popularity, answers) {
+            var answerPops = await checkPopularity(answers);
+            var cellScoreMax = 0;
+            var cellScoreMin = 0;
+            var normedGuessScore = 0;
+            var popInt = parseInt(popularity);
+            console.log('Norming score off popularity of '+popInt+' from string '+popularity);
+            answerPops = checkPopularity(answers);
+            console.log('Popularities returned to score updater: '+answers.toString());
+            cellScoreMax = Math.max.apply(Math, answerPops);
+            console.log('Max cell popularity determined as: '+cellScoreMax);
+            cellScoreMin = Math.min.apply(Math, answerPops);
+            console.log('Min cell popularity determined as: '+cellScoreMin);
+            if (cellScoreMin = cellScoreMax) {
+                normedGuessScore = 9;
+            } else {
+                normedGuessScore = 6+5*Math.Round(10*(1 - ((popInt - cellScoreMin)/(cellScoreMax - cellScoreMin))))/10;
+            }
+            
+            console.log('Normed score determined as: '+normedGuessScore);
+            console.log('Adding normed score to prior total of '+totalScore);
+            totalScore+=normedGuessScore;
+            console.log('Displaying new total score of '+normedGuessScore);
+            updateScoreTo(totalScore);
+        }
+
+        function updateScoreTo(totalScore) {
+            scoreReadable = ' '+totalScore
+            document.getElementById("totalScore").textContent=scoreReadable;
+        }
+        
+        async function checkPopularity(answers) {
+            let answerPops = [];
+            console.log('Checking popularity of answer key')
+            for (const answer of answers) {
+                const songs = await searchSpotify(answer); // Assume this returns an array of songs with popularity
+                const popularities = songs.map(song => song.popularity);
+                answerPops.push(...popularities);
+            }
+            return answerPops;
+        }
+        
     </script>
 </body>
 </html>
