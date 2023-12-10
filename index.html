@@ -363,11 +363,11 @@
         async function calculateAnswerPops(answers) {
             console.log('Parsing answer popularities');
             let rawAnswerPayloads = await searchAnswers(answers);
-            console.log('Returned popularities: ', rawAnswerPayloads.toString())
+            console.log('Returned popularities: ' + rawAnswerPayloads.toString());
+            console.log('First pop to be added is: ' + rawAnswerPayloads[0][0].popularity);
             let answerPops = [];
             let j = 0;
             rawAnswerPayloads.forEach(resultData => {
-                console.log('Adding score of 'resultData[0].popularity+' for answer '+resultData[0].name);
                 answerPops[j] = parseInt(resultData[0].popularity);
             });
         
