@@ -209,7 +209,6 @@
             if (inputElement.value.length > 2) {
                 console.log('Requesting search for '+inputElement.value)
                 searchSpotify(inputElement.value)
-                    console.log('Requesting display for results')
                     .then(songs => displaySpotifyResults(songs, inputElement, answers))
                     .catch(error => console.error('Error fetching Spotify data:', error));
             } else {
