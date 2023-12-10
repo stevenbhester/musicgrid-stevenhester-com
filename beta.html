@@ -8,15 +8,17 @@
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-image: url('bgimg.png');
+            background-color: #f0f0f0; /* Replace with your background settings */
             color: #333;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
             flex-direction: column;
+            height: 100vh;
         }
-
+        
         .header {
             background-color: rgba(255, 255, 255, 0.8);
             padding: 10px 20px;
@@ -24,17 +26,17 @@
             margin-bottom: 20px;
             text-align: center;
         }
-
+        
         .title {
             font-size: 2.5em;
             margin: 0;
         }
-
+        
         .subheader {
             font-size: 1.2em;
             margin-top: 10px;
         }
-
+        
         .container {
             display: flex;
             flex-direction: column;
@@ -45,51 +47,38 @@
             margin: 20px auto;
             padding: 20px;
         }
-
+        
         .row {
             display: flex;
             width: 100%;
-            position: relative;
+            margin-bottom: 5px;
         }
-
-        .cell {
+        
+        .cell, .genre-header, .artist {
             flex: 1;
-            padding: 15px 20px;
+            padding: 15px 10px;
             text-align: center;
-            font-size: 1.1em;
+            font-size: 1em;
             min-height: 50px;
             background-color: #e3f2fd;
-            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            word-break: break-word;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border: 1px solid #ddd;
+            margin: 2px;
         }
-
+        
         .genre-header, .artist {
             background-color: #bbdefb;
         }
-
+        
         .invisible {
             visibility: hidden;
         }
-
-        .results-dropdown {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            max-height: 200px;
-            overflow-y: auto;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            position: absolute;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        .results-dropdown div:hover {
-            background-color: #f0f0f0;
-        }
-
+        
         .results-dropdown {
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             max-height: 200px;
@@ -98,33 +87,57 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             position: absolute;
-            width: calc(100% - 20px); /* adjust width as needed */
+            width: calc(100% - 20px);
             z-index: 1000;
-            top: 100%; /* make sure it starts right after the input field */
-            left: 0; /* align to the left edge of the input field */
-            margin-top: 5px; /* add a little space below the input field */
+            top: 100%;
+            left: 0;
+            margin-top: 5px;
         }
         
         .results-dropdown div {
-            padding: 10px; /* add more padding for spacing between results */
+            padding: 10px 5px;
             cursor: pointer;
-            border-bottom: 1px solid #f0f0f0; /* add a subtle line between each result */
+            border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
-        .results-dropdown div:last-child {
-            border-bottom: none; /* no border for the last item */
+        .results-dropdown div:hover {
+            background-color: #f0f0f0;
         }
         
-        /* Style for the song title to be bold */
-        .song-title {
-            font-weight: bold;
-        }
-
         input[type="text"] {
             width: 100%;
             padding: 10px;
             margin: 5px 0;
             box-sizing: border-box;
+        }
+        
+        /* Ensure that the song title is distinguishable */
+        .song-title {
+            font-weight: bold;
+        }
+        
+        @media (max-width: 600px) {
+            .cell, .genre-header, .artist {
+                font-size: 14px;
+                padding: 8px 5px;
+            }
+        
+            .results-dropdown {
+                width: 100%;
+                box-sizing: border-box;
+                top: 100%;
+            }
+        
+            .results-dropdown div {
+                padding: 5px;
+            }
+        
+            .song-cell {
+                position: relative;
+            }
         }
     </style>
 </head>
@@ -213,25 +226,35 @@
         }
 
         function displaySpotifyResults(songs, inputElement) {
+            // ... existing setup for resultsContainer ...
+            // Ensure the dropdown appears below the input field
             const resultsContainer = document.createElement('div');
             resultsContainer.className = 'results-dropdown';
+            resultsContainer.style.top = '100%'; 
+            resultsContainer.style.left = '0';
         
+            // Populate the dropdown
             songs.forEach(song => {
                 const songElement = document.createElement('div');
                 const songTitleSpan = document.createElement('span');
+                songTitleSpan.className = 'song-title';
                 songTitleSpan.textContent = song.name;
-                songTitleSpan.className = 'song-title'; // Apply bold styling to the song title
                 songElement.appendChild(songTitleSpan);
-                songElement.innerHTML += ` by ${song.artists.map(artist => artist.name).join(', ')}`; // Add artist name(s)
-                songElement.onclick = () => selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement);
+                songElement.innerHTML += ` by ${song.artists.map(artist => artist.name).join(', ')}`;
+                songElement.onclick = () => {
+                    selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement);
+                    // Clear the dropdown after selection
+                    resultsContainer.innerHTML = '';
+                };
                 resultsContainer.appendChild(songElement);
             });
         
-            // Position the results dropdown so it doesn't cover the input field
+            // Remove any existing dropdown and add the new one
             inputElement.parentNode.style.position = 'relative';
             removeDropdown(inputElement); // Remove existing dropdown if present
             inputElement.parentNode.appendChild(resultsContainer);
         }
+
 
         // Add a utility function for basic similarity check
         function isSimilar(guess, correctAnswers) {
