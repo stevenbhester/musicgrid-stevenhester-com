@@ -8,17 +8,15 @@
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f0f0f0; /* Replace with your background settings */
+            background-image: url('bgimg.png');
             color: #333;
-            margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
             height: 100vh;
+            flex-direction: column;
         }
-        
+
         .header {
             background-color: rgba(255, 255, 255, 0.8);
             padding: 10px 20px;
@@ -26,17 +24,17 @@
             margin-bottom: 20px;
             text-align: center;
         }
-        
+
         .title {
             font-size: 2.5em;
             margin: 0;
         }
-        
+
         .subheader {
             font-size: 1.2em;
             margin-top: 10px;
         }
-        
+
         .container {
             display: flex;
             flex-direction: column;
@@ -47,38 +45,35 @@
             margin: 20px auto;
             padding: 20px;
         }
-        
+
         .row {
             display: flex;
             width: 100%;
-            margin-bottom: 5px;
+            position: relative;
         }
-        
-        .cell, .genre-header, .artist {
+
+        .cell {
             flex: 1;
-            padding: 15px 10px;
+            padding: 15px 20px;
             text-align: center;
-            font-size: 1em;
+            font-size: 1.1em;
             min-height: 50px;
             background-color: #e3f2fd;
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            border: 1px solid #ddd;
-            margin: 2px;
+            word-break: break-word;
         }
-        
+
         .genre-header, .artist {
             background-color: #bbdefb;
         }
-        
+
         .invisible {
             visibility: hidden;
         }
-        
+
         .results-dropdown {
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             max-height: 200px;
@@ -95,23 +90,41 @@
             background-color: #f0f0f0;
         }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            box-sizing: border-box;
+        .results-dropdown {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            position: absolute;
+            width: calc(100% - 20px); /* adjust width as needed */
+            z-index: 1000;
+            top: 100%; /* make sure it starts right after the input field */
+            left: 0; /* align to the left edge of the input field */
+            margin-top: 5px; /* add a little space below the input field */
         }
-        
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            box-sizing: border-box;
+
+        .results-dropdown div {
+            padding: 10px; /* add more padding for spacing between results */
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0; /* add a subtle line between each result */
         }
-        
-        /* Ensure that the song title is distinguishable */
+
+        .results-dropdown div:last-child {
+            border-bottom: none; /* no border for the last item */
+        }
+
+        /* Style for the song title to be bold */
         .song-title {
             font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
         }
         
         @media (max-width: 600px) {
