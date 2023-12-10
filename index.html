@@ -236,6 +236,20 @@
             }
         }
 
+        async function searchAnswers(answerTerms) {
+            console.log('Initializing evaluation of answers '+answerTerms);
+            let answerPopsArr = {}
+            let j = 0
+            answerTerms.forEach(answerTerm => {
+                console.log('Evaluating answer: '+answerTerm);
+                searchSpotify(answerTerm);
+                    .then(pops => answerPopsArr[j] = pops.json())
+                    .catch(error => console.error('Error fetching Spotify data:', error));
+                console.log('Answer Pops Array now at: 'answerPopsArr.toString());
+            return answerPopsArr;
+            });
+        } 
+        
         async function searchSpotify(searchTerm) {
             console.log('Searching for '+searchTerm)
             const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/search', {
@@ -323,13 +337,13 @@
         
         // Function to update the score based on the user's guess
         async function updateScoreForGuess(popularity, answers) {
-            var answerPops = await checkPopularity(answers);
+            calculateAnswerPops(answers);
             var cellScoreMax = 0;
             var cellScoreMin = 0;
             var normedGuessScore = 0;
             var popInt = parseInt(popularity);
             console.log('Norming score off popularity of '+popInt+' from string '+popularity);
-            answerPops = checkPopularity(answers);
+            answerPops = calculateAnswerPops(answers);
             console.log('Popularities returned to score updater for: '+answers.toString());
             console.log('Returned popularities: '+answerPops.toString());
             cellScoreMax = Math.max.apply(Math, answerPops);
@@ -349,20 +363,23 @@
             updateScoreTo(totalScore);
         }
 
+        function calculateAnswerPops(answers) {
+            console.log('Parsing answer popularities');
+            let rawAnswerPayloads = searchAnswers(answers);
+            let answerPops = [];
+            let j = 0;
+            rawAnswerPayloads.forEach(resultData => {
+                console.log('Adding score of 'resultData[0].popularity+' for answer '+resultData[0].name
+                answerPops[j] = parseInt(resultData.popularity);
+            });
+        
+            // Position the results dropdown so it doesn't cover the input field
+            return answerPops;
+        }
+        
         function updateScoreTo(totalScore) {
             scoreReadable = ' '+totalScore
             document.getElementById("totalScore").textContent=scoreReadable;
-        }
-        
-        async function checkPopularity(answers) {
-            let answerPops = [];
-            console.log('Checking popularity of answer key')
-            for (const answer of answers) {
-                const songs = await searchSpotify(answer); // Assume this returns an array of songs with popularity
-                const popularities = songs.map(song => song.popularity);
-                answerPops.push(...popularities);
-            }
-            return answerPops;
         }
         
     </script>
