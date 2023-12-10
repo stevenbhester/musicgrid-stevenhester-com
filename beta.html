@@ -328,7 +328,7 @@
             console.log('Max cell popularity determined as: '+cellScoreMax);
             cellScoreMin = Math.min.apply(Math, answerPops);
             console.log('Min cell popularity determined as: '+cellScoreMin);
-            if cellScoreMin = cellScoreMax {
+            if (cellScoreMin = cellScoreMax) {
                 normedGuessScore = 9;
             } else {
                 normedGuessScore = 6+3*Math.Round(10*(1 - ((popInt - cellScoreMin)/(cellScoreMax - cellScoreMin))))/10;
