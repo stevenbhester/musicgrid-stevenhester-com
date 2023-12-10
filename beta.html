@@ -210,6 +210,11 @@
             </div>
         </div>
     </div>
+    <!-- Add a submit button to your existing HTML -->
+    <button onclick="submitGuesses()">Submit Guesses</button>
+    
+    <!-- Placeholder for the final score -->
+    <div id="finalScoreDisplay"></div>
 
     <script>
 
@@ -254,7 +259,7 @@
                 resultsContainer.appendChild(songElement);
                 songElement.onclick = () => {
                     console.log('Selected song '+`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`)
-                    selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement, answers);
+                    selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement, answers, song.popularity);
                     // Clear the dropdown after selection
                     resultsContainer.innerHTML = '';
                     resultsContainer.appendChild(songElement);
@@ -273,21 +278,22 @@
             return correctAnswers.some(answer => guess.toLowerCase().includes(answer.toLowerCase()));
         }
         
-        function selectSong(songInfo, inputElement, answers) {
+        function selectSong(songInfo, inputElement, answers, popularity) {
             console.log('Checking guess '+songInfo)
             const cell = inputElement.closest('.cell');
             const isCorrect = isSimilar(songInfo, answers);
         
             if (isCorrect) {
                 cell.style.backgroundColor = '#c8e6c9'; // Green for correct
-                cell.textContent = 'Correct: ' + songInfo;
+                cell.textContent = 'Correct: ' + songInfo + '(pop: '+popularity+')';
             } else {
                 cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
                 cell.textContent = 'Incorrect! Possible answers: ' + answers.join(', ');
             }
         
             removeDropdown(inputElement);
-        
+            console.log('Requesting scoring for guess: '+songInfo)
+            updateScoreForGuess(answers,songInfo);
             // Disable the input field to prevent further guesses
             inputElement.disabled = true;
         }
@@ -298,6 +304,81 @@
                 inputElement.parentNode.removeChild(existingContainer);
             }
         }
+        
+        // Example of a response object from the backend call
+        const backendResponse = {
+            'AdeleSongs From Debut Albums': [
+                { song: "Chasing Pavements", popularity: 70 },
+                // ... other songs
+            ],
+            // ... other artist-category combinations
+        };
+        
+        // Function to initialize the minimum and maximum scores for each column
+        function initializeColumnScores(response) {
+            const columnScores = {};
+            for (let artistCategory in response) {
+                let artist = artistCategory.split('Songs')[0];
+                columnScores[artist] = { min: Infinity, max: 0, current: 0, correctGuesses: 0 };
+                
+                response[artistCategory].forEach(songData => {
+                    if (songData.popularity < columnScores[artist].min) {
+                        columnScores[artist].min = songData.popularity;
+                    }
+                    if (songData.popularity > columnScores[artist].max) {
+                        columnScores[artist].max = songData.popularity;
+                    }
+                });
+            }
+            return columnScores;
+        }
+        
+        // Function to update the score based on the user's guess
+        function updateScoreForGuess(correctAnswers, guess, response) {
+            const correctSongs = response[`${artist}Songs From Debut Albums`]; // Adjust based on actual category
+            const guessedSongData = correctSongs.find(songData => songData.song === guess);
+            const columnScore = columnScores[artist];
+        
+            if (guessedSongData) {
+                columnScore.current += guessedSongData.popularity;
+                columnScore.correctGuesses++;
+            } else {
+                columnScore.current += columnScore.max * 3; // Penalty for incorrect guess
+            }
+        }
+        
+        // Function to calculate the final score for the grid
+        function calculateFinalScore(columnScores) {
+            let totalScore = 0;
+        
+            for (let artist in columnScores) {
+                const artistScore = columnScores[artist];
+                const artistMaxScore = artistScore.max * 3; // Max score if all guesses are wrong
+        
+                // Calculate the score for this artist's column
+                let artistColumnScore = 100 - ((artistScore.current - artistScore.min) / (artistMaxScore - artistScore.min)) * 100;
+                
+                // If at least one correct guess was made, the score cannot be less than 67
+                if (artistScore.correctGuesses > 0) {
+                    artistColumnScore = Math.max(artistColumnScore, 67);
+                }
+        
+                totalScore += artistColumnScore;
+            }
+        
+            // Average the score across all columns
+            return totalScore / Object.keys(columnScores).length;
+        }
+        
+        // Example usage
+        let columnScores = initializeColumnScores(backendResponse);
+        // Update the score based on user guesses (this would be filled with actual guesses)
+        updateScoreForGuess('Adele', 'Chasing Pavements', backendResponse);
+        // ... handle other guesses ...
+        
+        // Calculate the final score
+        let finalScore = calculateFinalScore(columnScores);
+        console.log(`Final Score: ${finalScore}`);
     </script>
 </body>
 </html>
