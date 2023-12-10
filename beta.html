@@ -235,7 +235,7 @@
             if (!response.ok) throw new Error('Failed to fetch');
             return response.json();
         }
-        function displaySpotifyResults(songs, inputElement) {
+        function displaySpotifyResults(songs, inputElement, answers) {
             removeDropdown(inputElement); // Remove existing dropdown if present
             console.log('Creating results container')
             const resultsContainer = document.createElement('div');
@@ -254,7 +254,7 @@
                 resultsContainer.appendChild(songElement);
                 songElement.onclick = () => {
                     console.log('Selected song '+`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`)
-                    selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement);
+                    selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement, answers);
                     // Clear the dropdown after selection
                     resultsContainer.innerHTML = '';
                     resultsContainer.appendChild(songElement);
