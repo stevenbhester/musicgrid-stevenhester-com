@@ -243,7 +243,7 @@
             // Wait for all promises to resolve
             let results = await Promise.all(promises);
             let answerPopsArr = results.map(result => result.popularity);
-            console.log('Answer Pops Array now at: ', answerPopsArr.toString());
+            console.log('Answer Pops Array now at: '+ answerPopsArr.toString());
             return answerPopsArr;
         } 
         
