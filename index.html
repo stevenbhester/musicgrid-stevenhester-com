@@ -368,7 +368,7 @@
             let j = 0;
             rawAnswerPayloads.forEach(resultData => {
                 console.log('Adding score of 'resultData[0].popularity+' for answer '+resultData[0].name);
-                answerPops[j] = parseInt(resultData.popularity);
+                answerPops[j] = parseInt(resultData[0].popularity);
             });
         
             // Position the results dropdown so it doesn't cover the input field
