@@ -237,15 +237,24 @@
         }
 
         async function searchAnswers(answerTerms) {
-            console.log('Initializing evaluation of answers '+answerTerms);
+            console.log('Initializing evaluation of answers ' + answerTerms);
             let promises = answerTerms.map(answerTerm => searchSpotify(answerTerm));
-            
+        
             // Wait for all promises to resolve
             let results = await Promise.all(promises);
-            let answerPopsArr = results.map(result => result.popularity);
-            console.log('Answer Pops Array now at: '+ answerPopsArr.toString());
+            
+            // Process the results to extract popularity values
+            let answerPopsArr = results.map(result => {
+                // Assuming the result structure includes an array of songs
+                if (result.length > 0 && result[0].popularity !== undefined) {
+                    return result[0].popularity; // Take the popularity of the first song as an example
+                }
+                return null; // Handle cases where no songs are found or structure is different
+            });
+
+            console.log('Answer Pops Array now at: ', answerPopsArr.toString());
             return answerPopsArr;
-        } 
+        }
         
         async function searchSpotify(searchTerm) {
             console.log('Searching for '+searchTerm)
@@ -362,12 +371,13 @@
 
         async function calculateAnswerPops(answers) {
             console.log('Parsing answer popularities');
-            let rawAnswerPayloads = await searchAnswers(answers);
-            console.log('Returned popularities: ', rawAnswerPayloads.toString());
+            let answerPops = await searchAnswers(answers);
+            console.log('Returned popularities: ', answerPops.toString());
         
-            let answerPops = rawAnswerPayloads.map(resultData => parseInt(resultData[0].popularity));
-            console.log('Answer popularities: ', answerPops.toString());
+            // Filter out null values if any song wasn't found or popularity was missing
+            answerPops = answerPops.filter(pop => pop !== null);
         
+            console.log('Filtered answer popularities: ', answerPops.toString());
             return answerPops;
         }
         
