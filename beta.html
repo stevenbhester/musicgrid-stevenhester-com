@@ -242,6 +242,7 @@
                 songTitleSpan.textContent = song.name;
                 songElement.appendChild(songTitleSpan);
                 songElement.innerHTML += ` by ${song.artists.map(artist => artist.name).join(', ')}`; // Add artist name(s)
+                resultsContainer.appendChild(songElement);
                 songElement.onclick = () => {
                     selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement);
                     // Clear the dropdown after selection
