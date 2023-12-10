@@ -228,6 +228,7 @@
             return response.json();
         }
         function displaySpotifyResults(songs, inputElement) {
+            removeDropdown(inputElement); // Remove existing dropdown if present
             console.log('Creating results container')
             const resultsContainer = document.createElement('div');
             resultsContainer.className = 'results-dropdown';
@@ -253,7 +254,6 @@
         
             // Position the results dropdown so it doesn't cover the input field
             inputElement.parentNode.style.position = 'relative';
-            removeDropdown(inputElement); // Remove existing dropdown if present
             inputElement.parentNode.appendChild(resultsContainer);
         }
 
