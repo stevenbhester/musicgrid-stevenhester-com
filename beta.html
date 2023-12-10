@@ -313,13 +313,13 @@
         }
 
         // You get one point just for being here
-        const TotalScore = 1; 
+        var TotalScore = 1; 
         
         // Function to update the score based on the user's guess
         function updateScoreForGuess(popularity, answers) {
-            const cellScoreMax = 0;
-            const cellScoreMin = 0;
-            const normedGuessScore = 0;
+            cellScoreMax = 0;
+            cellScoreMin = 0;
+            normedGuessScore = 0;
             popInt = parseInt(popularity);
             console.log('Norming score off popularity of '+popInt+' from string '+popularity);
             answerPops = checkPopularity(answers);
@@ -347,7 +347,7 @@
         }
         
         function checkPopularity(answers) }
-            const answerPops = Array(len(answers));
+            answerPops = Array(len(answers));
             console.log('Checking popularity of answer key')
             answers.forEach(searchSpotify(currentElement))
             for (let i=0; i<len(answers); i++) {
