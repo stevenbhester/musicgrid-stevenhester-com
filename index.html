@@ -347,7 +347,7 @@
             console.log('Max cell popularity determined as: '+cellScoreMax);
             cellScoreMin = Math.min.apply(Math, answerPops);
             console.log('Min cell popularity determined as: '+cellScoreMin);
-            if (cellScoreMin = cellScoreMax) {
+            if (cellScoreMin == cellScoreMax) {
                 normedGuessScore = 9;
             } else {
                 normedGuessScore = 6+5*Math.round(10*(1 - ((popInt - cellScoreMin)/(cellScoreMax - cellScoreMin))))/10;
@@ -363,15 +363,11 @@
         async function calculateAnswerPops(answers) {
             console.log('Parsing answer popularities');
             let rawAnswerPayloads = await searchAnswers(answers);
-            console.log('Returned popularities: ' + rawAnswerPayloads.toString());
-            console.log('First pop to be added is: ' + rawAnswerPayloads[0][0].popularity);
-            let answerPops = [];
-            let j = 0;
-            rawAnswerPayloads.forEach(resultData => {
-                answerPops[j] = parseInt(resultData[0].popularity);
-            });
+            console.log('Returned popularities: ', rawAnswerPayloads.toString());
         
-            // Position the results dropdown so it doesn't cover the input field
+            let answerPops = rawAnswerPayloads.map(resultData => parseInt(resultData[0].popularity));
+            console.log('Answer popularities: ', answerPops.toString());
+        
             return answerPops;
         }
         
