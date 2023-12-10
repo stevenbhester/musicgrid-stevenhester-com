@@ -330,7 +330,8 @@
             var popInt = parseInt(popularity);
             console.log('Norming score off popularity of '+popInt+' from string '+popularity);
             answerPops = checkPopularity(answers);
-            console.log('Popularities returned to score updater: '+answers.toString());
+            console.log('Popularities returned to score updater for: '+answers.toString());
+            console.log('Returned popularities: '+answerPops.toString());
             cellScoreMax = Math.max.apply(Math, answerPops);
             console.log('Max cell popularity determined as: '+cellScoreMax);
             cellScoreMin = Math.min.apply(Math, answerPops);
