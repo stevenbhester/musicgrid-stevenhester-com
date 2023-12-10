@@ -236,18 +236,14 @@
             }
         }
 
-        function searchAnswers(answerTerms) {
+        async function searchAnswers(answerTerms) {
             console.log('Initializing evaluation of answers '+answerTerms);
-            let answerPopsArr = {}
-            let j = 0
-            answerTerms.forEach(answerTerm => {
-                console.log('Evaluating answer: '+answerTerm);
-                searchSpotify(answerTerm)
-                    .then(pops => answerPopsArr[j] = pops.json())
-                    .catch(error => console.error('Error fetching Spotify data:', error));
-                console.log('Answer Pops Array now at: 'answerPopsArr.toString());
-            });
-            console.log('Returning final answerPopsArr');
+            let promises = answerTerms.map(answerTerm => searchSpotify(answerTerm));
+            
+            // Wait for all promises to resolve
+            let results = await Promise.all(promises);
+            let answerPopsArr = results.map(result => result.popularity);
+            console.log('Answer Pops Array now at: ', answerPopsArr.toString());
             return answerPopsArr;
         } 
         
@@ -344,7 +340,7 @@
             var normedGuessScore = 0;
             var popInt = parseInt(popularity);
             console.log('Norming score off popularity of '+popInt+' from string '+popularity);
-            answerPops = calculateAnswerPops(answers);
+            let answerPops = await calculateAnswerPops(answers);
             console.log('Popularities returned to score updater for: '+answers.toString());
             console.log('Returned popularities: '+answerPops.toString());
             cellScoreMax = Math.max.apply(Math, answerPops);
@@ -354,7 +350,7 @@
             if (cellScoreMin = cellScoreMax) {
                 normedGuessScore = 9;
             } else {
-                normedGuessScore = 6+5*Math.Round(10*(1 - ((popInt - cellScoreMin)/(cellScoreMax - cellScoreMin))))/10;
+                normedGuessScore = 6+5*Math.round(10*(1 - ((popInt - cellScoreMin)/(cellScoreMax - cellScoreMin))))/10;
             }
             
             console.log('Normed score determined as: '+normedGuessScore);
@@ -364,9 +360,10 @@
             updateScoreTo(totalScore);
         }
 
-        function calculateAnswerPops(answers) {
+        async function calculateAnswerPops(answers) {
             console.log('Parsing answer popularities');
-            let rawAnswerPayloads = searchAnswers(answers);
+            let rawAnswerPayloads = await searchAnswers(answers);
+            console.log('Returned popularities: ', rawAnswerPayloads.toString())
             let answerPops = [];
             let j = 0;
             rawAnswerPayloads.forEach(resultData => {
