@@ -306,9 +306,13 @@
         }
 
         function removeDropdown(inputElement) {
-            const existingContainer = inputElement.parentNode.querySelector('.results-dropdown');
-            if (existingContainer) {
-                inputElement.parentNode.removeChild(existingContainer);
+            if (inputElement && inputElement.parentNode) {
+                const existingContainer = inputElement.parentNode.querySelector('.results-dropdown');
+                if (existingContainer) {
+                    inputElement.parentNode.removeChild(existingContainer);
+                }
+            } else {
+                console.error('Input element is not in the DOM or has no parent.');
             }
         }
 
