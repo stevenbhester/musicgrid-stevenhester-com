@@ -223,7 +223,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ searchTerm })
             });
-            response.json().forEach(song => console.log('Received response: '+song))
+            console.log('Received response: '+response)
             if (!response.ok) throw new Error('Failed to fetch');
             return response.json();
         }
