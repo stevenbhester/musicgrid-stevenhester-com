@@ -253,6 +253,7 @@
                 songElement.innerHTML += ` by ${song.artists.map(artist => artist.name).join(', ')}`; // Add artist name(s)
                 resultsContainer.appendChild(songElement);
                 songElement.onclick = () => {
+                    console.log('Selected song '+`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`)
                     selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement);
                     // Clear the dropdown after selection
                     resultsContainer.innerHTML = '';
@@ -267,10 +268,13 @@
 
         // Add a utility function for basic similarity check
         function isSimilar(guess, correctAnswers) {
+            console.log('Evaluating guess: '+guess)
+            console.log('By answers: '+correctAnswers)
             return correctAnswers.some(answer => guess.toLowerCase().includes(answer.toLowerCase()));
         }
         
         function selectSong(songInfo, inputElement, answers) {
+            console.log('Checking guess '+songInfo)
             const cell = inputElement.closest('.cell');
             const isCorrect = isSimilar(songInfo, answers);
         
