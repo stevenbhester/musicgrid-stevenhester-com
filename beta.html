@@ -224,37 +224,32 @@
             if (!response.ok) throw new Error('Failed to fetch');
             return response.json();
         }
-
         function displaySpotifyResults(songs, inputElement) {
-            // ... existing setup for resultsContainer ...
-            // Ensure the dropdown appears below the input field
             const resultsContainer = document.createElement('div');
             resultsContainer.className = 'results-dropdown';
             resultsContainer.style.top = '100%'; 
             resultsContainer.style.left = '0';
-        
-            // Populate the dropdown
+            
             songs.forEach(song => {
                 const songElement = document.createElement('div');
                 const songTitleSpan = document.createElement('span');
-                songTitleSpan.className = 'song-title';
+                songTitleSpan.className = 'song-title'; // Apply bold styling to the song title
                 songTitleSpan.textContent = song.name;
                 songElement.appendChild(songTitleSpan);
-                songElement.innerHTML += ` by ${song.artists.map(artist => artist.name).join(', ')}`;
+                songElement.innerHTML += ` by ${song.artists.map(artist => artist.name).join(', ')}`; // Add artist name(s)
                 songElement.onclick = () => {
                     selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement);
                     // Clear the dropdown after selection
                     resultsContainer.innerHTML = '';
+                    resultsContainer.appendChild(songElement);
                 };
-                resultsContainer.appendChild(songElement);
             });
         
-            // Remove any existing dropdown and add the new one
+            // Position the results dropdown so it doesn't cover the input field
             inputElement.parentNode.style.position = 'relative';
             removeDropdown(inputElement); // Remove existing dropdown if present
             inputElement.parentNode.appendChild(resultsContainer);
         }
-
 
         // Add a utility function for basic similarity check
         function isSimilar(guess, correctAnswers) {
