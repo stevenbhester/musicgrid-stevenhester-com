@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Grid Game</title>
+    <link rel="icon" type="image/x-icon" href="favicon.png">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-image: url('bgimg.png');
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 2.5em;
+            margin: 0;
+        }
+
+        .subheader {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .row {
+            display: flex;
+            width: 100%;
+            position: relative;
+        }
+
+        .cell {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1.1em;
+            min-height: 50px;
+            background-color: #e3f2fd;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-word;
+        }
+
+        .genre-header, .artist {
+            background-color: #bbdefb;
+        }
+
+        .invisible {
+            visibility: hidden;
+        }
+
+        .results-dropdown {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            position: absolute;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .results-dropdown div:hover {
+            background-color: #f0f0f0;
+        }
+
+        .results-dropdown {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            position: absolute;
+            width: calc(100% - 20px); /* adjust width as needed */
+            z-index: 1000;
+            top: 100%; /* make sure it starts right after the input field */
+            left: 0; /* align to the left edge of the input field */
+            margin-top: 5px; /* add a little space below the input field */
+        }
+        
+        .results-dropdown div {
+            padding: 10px; /* add more padding for spacing between results */
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0; /* add a subtle line between each result */
+        }
+        
+        .results-dropdown div:last-child {
+            border-bottom: none; /* no border for the last item */
+        }
+        
+        /* Style for the song title to be bold */
+        .song-title {
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">musicgrid.io</div>
+        <div class="subheader">Guess the song that matches each artist and category</div>
+        <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div>
+    </div>
+    <div class="header">
+        <div class="subheader"><i>no guarantees on accuracy, ChatGPT made this grid</i></div>
+    </div>
+
+    <div class="container">
+        <!-- Artists Row -->
+        <div class="row">
+            <div class="cell invisible"></div>
+            <div class="cell artist">Nirvana</div>
+            <div class="cell artist">Whitney Houston</div>
+            <div class="cell artist">Backstreet Boys</div>
+        </div>
+    
+        <!-- Category 1: Songs from Debut Albums -->
+        <div class="row">
+            <div class="cell genre-header">Songs from Debut Albums</div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['About a Girl', 'Love Buzz'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['You Give Good Love', 'Saving All My Love for You'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['We\'ve Got It Goin\' On', 'I\'ll Never Break Your Heart'])" placeholder="Type to search...">
+            </div>
+        </div>
+    
+        <!-- Category 2: Songs Nominated for Grammy Awards -->
+        <div class="row">
+            <div class="cell genre-header">Songs Nominated for Grammy Awards</div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Smells Like Teen Spirit', 'Heart-Shaped Box'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['I Will Always Love You', 'Saving All My Love for You', 'I Wanna Dance with Somebody'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['I Want It That Way', 'Shape of My Heart'])" placeholder="Type to search...">
+            </div>
+        </div>
+    
+        <!-- Category 3: Songs That Topped Billboard's Mainstream Top 40 Chart -->
+        <div class="row">
+            <div class="cell genre-header">Songs That Topped Billboard's Mainstream Top 40 Chart</div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Come As You Are'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['I Will Always Love You', 'Exhale (Shoop Shoop)', 'Heartbreak Hotel'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['I Want It That Way', 'Everybody (Backstreet\'s Back)', 'As Long as You Love Me'])" placeholder="Type to search...">
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function liveSearch(inputElement, answers) {
+            if (inputElement.value.length > 2) {
+                searchSpotify(inputElement.value)
+                    .then(songs => displaySpotifyResults(songs, inputElement, answers))
+                    .catch(error => console.error('Error fetching Spotify data:', error));
+            } else {
+                removeDropdown(inputElement);
+            }
+        }
+
+        async function searchSpotify(searchTerm) {
+            const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ searchTerm })
+            });
+            if (!response.ok) throw new Error('Failed to fetch');
+            return response.json();
+        }
+
+        function displaySpotifyResults(songs, inputElement) {
+            const resultsContainer = document.createElement('div');
+            resultsContainer.className = 'results-dropdown';
+        
+            songs.forEach(song => {
+                const songElement = document.createElement('div');
+                const songTitleSpan = document.createElement('span');
+                songTitleSpan.textContent = song.name;
+                songTitleSpan.className = 'song-title'; // Apply bold styling to the song title
+                songElement.appendChild(songTitleSpan);
+                songElement.innerHTML += ` by ${song.artists.map(artist => artist.name).join(', ')}`; // Add artist name(s)
+                songElement.onclick = () => selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement);
+                resultsContainer.appendChild(songElement);
+            });
+        
+            // Position the results dropdown so it doesn't cover the input field
+            inputElement.parentNode.style.position = 'relative';
+            removeDropdown(inputElement); // Remove existing dropdown if present
+            inputElement.parentNode.appendChild(resultsContainer);
+        }
+
+        // Add a utility function for basic similarity check
+        function isSimilar(guess, correctAnswers) {
+            return correctAnswers.some(answer => guess.toLowerCase().includes(answer.toLowerCase()));
+        }
+        
+        function selectSong(songInfo, inputElement, answers) {
+            const cell = inputElement.closest('.cell');
+            const isCorrect = isSimilar(songInfo, answers);
+        
+            if (isCorrect) {
+                cell.style.backgroundColor = '#c8e6c9'; // Green for correct
+                cell.textContent = 'Correct: ' + songInfo;
+            } else {
+                cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
+                cell.textContent = 'Incorrect! Possible answers: ' + answers.join(', ');
+            }
+        
+            removeDropdown(inputElement);
+        
+            // Disable the input field to prevent further guesses
+            inputElement.disabled = true;
+        }
+
+        function removeDropdown(inputElement) {
+            const existingContainer = inputElement.parentNode.querySelector('.results-dropdown');
+            if (existingContainer) {
+                inputElement.parentNode.removeChild(existingContainer);
+            }
+        }
+    </script>
+</body>
+</html>
