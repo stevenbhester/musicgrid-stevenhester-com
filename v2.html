@@ -56,7 +56,7 @@
             flex: 1;
             padding: 15px 20px;
             text-align: center;
-            font-size: 1.1em;
+            font-size: 1.5vw;
             min-height: 50px;
             background-color: #e3f2fd;
             position: relative;
@@ -72,18 +72,6 @@
 
         .invisible {
             visibility: hidden;
-        }
-
-        .results-dropdown {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            max-height: 200px;
-            overflow-y: auto;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            position: absolute;
-            width: 100%;
-            z-index: 1000;
         }
 
         .results-dropdown div:hover {
@@ -129,8 +117,10 @@
         
         @media (max-width: 600px) {
             .cell, .genre-header, .artist {
-                font-size: 14px;
-                padding: 8px 5px;
+                font-size: 1.5vw; /* Adjust base font size */
+                overflow: auto; /* Add scrollbars to cells with too much content */
+                word-wrap: break-word; /* Ensures words wrap and don't overflow */
+                padding: 1px 1px;
             }
         
             .results-dropdown {
