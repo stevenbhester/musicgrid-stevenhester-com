@@ -391,7 +391,7 @@
                     const leaderboardList = document.getElementById("leaderboardList");
                     leaderboardList.innerHTML = ''; // Clear existing list
                     scores.forEach(({ rank, name, score }) => {
-                        console.log('Creating leaderboard entry: '+${rank}+': '+${name}+' ('${score}+')');
+                        console.log('Creating leaderboard entry: '+rank+': '+name+' ('+score+')');
                         const entry = document.createElement("li");
                         entry.textContent = `#${rank}: ${name} (${score})`;
                         console.log('Appending entry');
