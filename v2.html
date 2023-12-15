@@ -158,7 +158,7 @@
     <div class="header">
         <div class="subheader"><i>no guarantees on accuracy, ChatGPT made this grid</i></div>
         <div class="subheader"><i>get more points when you guess less popular song answers</i></div>
-        <div class="subheader"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
+        <div class="subheader" id="guessWrapper"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
    
     </div>
 
@@ -356,7 +356,7 @@
             console.log('Requesting scoring for guess: '+songInfo);
             
             // Handle new guess total
-            if (guessTotal == 0) {
+            if (guessTotal == 0 || correctGuesses = 9) {
                 terminateGame();
             } else {
                 decrementGuesses();
@@ -370,6 +370,10 @@
         
         function terminateGame() {
             console.log('Terminating game!');
+            
+            eogGuessMsg = 'Guessing complete!'
+            document.getElementById("guessWrapper").textContent=eogGuessMsg;
+            
             const songCells = document.querySelectorAll('.song-cell');
             console.log('Identified song cells');
             songCells.forEach(cell => {
@@ -385,7 +389,7 @@
                         // Update the cell to show it's incorrect and display correct answers
                         cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
                         
-                        cell.textContent = 'Incorrect! Correct answers: <br>' + correctAnswers.join(', ');
+                        cell.textContent = 'Incorrect! Correct answers: ' + correctAnswers.join(', ');
                         inputField.disabled = true;
                     }
                 } else {
