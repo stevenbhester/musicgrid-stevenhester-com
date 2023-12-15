@@ -248,7 +248,7 @@
 
         
         // Var score is calculating ?
-        let scoringOngoing = False;
+        let scoringOngoing = false;
         
         function liveSearch(inputElement, answers) {
             if (inputElement.value.length > 2) {
@@ -349,7 +349,7 @@
                 correctGuesses+=1;
                 console.log('Correct guesses now at '+correctGuesses);
                 if(guessTotal == 1) {
-                    scoringOngoing = False;
+                    scoringOngoing = false;
                 }
                 inputElement.disabled = true;
                 if (scoringOngoing) {
@@ -467,7 +467,7 @@
         // Call this function when the page loads to display the leaderboard
         window.onload = function() {
             loadLeaderboard();
-            scoringOngoing = False;
+            scoringOngoing = false;
         };
             
         // Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
@@ -502,7 +502,7 @@
         
         // Function to update the score based on the user's guess
         async function updateScoreForGuess(popularity, answers) {
-            scoringOngoing = True;
+            scoringOngoing = true;
             updateScoreTo('(updating score)');
             calculateAnswerPops(answers);
             var cellScoreMax = 0;
@@ -545,7 +545,7 @@
         function updateScoreTo(totalScore) {
             scoreReadable = ' '+totalScore
             document.getElementById("totalScore").textContent=scoreReadable;
-            scoringOngoing = False;
+            scoringOngoing = false;
             // Check if game is now complete
             if (correctGuesses == 9 && totalScore != '(updating score)') {
                 terminateGame();
