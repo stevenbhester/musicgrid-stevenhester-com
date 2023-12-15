@@ -518,7 +518,7 @@
             scoreReadable = ' '+totalScore
             document.getElementById("totalScore").textContent=scoreReadable;
             // Check if game is now complete
-            if (correctGuesses == 9) {
+            if (correctGuesses == 9 && totalScore != '(updating score)') {
                 terminateGame();
             }
         }
