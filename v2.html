@@ -345,7 +345,7 @@
             if (isCorrect) {
                 console.log('Guess correct!');
                 cell.style.backgroundColor = '#c8e6c9'; // Green for correct
-                cell.textContent = 'Correct: ' + songInfo + '(pop: '+popularity+')';
+                cell.textContent = 'Correct: ' + songInfo + '(calculating score)';
                 correctGuesses+=1;
                 console.log('Correct guesses now at '+correctGuesses);
                 console.log('Scoring ongoing is: '+scoringOngoing);
@@ -356,10 +356,10 @@
                 if (scoringOngoing) {
                     while (scoringOngoing) {
                         console.log('Scoring in progress, updating new score once complete!');
-                        setTimeout(updateScoreForGuess(popularity,answers), 500);
+                        setTimeout(updateScoreForGuess(popularity,answers,cell,songInfo), 500);
                     }
                 } else { 
-                    updateScoreForGuess(popularity,answers);
+                    updateScoreForGuess(popularity,answers,cell,songInfo);
                 }
             } else {
                 cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
@@ -502,7 +502,7 @@
 
         
         // Function to update the score based on the user's guess
-        async function updateScoreForGuess(popularity, answers) {
+        async function updateScoreForGuess(popularity, answers, cell, songInfo) {
             scoringOngoing = true;
             updateScoreTo('(updating score)');
             calculateAnswerPops(answers);
@@ -519,11 +519,16 @@
             cellScoreMin = Math.min.apply(Math, answerPops);
             console.log('Min cell popularity determined as: '+cellScoreMin);
             if (cellScoreMin == cellScoreMax) {
-                normedGuessScore = 9;
+                normedGuessScore = 11;
             } else {
                 normedGuessScore = 6+5*Math.round(10*(1 - ((popInt - cellScoreMin)/(cellScoreMax - cellScoreMin))))/10;
             }
             
+            // Updating score in Song Cell
+            cell.style.backgroundColor = '#c8e6c9'; // Green for correct
+            cell.textContent = 'Correct: ' + songInfo + '('+normedGuessScore+' out of 11 points scored)';
+
+            // Calculating total score
             console.log('Normed score determined as: '+normedGuessScore);
             console.log('Adding normed score to prior total of '+totalScore);
             totalScore+=normedGuessScore;
@@ -548,7 +553,7 @@
             document.getElementById("totalScore").textContent=scoreReadable;
             scoringOngoing = false;
             // Check if game is now complete
-            if (correctGuesses == 9 && totalScore != '(updating score)') {
+            if (correctGuesses == 9 && !(totalScore.equals('(updating score)'))) {
                 terminateGame();
             }
         }
