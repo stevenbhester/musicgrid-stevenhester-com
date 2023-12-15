@@ -158,6 +158,8 @@
     <div class="header">
         <div class="subheader"><i>no guarantees on accuracy, ChatGPT made this grid</i></div>
         <div class="subheader"><i>get more points when you guess less popular song answers</i></div>
+        <div class="subheader"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
+   
     </div>
 
     <div class="container">
@@ -239,6 +241,9 @@
 
         // Guesses don't last forever...
         let guessTotal = 10;
+
+        // How good are ya really?
+        let correctGuesses = 0;
         
         function liveSearch(inputElement, answers) {
             if (inputElement.value.length > 2) {
@@ -335,7 +340,7 @@
             if (isCorrect) {
                 cell.style.backgroundColor = '#c8e6c9'; // Green for correct
                 cell.textContent = 'Correct: ' + songInfo + '(pop: '+popularity+')';
-                
+                correctGuesses+=1;
                 inputElement.disabled = true;
                 updateScoreForGuess(popularity,answers);
             } else {
@@ -350,9 +355,15 @@
             if (guessTotal == 0) {
                 terminateGame();
             } else {
-            
+                decrementGuesses();
+            }
         }
 
+        function decrementGuesses() {
+            guessesReadable = ' '+guessTotal
+            document.getElementById("guessesRemaining").textContent=guessesReadable;
+        }
+        
         function terminateGame() {
             // Terminate rest of grid and finalize score for future scoreboarding
             
