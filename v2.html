@@ -390,10 +390,10 @@
                     console.log('Selecting leaderboard div');
                     const leaderboardList = document.getElementById("leaderboardList");
                     leaderboardList.innerHTML = ''; // Clear existing list
-                    scores.forEach(({ rank, name, score }) => {
-                        console.log('Creating leaderboard entry: '+rank+': '+name+' ('+score+')');
+                    scores.forEach(({ rank, player_name, player_score }) => {
+                        console.log('Creating leaderboard entry: '+rank+': '+player_name+' ('+player_score+')');
                         const entry = document.createElement("li");
-                        entry.textContent = `#${rank}: ${name} (${score})`;
+                        entry.textContent = `#${rank}: ${player_name} (${player_score})`;
                         console.log('Appending entry');
                         leaderboardList.appendChild(entry);
                     });
