@@ -358,7 +358,7 @@
             console.log('Requesting scoring for guess: '+songInfo);
             
             // Handle new guess total
-            if (guessTotal == 0 || correctGuesses == 9) {
+            if (guessTotal == 0) {
                 terminateGame();
             } else {
                 decrementGuesses();
@@ -517,6 +517,10 @@
         function updateScoreTo(totalScore) {
             scoreReadable = ' '+totalScore
             document.getElementById("totalScore").textContent=scoreReadable;
+            // Check if game is now complete
+            if (correctGuesses == 9) {
+                terminateGame();
+            }
         }
         
     </script>
