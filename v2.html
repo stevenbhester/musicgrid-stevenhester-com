@@ -222,12 +222,16 @@
             Total Score:<span id="totalScore"> 1</span>
         </div>
     </div>
-
-    <div id="leaderboard">
-        <h2>Leaderboard</h2>
-        <ul id="leaderboardList">
-            <!-- Leaderboard entries will be added here -->
-        </ul>
+    
+    <div class="header">
+        <div class="subheader">
+            <div id="leaderboard">
+                <h2>Leaderboard</h2>
+                <ul id="leaderboardList">
+                    <!-- Leaderboard entries will be added here -->
+                </ul>
+            </div>
+        </div>
     </div>
         
         
@@ -365,22 +369,38 @@
         }
         
         function terminateGame() {
-            // Terminate rest of grid and finalize score for future scoreboarding
-            
-            //pseudocode below
-            //identify list of cells which do not have correct answer (look for input field or something)
-            //store those elements in array
-            //run them through select song with a new default param that shows it's failing the field
-            //show failures below
-            // cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
-            // cell.textContent = 'Incorrect! Possible answers: ' + answers.join(', ');
-                // would be nice if instead of popularity we showed potential max points per answer and listed descending order
-                    // maybe store array of cell answers the first time they're looked up, saves us rerunning API calls on repeated wrong guesses
-                    // then output from those answers
+            const songCells = document.querySelectorAll('.song-cell');
+            songCells.forEach(cell => {
+                const inputField = cell.querySelector('input[type="text"]');
+                if (!inputField.disabled) {
+                    // Extract correct answers from the oninput attribute
+                    const correctAnswers = extractCorrectAnswers(inputField.getAttribute('oninput'));
+        
+                    // Update the cell to show it's incorrect and display correct answers
+                    cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
+                    cell.innerHTML = 'Incorrect! Correct answers: <br>' + correctAnswers.join(', ');
+                    inputField.disabled = true;
+                }
+            });
+        
+            // Provide feedback that the game has ended
+            displayEndGameMessage();
             let playerName = prompt("Enter your name for the leaderboard:");
             if (playerName) {
                 leaderboardUpdate(playerName, totalScore);
             }
+        }
+        
+        function extractCorrectAnswers(oninputValue) {
+            // Assuming the format is liveSearch(this, ['Answer1', 'Answer2', ...])
+            const answersMatch = oninputValue.match(/\[\s*'(.*?)'\s*\]/);
+            return answersMatch ? answersMatch[1].split("', '") : [];
+        }
+        
+        function displayEndGameMessage() {
+            const endGameMessage = document.createElement('div');
+            endGameMessage.innerHTML = "<strong>Game Over!</strong> Here are the songs you missed.";
+            document.querySelector('.container').prepend(endGameMessage);
         }
 
         function loadLeaderboard() {
