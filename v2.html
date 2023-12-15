@@ -372,14 +372,20 @@
             const songCells = document.querySelectorAll('.song-cell');
             songCells.forEach(cell => {
                 const inputField = cell.querySelector('input[type="text"]');
-                if (!inputField.disabled) {
-                    // Extract correct answers from the oninput attribute
-                    const correctAnswers = extractCorrectAnswers(inputField.getAttribute('oninput'));
+                if (inputField) {
+                    if (!inputField.disabled) {
+                        // Extract correct answers from the oninput attribute
+                        const correctAnswers = extractCorrectAnswers(inputField.getAttribute('oninput'));
         
-                    // Update the cell to show it's incorrect and display correct answers
-                    cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
-                    cell.innerHTML = 'Incorrect! Correct answers: <br>' + correctAnswers.join(', ');
-                    inputField.disabled = true;
+                        // Update the cell to show it's incorrect and display correct answers
+                        cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
+                        const correctAnswerText = document.createElement('div');
+                        correctAnswerText.innerHTML = 'Incorrect! Correct answers: <br>' + correctAnswers.join(', ');
+                        cell.appendChild(correctAnswerText);
+                        inputField.disabled = true;
+                    }
+                } else {
+                    console.error('Input field not found in the cell:', cell);
                 }
             });
         
