@@ -348,6 +348,9 @@
                 cell.textContent = 'Correct: ' + songInfo + '(pop: '+popularity+')';
                 correctGuesses+=1;
                 console.log('Correct guesses now at '+correctGuesses);
+                if(guessTotal == 1) {
+                    scoringOngoing = False;
+                }
                 inputElement.disabled = true;
                 if (scoringOngoing) {
                     while (scoringOngoing) {
