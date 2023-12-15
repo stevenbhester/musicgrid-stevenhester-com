@@ -387,13 +387,17 @@
             fetch('https://music-grid-io-42616e204fd3.herokuapp.com/scores')
                 .then(response => response.json())
                 .then(scores => {
+                    console.log('Selecting leaderboard div');
                     const leaderboardList = document.getElementById("leaderboardList");
                     leaderboardList.innerHTML = ''; // Clear existing list
-                    scores.forEach(({ name, score }) => {
+                    scores.forEach(({ rank, name, score }) => {
+                        console.log('Creating leaderboard entry: '+${rank}+': '+${name}+' ('${score}+')');
                         const entry = document.createElement("li");
-                        entry.textContent = `${name}: ${score}`;
+                        entry.textContent = `#${rank}: ${name} (${score})`;
+                        console.log('Appending entry');
                         leaderboardList.appendChild(entry);
                     });
+                    console.log('Done appending');
                 })
                 .catch(error => console.error('Error:', error));
         }
