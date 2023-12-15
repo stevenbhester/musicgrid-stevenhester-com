@@ -359,15 +359,23 @@
                 // would be nice if instead of popularity we showed potential max points per answer and listed descending order
                     // maybe store array of cell answers the first time they're looked up, saves us rerunning API calls on repeated wrong guesses
                     // then output from those answers
-            leaderboardUpdate();
+            leaderboardNamePrompt();
         }
         
-        // Add leaderboard function here to be called once all guesses exhausted (or future give up button done which mimics having grid terminated
-        function leaderboardUpdate() {
+        // Add leaderboard function here to be called once all guesses exhausted (or future give up button done which mimics having grid terminated)
+        function leaderboardNamePrompt() {
             // When someone finishes the grid, add their total to a text file to display under the game. let them add a text field for their name, maybe track their answers
+            document.getElementById("game_finisher").textContent=  <input type="text" oninput="leaderboardUpdate(this, placeholder="Enter name to save score to leaderboard")>
+        }
             
+        // Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
+        function leaderboardUpdate(nameElement) {
+            let playerName = inputElement.value
+            // write to csv with their name and the score they got for current date, create csv if it doesn't yet exist
         }
 
+        // TODO: Display leaderboard from CSV on first pageload
+            // Add give up button
             
         function removeDropdown(inputElement) {
             if (inputElement && inputElement.parentNode) {
