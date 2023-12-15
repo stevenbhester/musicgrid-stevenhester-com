@@ -11,7 +11,7 @@
             background-image: url('bgimg.png');
             color: #333;
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             height: 100vh;
             flex-direction: column;
@@ -40,10 +40,10 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 80%;
+            width: 95%;
             max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
+            margin: 10px auto;
+            padding: 10px;
         }
 
         .row {
@@ -56,7 +56,7 @@
             flex: 1;
             padding: 15px 20px;
             text-align: center;
-            font-size: 1.1em;
+            font-size: 1.5em;
             min-height: 50px;
             background-color: #e3f2fd;
             position: relative;
@@ -74,22 +74,9 @@
             visibility: hidden;
         }
 
-        .results-dropdown {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            max-height: 200px;
-            overflow-y: auto;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            position: absolute;
-            width: 100%;
-            z-index: 1000;
-        }
-
         .results-dropdown div:hover {
             background-color: #f0f0f0;
         }
-
         .results-dropdown {
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             max-height: 200px;
@@ -102,11 +89,11 @@
             z-index: 1000;
             top: 100%; /* make sure it starts right after the input field */
             left: 0; /* align to the left edge of the input field */
-            margin-top: 5px; /* add a little space below the input field */
+            margin-top: 1px; /* add a little space below the input field */
         }
-
+            
         .results-dropdown div {
-            padding: 10px; /* add more padding for spacing between results */
+            padding: 5px; /* add more padding for spacing between results */
             cursor: pointer;
             border-bottom: 1px solid #f0f0f0; /* add a subtle line between each result */
         }
@@ -129,8 +116,9 @@
         
         @media (max-width: 600px) {
             .cell, .genre-header, .artist {
-                font-size: 14px;
-                padding: 8px 5px;
+                font-size: 14px; /* Adjust base font size */
+                word-wrap: break-word; /* Ensures words wrap and don't overflow */
+                padding: 1px 1px;
             }
         
             .results-dropdown {
@@ -145,6 +133,9 @@
         
             .song-cell {
                 position: relative;
+                font-size: 3.5vw; /* Adjust base font size */
+                word-wrap: break-word; /* Ensures words wrap and don't overflow */
+                padding: 1px 1px;
             }
         }
     </style>
@@ -159,57 +150,60 @@
         <div class="subheader"><i>no guarantees on accuracy, ChatGPT made this grid</i></div>
         <div class="subheader"><i>get more points when you guess less popular song answers</i></div>
     </div>
+    <div class="header">
+        <div class="subheader" id="guessWrapper"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
+    </div>
 
     <div class="container">
-    <!-- Artists Row -->
+        <!-- Artists Row -->
         <div class="row">
             <div class="cell invisible"></div>
-            <div class="cell artist">Michael Jackson</div>
-            <div class="cell artist">Madonna</div>
-            <div class="cell artist">U2</div>
+            <div class="cell artist">Adele</div>
+            <div class="cell artist">Bruno Mars</div>
+            <div class="cell artist">Ed Sheeran</div>
         </div>
     
-    <!-- Category 1: Songs That Won Grammy Awards -->
+        <!-- Category 1: Songs Released in the 2010s -->
         <div class="row">
-            <div class="cell genre-header">Songs That Won Grammy Awards</div>
+            <div class="cell genre-header">Songs Released in the 2010s</div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Beat It', 'Billie Jean', 'Thriller', 'Black or White', 'Don\'t Stop \'Til You Get Enough', 'Heal the World', 'Leave Me Alone', 'Scream', 'They Don\'t Care About Us', 'Stranger in Moscow'])" placeholder="Type to search...">
+                <input type="text" oninput="liveSearch(this, ['Rolling in the Deep', 'Someone Like You', 'Set Fire to the Rain', 'Hello', 'Send My Love', 'Water Under the Bridge'])" placeholder="Type to search...">
             </div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Ray of Light', 'Beautiful Stranger', 'Vogue', 'Who\'s That Girl', 'Open Your Heart', 'Express Yourself', 'Papa Don\'t Preach', 'Like a Prayer'])" placeholder="Type to search...">
+                <input type="text" oninput="liveSearch(this, ['Just the Way You Are', 'Grenade', 'The Lazy Song', 'It Will Rain', 'Locked Out of Heaven', 'When I Was Your Man', 'Treasure', '24K Magic', 'That\'s What I Like', 'Versace on the Floor', 'Finesse'])" placeholder="Type to search...">
             </div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['With or Without You', 'I Still Haven\'t Found What I\'m Looking For', 'Where the Streets Have No Name', 'Desire', 'The Fly', 'Mysterious Ways', 'Beautiful Day', 'Stuck in a Moment You Can\'t Get Out Of', 'Walk On', 'Elevation', 'Vertigo', 'Sometimes You Can\'t Make It on Your Own', 'City of Blinding Lights'])" placeholder="Type to search...">
-            </div>
-        </div>
-    
-    
-        <!-- Category 2: Songs Released in the 1980s -->
-        <div class="row">
-            <div class="cell genre-header">Songs Released in the 1980s</div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Don\'t Stop \'Til You Get Enough', 'Rock with You', 'Billie Jean', 'Beat It', 'Wanna Be Startin\' Somethin\'', 'Human Nature', 'P.Y.T. (Pretty Young Thing)', 'Thriller', 'Bad', 'The Way You Make Me Feel', 'Man in the Mirror', 'Dirty Diana', 'Smooth Criminal', 'Another Part of Me', 'Leave Me Alone', 'Liberian Girl'])" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Like a Virgin', 'Material Girl', 'Angel', 'Into the Groove', 'Dress You Up', 'Live to Tell', 'Papa Don\'t Preach', 'True Blue', 'Open Your Heart', 'La Isla Bonita', 'Like a Prayer', 'Express Yourself', 'Cherish', 'Oh Father', 'Keep It Together'])" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['I Will Follow', 'Twilight', 'An Cat Dubh', 'Into the Heart', 'Out of Control', 'Stories for Boys', 'The Ocean', 'A Day Without Me', 'Another Time, Another Place', 'The Electric Co.', 'Shadows and Tall Trees'])" placeholder="Type to search...">
+                <input type="text" oninput="liveSearch(this, ['The A Team', 'Lego House', 'Drunk', 'Small Bump', 'Give Me Love', 'Sing', 'Don\'t', 'Thinking Out Loud', 'Photograph', 'Castle on the Hill', 'Shape of You', 'Perfect', 'Galway Girl', 'Happier'])" placeholder="Type to search...">
             </div>
         </div>
     
     
-        <!-- Category 3: Songs From Debut Albums -->
+        <!-- Category 2: Charted Above Top 5 in the Billboard 100 -->
         <div class="row">
-            <div class="cell genre-header">Songs From Debut Albums</div>
+            <div class="cell genre-header">Charted Above Top 5 in the Billboard 100</div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Don\'t Stop \'Til You Get Enough', 'Rock with You', 'Working Day and Night', 'Get on the Floor', 'Off the Wall', 'Girlfriend', 'She\'s Out of My Life', 'I Can\'t Help It', 'It\'s the Falling in Love', 'Burn This Disco Out'])" placeholder="Type to search...">
+                <input type="text" oninput="liveSearch(this, ['Rolling in the Deep', 'Someone Like You', 'Set Fire to the Rain', 'Hello'])" placeholder="Type to search...">
             </div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Lucky Star', 'Borderline', 'Burning Up', 'I Know It', 'Holiday', 'Think of Me', 'Physical Attraction', 'Everybody'])" placeholder="Type to search...">
+                <input type="text" oninput="liveSearch(this, ['Just the Way You Are', 'Grenade', 'Locked Out of Heaven', 'When I Was Your Man', '24K Magic', 'That\'s What I Like'])" placeholder="Type to search...">
             </div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['I Will Follow', 'Twilight', 'An Cat Dubh', 'Into the Heart', 'Out of Control', 'Stories for Boys', 'The Ocean', 'A Day Without Me', 'Another Time, Another Place', 'The Electric Co.', 'Shadows and Tall Trees'])" placeholder="Type to search...">
+                <input type="text" oninput="liveSearch(this, ['Sing', 'Thinking Out Loud', 'Shape of You', 'Perfect'])" placeholder="Type to search...">
+            </div>
+        </div>
+    
+    
+        <!-- Category 3: Songs That Won Song of the Year at the Grammy Awards -->
+        <div class="row">
+            <div class="cell genre-header">Songs That Won Song of the Year at the Grammy Awards</div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Rolling in the Deep', 'Hello'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['That\'s What I Like', 'Leave the Door Open'])" placeholder="Type to search...">
+            </div>
+            <div class="cell song-cell">
+                <input type="text" oninput="liveSearch(this, ['Thinking Out Loud'])" placeholder="Type to search...">
             </div>
         </div>
     </div>
@@ -220,12 +214,42 @@
             Total Score:<span id="totalScore"> 1</span>
         </div>
     </div>
+
+    <!-- Quitter zone -->
+    <div>
+        <button type="button" id="quitButton" onclick = "terminateGame()">Give Up?</button>
+    </div>
+    
+    <div class="header">
+        <div class="subheader">
+            <div id="leaderboard">
+                <h2>Leaderboard</h2>
+                <ul id="leaderboardList">
+                    <!-- Leaderboard entries will be added here -->
+                </ul>
+            </div>
+        </div>
+    </div>
         
         
     </div>
 
     <script>
 
+    
+        // You get one point just for being here
+        let totalScore = 1; 
+
+        // Guesses don't last forever...
+        let guessTotal = 10;
+
+        // How good are ya really?
+        let correctGuesses = 0;
+
+        
+        // Var score is calculating ?
+        let scoringOngoing = false;
+        
         function liveSearch(inputElement, answers) {
             if (inputElement.value.length > 2) {
                 console.log('Requesting search for '+inputElement.value);
@@ -307,27 +331,164 @@
         }
         
         function selectSong(songInfo, inputElement, answers, popularity) {
+            // Decrease guess total for making a guess
+            let newGuessTotal = guessTotal - 1;
+            console.log('Decrementing guess total from '+guessTotal+' to '+newGuessTotal);
+            guessTotal = newGuessTotal;
+
+            // Check if guess is correct
             console.log('Checking guess '+songInfo);
             const cell = inputElement.closest('.cell');
             const isCorrect = isSimilar(songInfo, answers);
-        
+
+            // Mark cell as correct if right, otherwise highlight red
             if (isCorrect) {
+                console.log('Guess correct!');
                 cell.style.backgroundColor = '#c8e6c9'; // Green for correct
-                cell.textContent = 'Correct: ' + songInfo + '(pop: '+popularity+')';
+                cell.textContent = 'Correct: ' + songInfo + ' (calculating score)';
+                correctGuesses+=1;
+                console.log('Correct guesses now at '+correctGuesses);
+                console.log('Scoring ongoing is: '+scoringOngoing);
+                if(guessTotal == 1) {
+                    scoringOngoing = false;
+                }
+                inputElement.disabled = true;
+                if (scoringOngoing) {
+                    while (scoringOngoing) {
+                        console.log('Scoring in progress, updating new score once complete!');
+                        setTimeout(updateScoreForGuess(popularity,answers,cell,songInfo), 500);
+                    }
+                } else { 
+                    updateScoreForGuess(popularity,answers,cell,songInfo);
+                }
             } else {
                 cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
-                cell.textContent = 'Incorrect! Possible answers: ' + answers.join(', ');
+                // cell.textContent = 'Incorrect! Possible answers: ' + answers.join(', ');
             }
-        
+            
             removeDropdown(inputElement);
-            console.log('Requesting scoring for guess: '+songInfo)
-            // Disable the input field to prevent further guesses
-            inputElement.disabled = true;
-            if (isCorrect) {
-                updateScoreForGuess(popularity,answers);
+            console.log('Requesting scoring for guess: '+songInfo);
+            
+            // Handle new guess total
+            if (guessTotal == 0) {
+                terminateGame();
+            } else {
+                decrementGuesses();
             }
         }
 
+        function decrementGuesses() {
+            guessesReadable = ' '+guessTotal
+            document.getElementById("guessesRemaining").textContent=guessesReadable;
+        }
+        
+        function terminateGame() {
+            console.log('Terminating game!');
+
+            console.log('Checking if scores are completed:');
+            if (scoringOngoing) {
+                while (scoringOngoing) {
+                    console.log('Scoring in progress, terminating game once complete!');
+                    setTimeout(endGame(), 500);
+                }
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            eogGuessMsg = 'Guessing complete!'
+            document.getElementById("guessWrapper").textContent=eogGuessMsg;
+
+            quitterButton = document.getElementById("quitButton");
+            quitterButton.parentNode.removeChild(quitterButton);
+            
+            const songCells = document.querySelectorAll('.song-cell');
+            console.log('Identified song cells');
+            songCells.forEach(cell => {
+                console.log('Checking for input field on '+cell.textContent);
+                const inputField = cell.querySelector('input[type="text"]');
+                console.log('inputField = '+inputField);
+                if (inputField) {
+                    console.log('Decided yes, there is an input field! Disabled:'+inputField.disabled);
+                    if (!inputField.disabled) {
+                        // Extract correct answers from the oninput attribute
+                        const correctAnswers = extractCorrectAnswers(inputField.getAttribute('oninput'));
+        
+                        // Update the cell to show it's incorrect and display correct answers
+                        cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
+                        
+                        cell.textContent = 'Incorrect! Correct answers: ' + correctAnswers.join(', ');
+                        inputField.disabled = true;
+                    }
+                } else {
+                    console.error('Input field not found in the cell:', cell);
+                }
+            });
+        
+            // Provide feedback that the game has ended
+            displayEndGameMessage();
+            let playerName = prompt("Enter your name for the leaderboard:");
+            if (playerName) {
+                leaderboardUpdate(playerName, totalScore);
+            }
+        }
+        
+        function extractCorrectAnswers(oninputValue) {
+            // Assuming the format is liveSearch(this, ['Answer1', 'Answer2', ...])
+            const answersMatch = oninputValue.match(/\[\s*'(.*?)'\s*\]/);
+            return answersMatch ? answersMatch[1].split("', '") : [];
+        }
+        
+        function displayEndGameMessage() {
+            const endGameMessage = document.createElement('div');
+            endGameMessage.innerHTML = "<strong>Game Over!</strong> Here are the songs you missed.";
+            document.querySelector('.container').prepend(endGameMessage);
+        }
+
+        function loadLeaderboard() {
+            fetch('https://music-grid-io-42616e204fd3.herokuapp.com/scores')
+                .then(response => response.json())
+                .then(scores => {
+                    console.log('Selecting leaderboard div');
+                    const leaderboardList = document.getElementById("leaderboardList");
+                    leaderboardList.innerHTML = ''; // Clear existing list
+                    scores.forEach(({ rank, player_name, player_score }) => {
+                        console.log('Creating leaderboard entry: '+rank+': '+player_name+' ('+player_score+')');
+                        const entry = document.createElement("li");
+                        entry.textContent = `#${rank}: ${player_name} (${player_score})`;
+                        console.log('Appending entry');
+                        leaderboardList.appendChild(entry);
+                    });
+                    console.log('Done appending');
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        // Call this function when the page loads to display the leaderboard
+        window.onload = function() {
+            loadLeaderboard();
+            scoringOngoing = false;
+        };
+            
+        // Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
+        function leaderboardUpdate(playerName, score) {
+            fetch('https://music-grid-io-42616e204fd3.herokuapp.com/submit-score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: playerName, score: score })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                loadLeaderboard(); // Refresh the leaderboard after updating
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // TODO: Display leaderboard from CSV on first pageload
+            // Add give up button
+            
         function removeDropdown(inputElement) {
             if (inputElement && inputElement.parentNode) {
                 const existingContainer = inputElement.parentNode.querySelector('.results-dropdown');
@@ -339,11 +500,11 @@
             }
         }
 
-        // You get one point just for being here
-        let totalScore = 1; 
         
         // Function to update the score based on the user's guess
-        async function updateScoreForGuess(popularity, answers) {
+        async function updateScoreForGuess(popularity, answers, cell, songInfo) {
+            scoringOngoing = true;
+            updateScoreTo('(updating score)');
             calculateAnswerPops(answers);
             var cellScoreMax = 0;
             var cellScoreMin = 0;
@@ -358,11 +519,16 @@
             cellScoreMin = Math.min.apply(Math, answerPops);
             console.log('Min cell popularity determined as: '+cellScoreMin);
             if (cellScoreMin == cellScoreMax) {
-                normedGuessScore = 9;
+                normedGuessScore = 11;
             } else {
                 normedGuessScore = 6+5*Math.round(10*(1 - ((popInt - cellScoreMin)/(cellScoreMax - cellScoreMin))))/10;
             }
             
+            // Updating score in Song Cell
+            cell.style.backgroundColor = '#c8e6c9'; // Green for correct
+            cell.textContent = 'Correct: ' + songInfo + ' ('+normedGuessScore+' out of 11 points scored)';
+
+            // Calculating total score
             console.log('Normed score determined as: '+normedGuessScore);
             console.log('Adding normed score to prior total of '+totalScore);
             totalScore+=normedGuessScore;
@@ -385,6 +551,11 @@
         function updateScoreTo(totalScore) {
             scoreReadable = ' '+totalScore
             document.getElementById("totalScore").textContent=scoreReadable;
+            scoringOngoing = false;
+            // Check if game is now complete
+            if (correctGuesses == 9 && !(totalScore.equals('(updating score)'))) {
+                terminateGame();
+            }
         }
         
     </script>
