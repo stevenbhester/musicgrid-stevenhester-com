@@ -342,9 +342,11 @@
 
             // Mark cell as correct if right, otherwise highlight red
             if (isCorrect) {
+                console.log('Guess correct!');
                 cell.style.backgroundColor = '#c8e6c9'; // Green for correct
                 cell.textContent = 'Correct: ' + songInfo + '(pop: '+popularity+')';
                 correctGuesses+=1;
+                console.log('Correct guesses now at '+correctGuesses);
                 inputElement.disabled = true;
                 updateScoreForGuess(popularity,answers);
             } else {
@@ -356,7 +358,7 @@
             console.log('Requesting scoring for guess: '+songInfo);
             
             // Handle new guess total
-            if (guessTotal == 0 || correctGuesses = 9) {
+            if (guessTotal == 0 || correctGuesses == 9) {
                 terminateGame();
             } else {
                 decrementGuesses();
@@ -473,6 +475,7 @@
         
         // Function to update the score based on the user's guess
         async function updateScoreForGuess(popularity, answers) {
+            updateScoreTo('(updating score)');
             calculateAnswerPops(answers);
             var cellScoreMax = 0;
             var cellScoreMin = 0;
