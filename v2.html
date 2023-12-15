@@ -371,15 +371,9 @@
                 leaderboardUpdate(playerName, totalScore);
             }
         }
-        
-        // Add leaderboard function here to be called once all guesses exhausted (or future give up button done which mimics having grid terminated)
-        function leaderboardNamePrompt() {
-            // When someone finishes the grid, add their total to a text file to display under the game. let them add a text field for their name, maybe track their answers
-            document.getElementById("game_finisher").textContent=  <input type="text" oninput="leaderboardUpdate(this, placeholder="Enter name to save score to leaderboard")>
-        }
 
         function loadLeaderboard() {
-            fetch('http://yourserver.com/scores')
+            fetch(''https://music-grid-io-42616e204fd3.herokuapp.com/scores')
                 .then(response => response.json())
                 .then(scores => {
                     const leaderboardList = document.getElementById("leaderboardList");
