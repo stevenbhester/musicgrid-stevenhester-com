@@ -464,6 +464,7 @@
         // Call this function when the page loads to display the leaderboard
         window.onload = function() {
             loadLeaderboard();
+            scoringOngoing = False;
         };
             
         // Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
