@@ -244,6 +244,10 @@
 
         // How good are ya really?
         let correctGuesses = 0;
+
+        
+        // Var score is calculating ?
+        let scoringOngoing = False;
         
         function liveSearch(inputElement, answers) {
             if (inputElement.value.length > 2) {
@@ -344,7 +348,14 @@
                 correctGuesses+=1;
                 console.log('Correct guesses now at '+correctGuesses);
                 inputElement.disabled = true;
-                updateScoreForGuess(popularity,answers);
+                if (scoringOngoing) {
+                    while (scoringOngoing) {
+                        console.log('Scoring in progress, updating new score once complete!');
+                        setTimeout(updateScoreForGuess(popularity,answers), 500);
+                    }
+                } else { 
+                    updateScoreForGuess(popularity,answers);
+                }
             } else {
                 cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
                 // cell.textContent = 'Incorrect! Possible answers: ' + answers.join(', ');
@@ -368,7 +379,19 @@
         
         function terminateGame() {
             console.log('Terminating game!');
-            
+
+            console.log('Checking if scores are completed:);
+            if (scoringOngoing) {
+                while (scoringOngoing) {
+                    console.log('Scoring in progress, terminating game once complete!');
+                    setTimeout(endGame(), 500);
+                }
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
             eogGuessMsg = 'Guessing complete!'
             document.getElementById("guessWrapper").textContent=eogGuessMsg;
 
@@ -474,6 +497,7 @@
         
         // Function to update the score based on the user's guess
         async function updateScoreForGuess(popularity, answers) {
+            scoringOngoing = True;
             updateScoreTo('(updating score)');
             calculateAnswerPops(answers);
             var cellScoreMax = 0;
@@ -516,6 +540,7 @@
         function updateScoreTo(totalScore) {
             scoreReadable = ' '+totalScore
             document.getElementById("totalScore").textContent=scoreReadable;
+            scoringOngoing = False;
             // Check if game is now complete
             if (correctGuesses == 9 && totalScore != '(updating score)') {
                 terminateGame();
