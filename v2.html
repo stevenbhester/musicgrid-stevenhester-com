@@ -379,9 +379,9 @@
         
                         // Update the cell to show it's incorrect and display correct answers
                         cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
+                        
+                        cell.textContent = 'Correct: ' + songInfo + '(pop: '+popularity+')';
                         const correctAnswerText = document.createElement('div');
-                        correctAnswerText.innerHTML = 'Incorrect! Correct answers: <br>' + correctAnswers.join(', ');
-                        cell.appendChild(correctAnswerText);
                         inputField.disabled = true;
                     }
                 } else {
