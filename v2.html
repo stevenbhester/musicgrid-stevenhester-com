@@ -220,6 +220,13 @@
             Total Score:<span id="totalScore"> 1</span>
         </div>
     </div>
+
+    <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboardList">
+            <!-- Leaderboard entries will be added here -->
+        </ul>
+    </div>
         
         
     </div>
@@ -359,7 +366,10 @@
                 // would be nice if instead of popularity we showed potential max points per answer and listed descending order
                     // maybe store array of cell answers the first time they're looked up, saves us rerunning API calls on repeated wrong guesses
                     // then output from those answers
-            leaderboardNamePrompt();
+            let playerName = prompt("Enter your name for the leaderboard:");
+            if (playerName) {
+                leaderboardUpdate(playerName, totalScore);
+            }
         }
         
         // Add leaderboard function here to be called once all guesses exhausted (or future give up button done which mimics having grid terminated)
@@ -367,11 +377,40 @@
             // When someone finishes the grid, add their total to a text file to display under the game. let them add a text field for their name, maybe track their answers
             document.getElementById("game_finisher").textContent=  <input type="text" oninput="leaderboardUpdate(this, placeholder="Enter name to save score to leaderboard")>
         }
+
+        function loadLeaderboard() {
+            fetch('http://yourserver.com/scores')
+                .then(response => response.json())
+                .then(scores => {
+                    const leaderboardList = document.getElementById("leaderboardList");
+                    leaderboardList.innerHTML = ''; // Clear existing list
+                    scores.forEach(({ name, score }) => {
+                        const entry = document.createElement("li");
+                        entry.textContent = `${name}: ${score}`;
+                        leaderboardList.appendChild(entry);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        // Call this function when the page loads to display the leaderboard
+        window.onload = function() {
+            loadLeaderboard();
+        };
             
         // Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
-        function leaderboardUpdate(nameElement) {
-            let playerName = inputElement.value
-            // write to csv with their name and the score they got for current date, create csv if it doesn't yet exist
+        function leaderboardUpdate(playerName, score) {
+            fetch('https://music-grid-io-42616e204fd3.herokuapp.com/submit-score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: playerName, score: score })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                loadLeaderboard(); // Refresh the leaderboard after updating
+            })
+            .catch(error => console.error('Error:', error));
         }
 
         // TODO: Display leaderboard from CSV on first pageload
