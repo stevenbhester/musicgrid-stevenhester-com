@@ -222,6 +222,11 @@
             Total Score:<span id="totalScore"> 1</span>
         </div>
     </div>
+
+    <!-- Quitter zone -->
+    <div>
+        <button type="button" id="quitButton" onclick = "terminateGame()">Give Up?</button>
+    </div>
     
     <div class="header">
         <div class="subheader">
@@ -353,7 +358,7 @@
                 cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
                 // cell.textContent = 'Incorrect! Possible answers: ' + answers.join(', ');
             }
-
+            
             removeDropdown(inputElement);
             console.log('Requesting scoring for guess: '+songInfo);
             
@@ -375,6 +380,9 @@
             
             eogGuessMsg = 'Guessing complete!'
             document.getElementById("guessWrapper").textContent=eogGuessMsg;
+
+            quitterButton = document.getElementById("quitButton");
+            quitterButton.parentNode.removeChild(quitterButton);
             
             const songCells = document.querySelectorAll('.song-cell');
             console.log('Identified song cells');
