@@ -172,72 +172,65 @@
         <div class="row">
             <div class="cell invisible"></div>
             <div class="cell artist">
-              <input type="text" oninput="saveCell(this, 'A1', placeholder="Add Artist 1">
+              <input type="text" oninput="saveCell(this, 'A1')" placeholder="Add Artist 1">
             </div>
             <div class="cell artist">
-              <input type="text" oninput="saveCell(this, 'A2', placeholder="Add Artist 2">
+              <input type="text" oninput="saveCell(this, 'A2')" placeholder="Add Artist 2">
             </div>
             <div class="cell artist">
-              <input type="text" oninput="saveCell(this, 'A3', placeholder="Add Artist 3">
+              <input type="text" oninput="saveCell(this, 'A3')" placeholder="Add Artist 3">
             </div>
         </div>
     
         <!-- Category 1: Songs Released in the 2010s -->
         <div class="row">
             <div class="cell genre-header">
-              <input type="text" oninput="saveCell(this, 'C1', placeholder="Add Category 1"></div>
+              <input type="text" oninput="saveCell(this, 'C1')" placeholder="Add Category 1"></div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Rolling in the Deep', 'Someone Like You', 'Set Fire to the Rain', 'Hello', 'Send My Love', 'Water Under the Bridge'])" placeholder="Type to search...">
+                <input type="text" oninput="saveCell(this, 'A1C1')" placeholder="Add Songs">
             </div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Just the Way You Are', 'Grenade', 'The Lazy Song', 'It Will Rain', 'Locked Out of Heaven', 'When I Was Your Man', 'Treasure', '24K Magic', 'That\'s What I Like', 'Versace on the Floor', 'Finesse'])" placeholder="Type to search...">
+                <input type="text" oninput="saveCell(this, 'A2C1')" placeholder="Add Songs">
             </div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['The A Team', 'Lego House', 'Drunk', 'Small Bump', 'Give Me Love', 'Sing', 'Don\'t', 'Thinking Out Loud', 'Photograph', 'Castle on the Hill', 'Shape of You', 'Perfect', 'Galway Girl', 'Happier'])" placeholder="Type to search...">
+                <input type="text" oninput="saveCell(this, 'A3C1')" placeholder="Add Songs">
             </div>
         </div>
     
     
         <!-- Category 2: Charted Above Top 5 in the Billboard 100 -->
         <div class="row">
-            <div class="cell genre-header"><input type="text" oninput="saveCell(this, 'C2', placeholder="Add Category 2"></div>
+            <div class="cell genre-header"><input type="text" oninput="saveCell(this, 'C2')" placeholder="Add Category 2"></div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Rolling in the Deep', 'Someone Like You', 'Set Fire to the Rain', 'Hello'])" placeholder="Type to search...">
+                <input type="text" oninput="saveCell(this, 'A1C2')" placeholder="Add Songs">
             </div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Just the Way You Are', 'Grenade', 'Locked Out of Heaven', 'When I Was Your Man', '24K Magic', 'That\'s What I Like'])" placeholder="Type to search...">
+                <input type="text" oninput="saveCell(this, 'A2C2')" placeholder="Add Songs">
             </div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Sing', 'Thinking Out Loud', 'Shape of You', 'Perfect'])" placeholder="Type to search...">
+                <input type="text" oninput="saveCell(this, 'A3C2')" placeholder="Add Songs">
             </div>
         </div>
     
     
         <!-- Category 3: Songs That Won Song of the Year at the Grammy Awards -->
         <div class="row">
-            <div class="cell genre-header"><input type="text" oninput="saveCell(this, 'C3', placeholder="Add Category 3"></div>
+            <div class="cell genre-header"><input type="text" oninput="saveCell(this, 'C3')" placeholder="Add Category 3"></div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Rolling in the Deep', 'Hello'])" placeholder="Type to search...">
+                <input type="text" oninput="saveCell(this, 'A1C3')" placeholder="Add Songs">
             </div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['That\'s What I Like', 'Leave the Door Open'])" placeholder="Type to search...">
+                <input type="text" oninput="saveCell(this, 'A2C3')" placeholder="Add Songs">
             </div>
             <div class="cell song-cell">
-                <input type="text" oninput="liveSearch(this, ['Thinking Out Loud'])" placeholder="Type to search...">
+                <input type="text" oninput="saveCell(this, 'A3C3')" placeholder="Add Songs">
             </div>
         </div>
     </div>
     
-    <!-- Placeholder for the final score -->
-    <div class="header-2">
-        <div class="subheader">
-            Total Score:<span id="totalScore"> 1</span>
-        </div>
-    </div>
-    <br>
     <!-- Quitter zone -->
     <div>
-        <button type="button" id="quitButton" onclick = "terminateGame()">Give Up?</button>
+        <button type="button" id="createGrid" onclick = "createGrid()">Create New MusicGrid!</button>
     </div>
     <br>
     <div class="header-2">
@@ -251,26 +244,12 @@
         </div>
     </div>
 
-    <button id="shareButton">Share My Results</button>
         
     </div>
 
     <script>
 
     
-        // You get one point just for being here
-        let totalScore = 1; 
-
-        // Guesses don't last forever...
-        let guessTotal = 10;
-
-        // How good are ya really?
-        let correctGuesses = 0;
-
-        
-        // Var score is calculating ?
-        let scoringOngoing = false;
-        
         function liveSearch(inputElement, answers) {
             if (inputElement.value.length > 2) {
                 console.log('Requesting search for '+inputElement.value);
@@ -282,25 +261,6 @@
             }
         }
 
-        async function searchAnswers(answerTerms) {
-            console.log('Initializing evaluation of answers ' + answerTerms);
-            let promises = answerTerms.map(answerTerm => searchSpotify(answerTerm));
-        
-            // Wait for all promises to resolve
-            let results = await Promise.all(promises);
-            
-            // Process the results to extract popularity values
-            let answerPopsArr = results.map(result => {
-                // Assuming the result structure includes an array of songs
-                if (result.length > 0 && result[0].popularity !== undefined) {
-                    return result[0].popularity; // Take the popularity of the first song as an example
-                }
-                return null; // Handle cases where no songs are found or structure is different
-            });
-
-            console.log('Answer Pops Array now at: ', answerPopsArr.toString());
-            return answerPopsArr;
-        }
         
         async function searchSpotify(searchTerm) {
             console.log('Searching for '+searchTerm)
@@ -313,6 +273,7 @@
             if (!response.ok) throw new Error('Failed to fetch');
             return response.json();
         }
+        
         function displaySpotifyResults(songs, inputElement, answers) {
             removeDropdown(inputElement); // Remove existing dropdown if present
             console.log('Creating results container');
@@ -342,13 +303,6 @@
             // Position the results dropdown so it doesn't cover the input field
             inputElement.parentNode.style.position = 'relative';
             inputElement.parentNode.appendChild(resultsContainer);
-        }
-
-        // Add a utility function for basic similarity check
-        function isSimilar(guess, correctAnswers) {
-            console.log('Evaluating guess: '+guess);
-            console.log('By answers: '+correctAnswers);
-            return correctAnswers.some(answer => guess.toLowerCase().includes(answer.toLowerCase()));
         }
         
         function selectSong(songInfo, inputElement, answers, popularity) {
