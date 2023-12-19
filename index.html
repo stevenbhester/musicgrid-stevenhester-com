@@ -102,7 +102,16 @@
             left: 0; /* align to the left edge of the input field */
             margin-top: 1px; /* add a little space below the input field */
         }
-            
+
+        #shareButton {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
         .results-dropdown div {
             padding: 5px; /* add more padding for spacing between results */
             cursor: pointer;
@@ -240,7 +249,8 @@
             </div>
         </div>
     </div>
-        
+
+    <button id="shareButton">Share My Results</button>
         
     </div>
 
@@ -406,6 +416,21 @@
             }
         }
 
+        document.getElementById('shareButton').addEventListener('click', () => {
+        if (navigator.share) {
+            navigator.share({
+                title: 'My MusicGrid Results',
+                text: `I scored ${totalScore} on MusicGrid! Can you beat me?`,
+                url: document.location.href
+            })
+            .then(() => console.log('Successful share'))
+            .catch((error) => console.error('Error sharing:', error));
+        } else {
+            console.error('Web Share API is not supported in your browser.');
+        }
+        });
+
+        
         function endGame() {
             eogGuessMsg = 'Guessing complete!'
             document.getElementById("guessWrapper").textContent=eogGuessMsg;
