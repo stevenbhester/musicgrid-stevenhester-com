@@ -470,7 +470,6 @@
                 leaderboardUpdate(playerName, totalScore);
             }
         }
-        
         function extractCorrectAnswers(oninputValue) {
             // Assuming the format is liveSearch(this, ['Answer1', 'Answer2', ...])
             const answersMatch = oninputValue.match(/\[\s*'(.*?)'\s*\]/);
@@ -519,7 +518,7 @@
         
         // Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
         function loadGrid() {
-            fetch('http://yourserver.com/latest-grid')
+            fetch('https://music-grid-io-42616e204fd3.herokuapp.com/latest-grid')
                 .then(response => response.json())
                 .then(data => {
                     gridId = data.latestGridId;
