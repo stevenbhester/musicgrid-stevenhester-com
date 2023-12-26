@@ -173,7 +173,7 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="container" id="grid-container">
         <!-- Artists Row -->
         <div class="row">
             <div class="cell invisible"></div>
@@ -266,6 +266,8 @@
         // How good are ya really?
         let correctGuesses = 0;
 
+        // What grid are we goofin around with?
+        let gridId = 0;
         
         // Var score is calculating ?
         let scoringOngoing = false;
@@ -468,7 +470,6 @@
                 leaderboardUpdate(playerName, totalScore);
             }
         }
-        
         function extractCorrectAnswers(oninputValue) {
             // Assuming the format is liveSearch(this, ['Answer1', 'Answer2', ...])
             const answersMatch = oninputValue.match(/\[\s*'(.*?)'\s*\]/);
@@ -482,7 +483,11 @@
         }
 
         function loadLeaderboard() {
-            fetch('https://music-grid-io-42616e204fd3.herokuapp.com/scores')
+            fetch('https://music-grid-io-42616e204fd3.herokuapp.com/scores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lb_id: gridId })
+                })
                 .then(response => response.json())
                 .then(scores => {
                     console.log('Selecting leaderboard div');
@@ -502,16 +507,112 @@
         
         // Call this function when the page loads to display the leaderboard
         window.onload = function() {
+            initializeSite();
+        };
+
+        function initializeSite() {
+            console.log('Initializing Site');
+            console.log('Loading grid');
+            loadGrid();
             loadLeaderboard();
             scoringOngoing = false;
+        }
+        
+        // Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
+        function loadGrid() {
+            fetch('https://music-grid-io-42616e204fd3.herokuapp.com/latest-grid')
+                .then(response => response.json())
+                .then(data => {
+                    gridId = data.latestGridId;
+                    // Now we use latestGridId to fetch and display the corresponding grid
+                    console.log('Grid ID determined as '+gridId);
+                    console.log('Fetching Grid Data');
+                    fetchGridData(gridId);
+                })
+                .catch(error => console.error('Error fetching live grid id:', error));
         };
-            
+        
+        function fetchGridData(gridId) {
+            fetch('https://music-grid-io-42616e204fd3.herokuapp.com/grid-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ grid_id: gridId })
+                })
+                .then(response => response.json())
+                .then(data => buildGrid(data))
+                .catch(error => console.error('Error fetching grid data:', error))
+        }
+
+        function buildGrid(data) {
+            const gridContainer = document.getElementById('grid-container');
+            gridContainer.innerHTML = ''; // Clear existing content
+        
+            // Separate the data into categories, artists, and answers
+            const categories = {};
+            const artists = {};
+            const answers = {};
+        
+            data.forEach(item => {
+                if (item.field_type === 'Category') {
+                    categories[item.field] = item.field_value;
+                } else if (item.field_type === 'Artist') {
+                    artists[item.field] = item.field_value;
+                } else if (item.field_type === 'Answer') {
+                    answers[item.field] = item.field_value.split(', ').map(answer => answer.replace(/'/g, ""));
+                }
+            });
+        
+            // Create artist row
+            const artistRow = document.createElement('div');
+            artistRow.classList.add('row');
+            artistRow.appendChild(createCell('invisible')); // Invisible cell for alignment
+            Object.keys(artists).forEach(key => artistRow.appendChild(createCell('artist', artists[key])));
+            gridContainer.appendChild(artistRow);
+        
+            // Create rows for each category
+            Object.keys(categories).forEach(categoryKey => {
+                const categoryRow = document.createElement('div');
+                categoryRow.classList.add('row');
+        
+                // Category cell
+                categoryRow.appendChild(createCell('genre-header', categories[categoryKey]));
+        
+                // Song cells
+                Object.keys(artists).forEach(artistKey => {
+                    const cellKey = `${categoryKey} ${artistKey}`;
+                    const songAnswers = answers[cellKey] || [];
+                    categoryRow.appendChild(createSongCell(songAnswers));
+                });
+        
+                gridContainer.appendChild(categoryRow);
+            });
+        }
+        
+        function createCell(className, text = '') {
+            const cell = document.createElement('div');
+            cell.classList.add('cell', className);
+            cell.textContent = text;
+            return cell;
+        }
+        
+        function createSongCell(answers) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell', 'song-cell');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.setAttribute('oninput', `liveSearch(this, ${JSON.stringify(answers)})`);
+            input.setAttribute('placeholder', 'Type to search...');
+            cell.appendChild(input);
+            return cell;
+        }
+
+        
         // Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
         function leaderboardUpdate(playerName, score) {
             fetch('https://music-grid-io-42616e204fd3.herokuapp.com/submit-score', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: playerName, score: score })
+                body: JSON.stringify({ name: playerName, score: score, lb_id: gridId })
             })
             .then(response => response.json())
             .then(data => {
