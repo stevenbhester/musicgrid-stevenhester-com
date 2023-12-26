@@ -514,8 +514,6 @@
             console.log('Initializing Site');
             console.log('Loading grid');
             loadGrid();
-            loadLeaderboard();
-            scoringOngoing = false;
         }
         
         // Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
@@ -586,6 +584,10 @@
         
                 gridContainer.appendChild(categoryRow);
             });
+
+            // Now build the leaderboars
+            loadLeaderboard();
+            scoringOngoing = false;
         }
         
         function createCell(className, text = '') {
