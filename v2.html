@@ -511,6 +511,8 @@
         };
 
         function initializeSite() {
+            console.log('Initializing Site');
+            console.log('Loading grid');
             loadGrid();
             loadLeaderboard();
             scoringOngoing = false;
@@ -523,6 +525,8 @@
                 .then(data => {
                     gridId = data.latestGridId;
                     // Now we use latestGridId to fetch and display the corresponding grid
+                    console.log('Grid ID determined as '+gridID);
+                    console.log('Fetching Grid Data');
                     fetchGridData(gridId);
                 })
                 .catch(error => console.error('Error fetching live grid id:', error));
