@@ -544,29 +544,66 @@
         }
 
         function buildGrid(data) {
-            console.log(JSON.stringify(data));
-            const gridContainer = document.getElementById('grid-container'); // Get grid container element
-            gridContainer.innerHTML = ''; // Clear existing grid if any
+            const gridContainer = document.getElementById('grid-container');
+            gridContainer.innerHTML = ''; // Clear existing content
+        
+            // Separate the data into categories, artists, and answers
+            const categories = {};
+            const artists = {};
+            const answers = {};
         
             data.forEach(item => {
-                // Create grid elements based on the data
-                // For example, if your grid is in table format:
-                const row = document.createElement('tr');
-                const artistCell = document.createElement('td');
-                const categoryCell = document.createElement('td');
-                const answerCell = document.createElement('td');
-                if (item.field_type == 'Artist') {
-                    artistCell.textContent = item.field_value;
-                    row.appendChild(artistCell);
-                } else if (item.field_type == 'Category') {
-                    categoryCell.textContent = item.field_value;
-                    row.appendChild(categoryCell);
-                } else {
-                    answerCell.textContent = item.field_value;
-                    row.appendChild(answerCell);
+                if (item.field_type === 'Category') {
+                    categories[item.field] = item.field_value;
+                } else if (item.field_type === 'Artist') {
+                    artists[item.field] = item.field_value;
+                } else if (item.field_type === 'Answer') {
+                    answers[item.field] = item.field_value.split(', ').map(answer => answer.replace(/'/g, ""));
                 }
-                gridContainer.appendChild(row);
             });
+        
+            // Create artist row
+            const artistRow = document.createElement('div');
+            artistRow.classList.add('row');
+            artistRow.appendChild(createCell('invisible')); // Invisible cell for alignment
+            Object.keys(artists).forEach(key => artistRow.appendChild(createCell('artist', artists[key])));
+            gridContainer.appendChild(artistRow);
+        
+            // Create rows for each category
+            Object.keys(categories).forEach(categoryKey => {
+                const categoryRow = document.createElement('div');
+                categoryRow.classList.add('row');
+        
+                // Category cell
+                categoryRow.appendChild(createCell('genre-header', categories[categoryKey]));
+        
+                // Song cells
+                Object.keys(artists).forEach(artistKey => {
+                    const cellKey = `${categoryKey} ${artistKey}`;
+                    const songAnswers = answers[cellKey] || [];
+                    categoryRow.appendChild(createSongCell(songAnswers));
+                });
+        
+                gridContainer.appendChild(categoryRow);
+            });
+        }
+        
+        function createCell(className, text = '') {
+            const cell = document.createElement('div');
+            cell.classList.add('cell', className);
+            cell.textContent = text;
+            return cell;
+        }
+        
+        function createSongCell(answers) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell', 'song-cell');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.setAttribute('oninput', `liveSearch(this, ${JSON.stringify(answers)})`);
+            input.setAttribute('placeholder', 'Type to search...');
+            cell.appendChild(input);
+            return cell;
         }
 
         
