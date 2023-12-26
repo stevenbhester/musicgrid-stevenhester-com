@@ -8,7 +8,8 @@
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-image: url('bgimg.png');
+/*             background-image: url('bgimg.png'); */
+            background-color: #669DB3;
             color: #333;
             display: flex;
             justify-content: flex-start;
@@ -18,10 +19,20 @@
         }
 
         .header {
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: #1B4F72;
+            color: #C5C6D0;
             padding: 10px 20px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .header-2 {
+            background-color: #FFFAD5;
+            color: #333;
+            padding: 10px 20px;
+            padding-bottom: 20px;
+            border-radius: 4px;
             text-align: center;
         }
 
@@ -91,7 +102,16 @@
             left: 0; /* align to the left edge of the input field */
             margin-top: 1px; /* add a little space below the input field */
         }
-            
+
+        #shareButton {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
         .results-dropdown div {
             padding: 5px; /* add more padding for spacing between results */
             cursor: pointer;
@@ -145,13 +165,12 @@
         <div class="title">musicgrid.io</div>
         <div class="subheader">Guess the song that matches each artist and category</div>
         <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div>
-    </div>
-    <div class="header">
         <div class="subheader"><i>no guarantees on accuracy, ChatGPT made this grid</i></div>
         <div class="subheader"><i>get more points when you guess less popular song answers</i></div>
-    </div>
-    <div class="header">
-        <div class="subheader" id="guessWrapper"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
+        <br>
+        <div class="header-2">
+            <div class="subheader" id="guessWrapper"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
+        </div>
     </div>
 
     <div class="container">
@@ -209,18 +228,18 @@
     </div>
     
     <!-- Placeholder for the final score -->
-    <div class="header">
+    <div class="header-2">
         <div class="subheader">
             Total Score:<span id="totalScore"> 1</span>
         </div>
     </div>
-
+    <br>
     <!-- Quitter zone -->
     <div>
         <button type="button" id="quitButton" onclick = "terminateGame()">Give Up?</button>
     </div>
-    
-    <div class="header">
+    <br>
+    <div class="header-2">
         <div class="subheader">
             <div id="leaderboard">
                 <h2>Leaderboard</h2>
@@ -230,7 +249,8 @@
             </div>
         </div>
     </div>
-        
+
+    <button id="shareButton">Share My Results</button>
         
     </div>
 
@@ -246,6 +266,8 @@
         // How good are ya really?
         let correctGuesses = 0;
 
+        // What grid are we goofin around with?
+        let gridId = 0;
         
         // Var score is calculating ?
         let scoringOngoing = false;
@@ -345,7 +367,7 @@
             if (isCorrect) {
                 console.log('Guess correct!');
                 cell.style.backgroundColor = '#c8e6c9'; // Green for correct
-                cell.textContent = 'Correct: ' + songInfo + '(calculating score)';
+                cell.textContent = 'Correct: ' + songInfo + ' (calculating score)';
                 correctGuesses+=1;
                 console.log('Correct guesses now at '+correctGuesses);
                 console.log('Scoring ongoing is: '+scoringOngoing);
@@ -396,6 +418,21 @@
             }
         }
 
+        document.getElementById('shareButton').addEventListener('click', () => {
+        if (navigator.share) {
+            navigator.share({
+                title: 'My MusicGrid Results',
+                text: `I scored ${totalScore} on MusicGrid! Can you beat me?`,
+                url: document.location.href
+            })
+            .then(() => console.log('Successful share'))
+            .catch((error) => console.error('Error sharing:', error));
+        } else {
+            console.error('Web Share API is not supported in your browser.');
+        }
+        });
+
+        
         function endGame() {
             eogGuessMsg = 'Guessing complete!'
             document.getElementById("guessWrapper").textContent=eogGuessMsg;
@@ -447,7 +484,11 @@
         }
 
         function loadLeaderboard() {
-            fetch('https://music-grid-io-42616e204fd3.herokuapp.com/scores')
+            fetch('https://music-grid-io-42616e204fd3.herokuapp.com/scores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lb_id: gridId })
+                })
                 .then(response => response.json())
                 .then(scores => {
                     console.log('Selecting leaderboard div');
@@ -467,16 +508,70 @@
         
         // Call this function when the page loads to display the leaderboard
         window.onload = function() {
+            initializeSite();
+        };
+
+        function initializeSite() {
+            loadGrid();
             loadLeaderboard();
             scoringOngoing = false;
+        }
+        
+        // Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
+        function loadGrid() {
+            fetch('http://yourserver.com/latest-grid')
+                .then(response => response.json())
+                .then(data => {
+                    gridId = data.latestGridId;
+                    // Now we use latestGridId to fetch and display the corresponding grid
+                    fetchGridData(gridId);
+                })
+                .catch(error => console.error('Error fetching live grid id:', error));
         };
-            
+        
+        function fetchGridData(gridId) {
+            fetch('https://music-grid-io-42616e204fd3.herokuapp.com/grid-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ grid_id: gridId })
+                })
+                .then(response => response.json())
+                .then(data => buildGrid(data))
+                .catch(error => console.error('Error fetching grid data:', error))
+        }
+
+        function buildGrid(data) {
+            const gridContainer = document.getElementById('gridContainer'); // Get grid container element
+            gridContainer.innerHTML = ''; // Clear existing grid if any
+        
+            data.forEach(item => {
+                // Create grid elements based on the data
+                // For example, if your grid is in table format:
+                const row = document.createElement('tr');
+                const artistCell = document.createElement('td');
+                const categoryCell = document.createElement('td');
+                const answerCell = document.createElement('td');
+                if (item.field_type == 'Artist') {
+                    artistCell.textContent = item.field_value;
+                    row.appendChild(artistCell);
+                } else if (item.field_type == 'Category') {
+                    categoryCell.textContent = item.field_value;
+                    row.appendChild(categoryCell);
+                } else {
+                    answerCell.textContent = item.field_value;
+                    row.appendChild(answerCell);
+                }
+                gridContainer.appendChild(row);
+            });
+        }
+
+        
         // Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
         function leaderboardUpdate(playerName, score) {
             fetch('https://music-grid-io-42616e204fd3.herokuapp.com/submit-score', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: playerName, score: score })
+                body: JSON.stringify({ name: playerName, score: score, lb_id: gridId })
             })
             .then(response => response.json())
             .then(data => {
@@ -526,7 +621,7 @@
             
             // Updating score in Song Cell
             cell.style.backgroundColor = '#c8e6c9'; // Green for correct
-            cell.textContent = 'Correct: ' + songInfo + '('+normedGuessScore+' out of 11 points scored)';
+            cell.textContent = 'Correct: ' + songInfo + ' ('+normedGuessScore+' out of 11 points scored)';
 
             // Calculating total score
             console.log('Normed score determined as: '+normedGuessScore);
