@@ -173,7 +173,7 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="container" id="grid-container">
         <!-- Artists Row -->
         <div class="row">
             <div class="cell invisible"></div>
@@ -540,7 +540,8 @@
         }
 
         function buildGrid(data) {
-            const gridContainer = document.getElementById('gridContainer'); // Get grid container element
+            console.log(JSON.stringify(data));
+            const gridContainer = document.getElementById('grid-container'); // Get grid container element
             gridContainer.innerHTML = ''; // Clear existing grid if any
         
             data.forEach(item => {
