@@ -185,7 +185,7 @@ function endGame() {
   console.log("Identified song cells");
   songCells.forEach(cell => {
     console.log("Checking for input field on "+cell.textContent);
-    const inputField = cell.querySelector("input[type="text"]");
+    const inputField = cell.querySelector("input[type='text']");
     console.log("inputField = "+inputField);
     if (inputField) {
       console.log("Decided yes, there is an input field! Disabled:"+inputField.disabled);
