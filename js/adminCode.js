@@ -129,7 +129,7 @@ function buildGrid(data) {
     Object.keys(artists).forEach(artistKey => {
       const cellKey = "${categoryKey} ${artistKey}";
       const songAnswers = answers[cellKey] || [];
-      categoryRow.appendChild(createCell("song-cell", songAnswers));
+      categoryRow.appendChild(createCell("song-cell", JSON.stringify(songAnswers)));
     });
 
     gridContainer.appendChild(categoryRow);
