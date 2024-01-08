@@ -1,7 +1,7 @@
 // You get one point just for being here
 let totalScore = 1; 
 
-// Guesses don't last forever...
+// Guesses don"t last forever...
 let guessTotal = 10;
 
 // How good are ya really?
@@ -15,17 +15,17 @@ let scoringOngoing = false;
 
 function liveSearch(inputElement, answers) {
   if (inputElement.value.length > 2) {
-    console.log('Requesting search for '+inputElement.value);
+    console.log("Requesting search for "+inputElement.value);
     searchSpotify(inputElement.value)
       .then(songs => displaySpotifyResults(songs, inputElement, answers))
-      .catch(error => console.error('Error fetching Spotify data:', error));
+      .catch(error => console.error("Error fetching Spotify data:", error));
   } else {
     removeDropdown(inputElement);
   }
 }
 
 async function searchAnswers(answerTerms) {
-  console.log('Initializing evaluation of answers ' + answerTerms);
+  console.log("Initializing evaluation of answers " + answerTerms);
   let promises = answerTerms.map(answerTerm => searchSpotify(answerTerm));
 
   // Wait for all promises to resolve
@@ -40,97 +40,97 @@ async function searchAnswers(answerTerms) {
     return null; // Handle cases where no songs are found or structure is different
   });
 
-  console.log('Answer Pops Array now at: ', answerPopsArr.toString());
+  console.log("Answer Pops Array now at: ", answerPopsArr.toString());
   return answerPopsArr;
 }
 
 async function searchSpotify(searchTerm) {
-  console.log('Searching for '+searchTerm)
-  const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/search', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  console.log("Searching for "+searchTerm);
+  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ searchTerm })
   });
-  console.log('Received response: '+response)
-  if (!response.ok) throw new Error('Failed to fetch');
+  console.log("Received response: "+response);
+  if (!response.ok) throw new Error("Failed to fetch");
   return response.json();
 }
 function displaySpotifyResults(songs, inputElement, answers) {
   removeDropdown(inputElement); // Remove existing dropdown if present
-  console.log('Creating results container');
-  const resultsContainer = document.createElement('div');
-  resultsContainer.className = 'results-dropdown';
-  resultsContainer.style.top = '100%'; 
-  resultsContainer.style.left = '0';
-  console.log('Populating results container')
+  console.log("Creating results container");
+  const resultsContainer = document.createElement("div");
+  resultsContainer.className = "results-dropdown";
+  resultsContainer.style.top = "100%"; 
+  resultsContainer.style.left = "0";
+  console.log("Populating results container");
   songs.forEach(song => {
-    const songElement = document.createElement('div');
-    const songTitleSpan = document.createElement('span');
-    console.log('Populating '+song.name)
-    songTitleSpan.className = 'song-title'; // Apply bold styling to the song title
+    const songElement = document.createElement("div");
+    const songTitleSpan = document.createElement("span");
+    console.log("Populating "+song.name);
+    songTitleSpan.className = "song-title"; // Apply bold styling to the song title
     songTitleSpan.textContent = song.name;
     songElement.appendChild(songTitleSpan);
-    songElement.innerHTML += ` by ${song.artists.map(artist => artist.name).join(', ')}`; // Add artist name(s)
+    songElement.innerHTML += ` by ${song.artists.map(artist => artist.name).join(", ")}`; // Add artist name(s)
     resultsContainer.appendChild(songElement);
     songElement.onclick = () => {
-      console.log('Selected song '+`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`)
-      selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(', ')}`, inputElement, answers, song.popularity);
+      console.log("Selected song "+`${song.name} by ${song.artists.map(artist => artist.name).join(", ")}`);
+      selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(", ")}`, inputElement, answers, song.popularity);
       // Clear the dropdown after selection
-      resultsContainer.innerHTML = '';
+      resultsContainer.innerHTML = "";
       resultsContainer.appendChild(songElement);
     };
   });
 
-  // Position the results dropdown so it doesn't cover the input field
-  inputElement.parentNode.style.position = 'relative';
+  // Position the results dropdown so it doesn"t cover the input field
+  inputElement.parentNode.style.position = "relative";
   inputElement.parentNode.appendChild(resultsContainer);
 }
 
 // Add a utility function for basic similarity check
 function isSimilar(guess, correctAnswers) {
-  console.log('Evaluating guess: '+guess);
-  console.log('By answers: '+correctAnswers);
+  console.log("Evaluating guess: "+guess);
+  console.log("By answers: "+correctAnswers);
   return correctAnswers.some(answer => guess.toLowerCase().includes(answer.toLowerCase()));
 }
 
 function selectSong(songInfo, inputElement, answers, popularity) {
   // Decrease guess total for making a guess
   let newGuessTotal = guessTotal - 1;
-  console.log('Decrementing guess total from '+guessTotal+' to '+newGuessTotal);
+  console.log("Decrementing guess total from "+guessTotal+" to "+newGuessTotal);
   guessTotal = newGuessTotal;
 
   // Check if guess is correct
-  console.log('Checking guess '+songInfo);
-  const cell = inputElement.closest('.cell');
+  console.log("Checking guess "+songInfo);
+  const cell = inputElement.closest(".cell");
   const isCorrect = isSimilar(songInfo, answers);
 
   // Mark cell as correct if right, otherwise highlight red
   if (isCorrect) {
-    console.log('Guess correct!');
-    cell.style.backgroundColor = '#c8e6c9'; // Green for correct
-    cell.textContent = 'Correct: ' + songInfo + ' (calculating score)';
+    console.log("Guess correct!");
+    cell.style.backgroundColor = "#c8e6c9"; // Green for correct
+    cell.textContent = "Correct: " + songInfo + " (calculating score)";
     correctGuesses+=1;
-    console.log('Correct guesses now at '+correctGuesses);
-    console.log('Scoring ongoing is: '+scoringOngoing);
+    console.log("Correct guesses now at "+correctGuesses);
+    console.log("Scoring ongoing is: "+scoringOngoing);
     if(guessTotal == 1) {
       scoringOngoing = false;
     }
     inputElement.disabled = true;
     if (scoringOngoing) {
       while (scoringOngoing) {
-        console.log('Scoring in progress, updating new score once complete!');
+        console.log("Scoring in progress, updating new score once complete!");
         setTimeout(updateScoreForGuess(popularity,answers,cell,songInfo), 500);
       }
     } else { 
       updateScoreForGuess(popularity,answers,cell,songInfo);
     }
   } else {
-    cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
-    // cell.textContent = 'Incorrect! Possible answers: ' + answers.join(', ');
+    cell.style.backgroundColor = "#ffcdd2"; // Red for incorrect
+    // cell.textContent = "Incorrect! Possible answers: " + answers.join(", ");
   }
   
   removeDropdown(inputElement);
-  console.log('Requesting scoring for guess: '+songInfo);
+  console.log("Requesting scoring for guess: "+songInfo);
   
   // Handle new guess total
   if (guessTotal == 0) {
@@ -141,17 +141,17 @@ function selectSong(songInfo, inputElement, answers, popularity) {
 }
 
 function decrementGuesses() {
-  guessesReadable = ' '+guessTotal
+  let guessesReadable = " "+guessTotal
   document.getElementById("guessesRemaining").textContent=guessesReadable;
 }
 
 function terminateGame() {
-  console.log('Terminating game!');
+  console.log("Terminating game!");
 
-  console.log('Checking if scores are completed:');
+  console.log("Checking if scores are completed:");
   if (scoringOngoing) {
     while (scoringOngoing) {
-      console.log('Scoring in progress, terminating game once complete!');
+      console.log("Scoring in progress, terminating game once complete!");
       setTimeout(endGame(), 500);
     }
   } else {
@@ -159,49 +159,49 @@ function terminateGame() {
   }
 }
 
-document.getElementById('shareButton').addEventListener('click', () => {
-if (navigator.share) {
-  navigator.share({
-    title: 'My MusicGrid Results',
-    text: `I scored ${totalScore} on MusicGrid! Can you beat me?`,
-    url: document.location.href
-  })
-  .then(() => console.log('Successful share'))
-  .catch((error) => console.error('Error sharing:', error));
-} else {
-  console.error('Web Share API is not supported in your browser.');
-}
+document.getElementById("shareButton").addEventListener("click", () => {
+  if (navigator.share) {
+    navigator.share({
+      title: "My MusicGrid Results",
+      text: `I scored ${totalScore} on MusicGrid! Can you beat me?`,
+      url: document.location.href
+    })
+    .then(() => console.log("Successful share"))
+    .catch((error) => console.error("Error sharing:", error));
+  } else {
+    console.error("Web Share API is not supported in your browser.");
+  }
 });
 
 
 function endGame() {
-  eogGuessMsg = 'Guessing complete!'
+  let eogGuessMsg = "Guessing complete!"
   document.getElementById("guessWrapper").textContent=eogGuessMsg;
 
-  quitterButton = document.getElementById("quitButton");
+  let quitterButton = document.getElementById("quitButton");
   quitterButton.parentNode.removeChild(quitterButton);
   
-  const songCells = document.querySelectorAll('.song-cell');
-  console.log('Identified song cells');
+  const songCells = document.querySelectorAll(".song-cell");
+  console.log("Identified song cells");
   songCells.forEach(cell => {
-    console.log('Checking for input field on '+cell.textContent);
-    const inputField = cell.querySelector('input[type="text"]');
-    console.log('inputField = '+inputField);
+    console.log("Checking for input field on "+cell.textContent);
+    const inputField = cell.querySelector("input[type="text"]");
+    console.log("inputField = "+inputField);
     if (inputField) {
-      console.log('Decided yes, there is an input field! Disabled:'+inputField.disabled);
+      console.log("Decided yes, there is an input field! Disabled:"+inputField.disabled);
       if (!inputField.disabled) {
         // Extract correct answers from the oninput attribute
-        const correctAnswers = extractCorrectAnswers(inputField.getAttribute('oninput'));
+        const correctAnswers = extractCorrectAnswers(inputField.getAttribute("oninput"));
 
-        // Update the cell to show it's incorrect and display correct answers
-        cell.style.backgroundColor = '#ffcdd2'; // Red for incorrect
+        // Update the cell to show it"s incorrect and display correct answers
+        cell.style.backgroundColor = "#ffcdd2"; // Red for incorrect
         
-        cell.textContent = 'Incorrect! Correct answers: ' + correctAnswers.join(', ');
+        cell.textContent = "Incorrect! Correct answers: " + correctAnswers.join(", ");
         inputField.disabled = true;
-      }
+      };
     } else {
-      console.error('Input field not found in the cell:', cell);
-    }
+      console.error("Input field not found in the cell:", cell);
+    };
   });
 
   // Provide feedback that the game has ended
@@ -212,38 +212,38 @@ function endGame() {
   }
 }
 function extractCorrectAnswers(oninputValue) {
-  // Assuming the format is liveSearch(this, ['Answer1', 'Answer2', ...])
-  const answersMatch = oninputValue.match(/\[\s*'(.*?)'\s*\]/);
-  return answersMatch ? answersMatch[1].split("', '") : [];
+  // Assuming the format is liveSearch(this, ["Answer1", "Answer2", ...])
+  const answersMatch = oninputValue.match(/\[\s*"(.*?)"\s*\]/);
+  return answersMatch ? answersMatch[1].split("", "") : [];
 }
 
 function displayEndGameMessage() {
-  const endGameMessage = document.createElement('div');
+  const endGameMessage = document.createElement("div");
   endGameMessage.innerHTML = "<strong>Game Over!</strong> Here are the songs you missed.";
-  document.querySelector('.container').prepend(endGameMessage);
+  document.querySelector(".container").prepend(endGameMessage);
 }
 
 function loadLeaderboard() {
-  fetch('https://music-grid-io-42616e204fd3.herokuapp.com/scores', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/scores", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ lb_id: gridId })
-    })
+  })
     .then(response => response.json())
     .then(scores => {
-      console.log('Selecting leaderboard div');
+      console.log("Selecting leaderboard div");
       const leaderboardList = document.getElementById("leaderboardList");
-      leaderboardList.innerHTML = ''; // Clear existing list
+      leaderboardList.innerHTML = ""; // Clear existing list
       scores.forEach(({ rank, player_name, player_score }) => {
-        console.log('Creating leaderboard entry: '+rank+': '+player_name+' ('+player_score+')');
+        console.log("Creating leaderboard entry: "+rank+": "+player_name+" ("+player_score+")");
         const entry = document.createElement("li");
         entry.textContent = `#${rank}: ${player_name} (${player_score})`;
-        console.log('Appending entry');
+        console.log("Appending entry");
         leaderboardList.appendChild(entry);
       });
-      console.log('Done appending');
+      console.log("Done appending");
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => console.error("Error:", error));
 }
 
 // Call this function when the page loads to display the leaderboard
@@ -252,39 +252,39 @@ window.onload = function() {
 };
 
 function initializeSite() {
-  console.log('Initializing Site');
-  console.log('Loading grid');
+  console.log("Initializing Site");
+  console.log("Loading grid");
   loadGrid();
 }
 
-// Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
+// Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
 function loadGrid() {
-  fetch('https://music-grid-io-42616e204fd3.herokuapp.com/latest-grid')
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/latest-grid")
     .then(response => response.json())
     .then(data => {
       gridId = data.latestGridId;
       // Now we use latestGridId to fetch and display the corresponding grid
-      console.log('Grid ID determined as '+gridId);
-      console.log('Fetching Grid Data');
+      console.log("Grid ID determined as "+gridId);
+      console.log("Fetching Grid Data");
       fetchGridData(gridId);
     })
-    .catch(error => console.error('Error fetching live grid id:', error));
-};
+    .catch(error => console.error("Error fetching live grid id:", error));
+}
 
 function fetchGridData(gridId) {
-  fetch('https://music-grid-io-42616e204fd3.herokuapp.com/grid-data', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/grid-data", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ grid_id: gridId })
-    })
+  })
     .then(response => response.json())
     .then(data => buildGrid(data))
-    .catch(error => console.error('Error fetching grid data:', error))
+    .catch(error => console.error("Error fetching grid data:", error));
 }
 
 function buildGrid(data) {
-  const gridContainer = document.getElementById('grid-container');
-  gridContainer.innerHTML = ''; // Clear existing content
+  const gridContainer = document.getElementById("grid-container");
+  gridContainer.innerHTML = ""; // Clear existing content
 
   // Separate the data into categories, artists, and answers
   const categories = {};
@@ -292,29 +292,29 @@ function buildGrid(data) {
   const answers = {};
 
   data.forEach(item => {
-    if (item.field_type === 'Category') {
+    if (item.field_type === "Category") {
       categories[item.field] = item.field_value;
-    } else if (item.field_type === 'Artist') {
+    } else if (item.field_type === "Artist") {
       artists[item.field] = item.field_value;
-    } else if (item.field_type === 'Answer') {
-      answers[item.field] = item.field_value.split(', ').map(answer => answer.replace(/'/g, ""));
+    } else if (item.field_type === "Answer") {
+      answers[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
     }
   });
 
   // Create artist row
-  const artistRow = document.createElement('div');
-  artistRow.classList.add('row');
-  artistRow.appendChild(createCell('invisible')); // Invisible cell for alignment
-  Object.keys(artists).forEach(key => artistRow.appendChild(createCell('artist', artists[key])));
+  const artistRow = document.createElement("div");
+  artistRow.classList.add("row");
+  artistRow.appendChild(createCell("invisible")); // Invisible cell for alignment
+  Object.keys(artists).forEach(key => artistRow.appendChild(createCell("artist", artists[key])));
   gridContainer.appendChild(artistRow);
 
   // Create rows for each category
   Object.keys(categories).forEach(categoryKey => {
-    const categoryRow = document.createElement('div');
-    categoryRow.classList.add('row');
+    const categoryRow = document.createElement("div");
+    categoryRow.classList.add("row");
 
     // Category cell
-    categoryRow.appendChild(createCell('genre-header', categories[categoryKey]));
+    categoryRow.appendChild(createCell("genre-header", categories[categoryKey]));
 
     // Song cells
     Object.keys(artists).forEach(artistKey => {
@@ -331,72 +331,69 @@ function buildGrid(data) {
   scoringOngoing = false;
 }
 
-function createCell(className, text = '') {
-  const cell = document.createElement('div');
-  cell.classList.add('cell', className);
+function createCell(className, text = "") {
+  const cell = document.createElement("div");
+  cell.classList.add("cell", className);
   cell.textContent = text;
   return cell;
 }
 
 function createSongCell(answers) {
-  const cell = document.createElement('div');
-  cell.classList.add('cell', 'song-cell');
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.setAttribute('oninput', `liveSearch(this, ${JSON.stringify(answers)})`);
-  input.setAttribute('placeholder', 'Type to search...');
+  const cell = document.createElement("div");
+  cell.classList.add("cell", "song-cell");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.setAttribute("oninput", `liveSearch(this, ${JSON.stringify(answers)})`);
+  input.setAttribute("placeholder", "Type to search...");
   cell.appendChild(input);
   return cell;
 }
 
 
-// Add submitted game + username to leaderboard, let's not worry about sanitizing for now as there's not much to hack
+// Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
 function leaderboardUpdate(playerName, score) {
-  fetch('https://music-grid-io-42616e204fd3.herokuapp.com/submit-score', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/submit-score", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name: playerName, score: score, lb_id: gridId })
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log(data.message);
-    loadLeaderboard(); // Refresh the leaderboard after updating
-  })
-  .catch(error => console.error('Error:', error));
+})
+.then(response => response.json())
+.then(data => {
+  console.log(data.message);
+  loadLeaderboard(); // Refresh the leaderboard after updating
+})
+  .catch(error => console.error("Error:", error));
 }
 
-// TODO: Display leaderboard from CSV on first pageload
-  // Add give up button
-  
 function removeDropdown(inputElement) {
   if (inputElement && inputElement.parentNode) {
-    const existingContainer = inputElement.parentNode.querySelector('.results-dropdown');
+    const existingContainer = inputElement.parentNode.querySelector(".results-dropdown");
     if (existingContainer) {
       inputElement.parentNode.removeChild(existingContainer);
     }
   } else {
-    console.error('Input element is not in the DOM or has no parent.');
+    console.error("Input element is not in the DOM or has no parent.");
   }
 }
 
 
-// Function to update the score based on the user's guess
+// Function to update the score based on the user"s guess
 async function updateScoreForGuess(popularity, answers, cell, songInfo) {
   scoringOngoing = true;
-  updateScoreTo('(updating score)');
+  updateScoreTo("(updating score)");
   calculateAnswerPops(answers);
   var cellScoreMax = 0;
   var cellScoreMin = 0;
   var normedGuessScore = 0;
   var popInt = parseInt(popularity);
-  console.log('Norming score off popularity of '+popInt+' from string '+popularity);
+  console.log("Norming score off popularity of "+popInt+" from string "+popularity);
   let answerPops = await calculateAnswerPops(answers);
-  console.log('Popularities returned to score updater for: '+answers.toString());
-  console.log('Returned popularities: '+answerPops.toString());
+  console.log("Popularities returned to score updater for: "+answers.toString());
+  console.log("Returned popularities: "+answerPops.toString());
   cellScoreMax = Math.max.apply(Math, answerPops);
-  console.log('Max cell popularity determined as: '+cellScoreMax);
+  console.log("Max cell popularity determined as: "+cellScoreMax);
   cellScoreMin = Math.min.apply(Math, answerPops);
-  console.log('Min cell popularity determined as: '+cellScoreMin);
+  console.log("Min cell popularity determined as: "+cellScoreMin);
   if (cellScoreMin == cellScoreMax) {
     normedGuessScore = 11;
   } else {
@@ -404,35 +401,35 @@ async function updateScoreForGuess(popularity, answers, cell, songInfo) {
   }
   
   // Updating score in Song Cell
-  cell.style.backgroundColor = '#c8e6c9'; // Green for correct
-  cell.textContent = 'Correct: ' + songInfo + ' ('+normedGuessScore+' out of 11 points scored)';
+  cell.style.backgroundColor = "#c8e6c9"; // Green for correct
+  cell.textContent = "Correct: " + songInfo + " ("+normedGuessScore+" out of 11 points scored)";
 
   // Calculating total score
-  console.log('Normed score determined as: '+normedGuessScore);
-  console.log('Adding normed score to prior total of '+totalScore);
+  console.log("Normed score determined as: "+normedGuessScore);
+  console.log("Adding normed score to prior total of "+totalScore);
   totalScore+=normedGuessScore;
-  console.log('Displaying new total score of '+normedGuessScore);
+  console.log("Displaying new total score of "+normedGuessScore);
   updateScoreTo(totalScore);
 }
 
 async function calculateAnswerPops(answers) {
-  console.log('Parsing answer popularities');
+  console.log("Parsing answer popularities");
   let answerPops = await searchAnswers(answers);
-  console.log('Returned popularities: ', answerPops.toString());
+  console.log("Returned popularities: ", answerPops.toString());
 
-  // Filter out null values if any song wasn't found or popularity was missing
+  // Filter out null values if any song wasn"t found or popularity was missing
   answerPops = answerPops.filter(pop => pop !== null);
 
-  console.log('Filtered answer popularities: ', answerPops.toString());
+  console.log("Filtered answer popularities: ", answerPops.toString());
   return answerPops;
 }
 
 function updateScoreTo(totalScore) {
-  scoreReadable = ' '+totalScore
+  let scoreReadable = " "+totalScore
   document.getElementById("totalScore").textContent=scoreReadable;
   scoringOngoing = false;
   // Check if game is now complete
-  if (correctGuesses == 9 && !(totalScore.equals('(updating score)'))) {
+  if (correctGuesses == 9 && !(totalScore.equals("(updating score)"))) {
     terminateGame();
-  }
+  };
 }
