@@ -174,6 +174,7 @@ async function answerEncoder(data, gridId) {
       try {
         const popularity = await searchSpotify(song);
         answerPops[`${fieldKey}|${song}`] = popularity;
+        console.log(`Popularity of ${fieldKey}|${song} reads at `+popularity);
       } catch (error) {
         console.error('Error fetching Spotify data for song:', song, error);
       }
