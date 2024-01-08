@@ -159,35 +159,37 @@ async function answerEncoder(data, gridId) {
   console.log("Parsing grid data");
   const answers = {};
   data.forEach(item => {
-      if (item.field_type === 'Answer') {
-          answers[item.field] = item.field_value.split(', ').map(answer => answer.replace(/'/g, ""));
+      if (item.field_type === "Answer") {
+          answers[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
       }
   });
   console.log("Parsing answer popularities");
   console.log(`Searching answers for ${JSON.stringify(answers)}`);
-  
-  for (const cellfield of answers) {
-    console.log("Scrutinizing "+cellfield);
-    for (const songfield of cellfield) {
+  const answerPops = {};
+  for (fieldkey in answers) {
+    console.log("Scrutinizing "+fieldkey+" | "+answers[fieldkey]);
+    for (const songfield of answers[fieldkey]) {
       console.log("Searching answer "+songfield);
-      let answerPops = await searchAnswers(`${JSON.stringify(songfield)}`);
-    };
+      let answerPop = await searchAnswers(`${JSON.stringify(songfield)}`);
+      console.log("Received popularity of "+answerPop);
+      answerPops[fieldkey+"|"+songfield] = answerPop; 
+    }
     console.log("Returned "+answerPops);
-  };
+  }
     
-  console.log('Returned popularities: ', answerPops.toString());
+  console.log("Returned popularities: ", answerPops.toString());
 
-  // Filter out null values if any song wasn't found or popularity was missing
+  // Filter out null values if any song wasn"t found or popularity was missing
   answerPops = answerPops.filter(pop => pop !== null);
 
-  console.log('Filtered answer popularities: ', answerPops.toString());
+  console.log("Filtered answer popularities: ", answerPops.toString());
   updateEncodedAnswers(gridId, answerPops);
 }
 
 
 // TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
 async function searchAnswers(answerTerms) {
-  console.log('Initializing evaluation of answers ' + answerTerms);
+  console.log("Initializing evaluation of answers " + answerTerms);
   let promises = answerTerms.map(answerTerm => searchSpotify(answerTerm));
   
   // Wait for all promises to resolve
@@ -202,31 +204,31 @@ async function searchAnswers(answerTerms) {
     return null; // Handle cases where no songs are found or structure is different
   });
   
-  console.log('Answer Pops Array now at: ', answerPopsArr.toString());
+  console.log("Answer Pops Array now at: ", answerPopsArr.toString());
   return answerPopsArr;
 }
 
 async function searchSpotify(searchTerm) {
-  console.log('Searching for '+searchTerm)
-  const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/search', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  console.log("Searching for "+searchTerm);
+  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ searchTerm })
   });
-  console.log('Received response: '+response)
-  if (!response.ok) throw new Error('Failed to fetch');
+  console.log("Received response: "+response);
+  if (!response.ok) throw new Error("Failed to fetch");
   return response.json();
 }
 
 async function updateEncodedAnswers(gridId, answerPops) {
   console.log("Updating encoded answer popularities for grid "+gridId);
   console.log("Using answerPops of "+answerPops.toString());
-  const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/update-encoded-answers', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/update-encoded-answers", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ grid_id: gridId, encodedAnswers: answerPops })
   });
-  console.log('Received response: '+response)
-  if (!response.ok) throw new Error('Failed to update encoded answers');
+  console.log("Received response: "+response);
+  if (!response.ok) throw new Error("Failed to update encoded answers");
   return response.json();
 }
