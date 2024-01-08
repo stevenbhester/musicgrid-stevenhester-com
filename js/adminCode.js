@@ -74,26 +74,26 @@ function createLoadCell(className, text = "") {
   const button = document.createElement("input");
   button.type = "button";
   button.setAttribute("value", "Load grid id "+text);
-  button.setAttribute("onclick", "loadGrid("+text+")");
+  button.setAttribute("onclick", "fetchGridData("+text+")");
   cell.appendChild(button);
   return cell;
 }
 
 // Get data to populate a selected MusicGrid
 function fetchGridData(gridId) {
-  fetch('https://music-grid-io-42616e204fd3.herokuapp.com/grid-data', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ grid_id: gridId })
-      })
-      .then(response => response.json())
-      .then(data => buildGrid(data))
-      .catch(error => console.error('Error fetching grid data:', error))
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/grid-data", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ grid_id: gridId })
+    })
+    .then(response => response.json())
+    .then(data => buildGrid(data))
+    .catch(error => console.error("Error fetching grid data:", error))
 }
 
 function buildGrid(data) {
-  const gridContainer = document.getElementById('grid-container');
-  gridContainer.innerHTML = ''; // Clear existing content
+  const gridContainer = document.getElementById("grid-container");
+  gridContainer.innerHTML = ""; // Clear existing content
 
   // Separate the data into categories, artists, and answers
   const categories = {};
@@ -101,35 +101,35 @@ function buildGrid(data) {
   const answers = {};
 
   data.forEach(item => {
-      if (item.field_type === 'Category') {
+      if (item.field_type === "Category") {
           categories[item.field] = item.field_value;
-      } else if (item.field_type === 'Artist') {
+      } else if (item.field_type === "Artist") {
           artists[item.field] = item.field_value;
-      } else if (item.field_type === 'Answer') {
-          answers[item.field] = item.field_value.split(', ').map(answer => answer.replace(/'/g, ""));
+      } else if (item.field_type === "Answer") {
+          answers[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
       }
   });
 
   // Create artist row
-  const artistRow = document.createElement('div');
-  artistRow.classList.add('row');
-  artistRow.appendChild(createCell('invisible')); // Invisible cell for alignment
-  Object.keys(artists).forEach(key => artistRow.appendChild(createCell('artist', artists[key])));
+  const artistRow = document.createElement("div");
+  artistRow.classList.add("row");
+  artistRow.appendChild(createCell("invisible")); // Invisible cell for alignment
+  Object.keys(artists).forEach(key => artistRow.appendChild(createCell("artist", artists[key])));
   gridContainer.appendChild(artistRow);
 
   // Create rows for each category
   Object.keys(categories).forEach(categoryKey => {
-      const categoryRow = document.createElement('div');
-      categoryRow.classList.add('row');
+      const categoryRow = document.createElement("div");
+      categoryRow.classList.add("row");
 
       // Category cell
-      categoryRow.appendChild(createCell('genre-header', categories[categoryKey]));
+      categoryRow.appendChild(createCell("genre-header", categories[categoryKey]));
 
       // Song cells
       Object.keys(artists).forEach(artistKey => {
-          const cellKey = `${categoryKey} ${artistKey}`;
+          const cellKey = "${categoryKey} ${artistKey}";
           const songAnswers = answers[cellKey] || [];
-          categoryRow.appendChild(createCell('song-cell', songAnswers));
+          categoryRow.appendChild(createCell("song-cell", songAnswers));
       });
 
       gridContainer.appendChild(categoryRow);
