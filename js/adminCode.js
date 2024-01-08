@@ -28,16 +28,16 @@ function displayGridsSumm(data) {
   
   const summRow = document.createElement("div");
   summRow.classList.add("row");
-  summRow.appendChild(createCell("cell cellheader","Grid ID"));
-  summRow.appendChild(createCell("cell cellheader","Grid Created Date"));
-  summRow.appendChild(createCell("cell cellheader","Grid Post Date"));
-  summRow.appendChild(createCell("cell cellheader","Answers Updated PST"));
-  summRow.appendChild(createCell("cell cellheader","Artists"));
-  summRow.appendChild(createCell("cell cellheader","Categories"));
-  summRow.appendChild(createCell("cell cellheader","Num Raw Answers"));
-  summRow.appendChild(createCell("cell cellheader","Num Encoded Answers"));
-  summRow.appendChild(createCell("cell cellheader","Num Field W Encoded Answer"));
-  summRow.appendChild(createCell("cell cellheader","Load Grid"));
+  summRow.appendChild(createCell("cellheader","Grid ID"));
+  summRow.appendChild(createCell("cellheader","Grid Created Date"));
+  summRow.appendChild(createCell("cellheader","Grid Post Date"));
+  summRow.appendChild(createCell("cellheader","Answers Updated PST"));
+  summRow.appendChild(createCell("cellheader","Artists"));
+  summRow.appendChild(createCell("cellheader","Categories"));
+  summRow.appendChild(createCell("cellheader","Num Raw Answers"));
+  summRow.appendChild(createCell("cellheader","Num Encoded Answers"));
+  summRow.appendChild(createCell("cellheader","Num Field W Encoded Answer"));
+  summRow.appendChild(createCell("cellheader","Load Grid"));
   gridContainer.appendChild(summRow);
   
   data.forEach(item => {
