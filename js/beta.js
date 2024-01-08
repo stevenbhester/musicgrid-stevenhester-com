@@ -141,7 +141,7 @@ function selectSong(songInfo, inputElement, answers, popularity) {
 }
 
 function decrementGuesses() {
-  let guessesReadable = " "+guessTotal
+  let guessesReadable = " "+guessTotal;
   document.getElementById("guessesRemaining").textContent=guessesReadable;
 }
 
@@ -166,8 +166,8 @@ document.getElementById("shareButton").addEventListener("click", () => {
       text: `I scored ${totalScore} on MusicGrid! Can you beat me?`,
       url: document.location.href
     })
-    .then(() => console.log("Successful share"))
-    .catch((error) => console.error("Error sharing:", error));
+      .then(() => console.log("Successful share"))
+      .catch((error) => console.error("Error sharing:", error));
   } else {
     console.error("Web Share API is not supported in your browser.");
   }
@@ -175,7 +175,7 @@ document.getElementById("shareButton").addEventListener("click", () => {
 
 
 function endGame() {
-  let eogGuessMsg = "Guessing complete!"
+  let eogGuessMsg = "Guessing complete!";
   document.getElementById("guessWrapper").textContent=eogGuessMsg;
 
   let quitterButton = document.getElementById("quitButton");
@@ -198,10 +198,10 @@ function endGame() {
         
         cell.textContent = "Incorrect! Correct answers: " + correctAnswers.join(", ");
         inputField.disabled = true;
-      };
+      }
     } else {
       console.error("Input field not found in the cell:", cell);
-    };
+    }
   });
 
   // Provide feedback that the game has ended
@@ -356,13 +356,13 @@ function leaderboardUpdate(playerName, score) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name: playerName, score: score, lb_id: gridId })
-})
-.then(response => response.json())
-.then(data => {
-  console.log(data.message);
-  loadLeaderboard(); // Refresh the leaderboard after updating
-})
-  .catch(error => console.error("Error:", error));
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data.message);
+      loadLeaderboard(); // Refresh the leaderboard after updating
+    })
+    .catch(error => console.error("Error:", error));
 }
 
 function removeDropdown(inputElement) {
@@ -425,11 +425,11 @@ async function calculateAnswerPops(answers) {
 }
 
 function updateScoreTo(totalScore) {
-  let scoreReadable = " "+totalScore
+  let scoreReadable = " "+totalScore;
   document.getElementById("totalScore").textContent=scoreReadable;
   scoringOngoing = false;
   // Check if game is now complete
   if (correctGuesses == 9 && !(totalScore.equals("(updating score)"))) {
     terminateGame();
-  };
+  }
 }
