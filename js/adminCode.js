@@ -226,9 +226,9 @@ async function calculateAnswerScores(answersUnscored, gridId) {
       if (fieldScoreMin == fieldScoreMax) {
         normedAnswerScore = 11;
       } else {
-        normedAnswerScore = 6+5*Math.round(10*(1 - ((popInt - fieldScoreMin)/(fieldScoreMax - fieldScoreMin))))/10;
+        normedAnswerScore = 6+5*Math.round(10*(1 - ((popularity - fieldScoreMin)/(fieldScoreMax - fieldScoreMin))))/10;
       }
-      answersWithScores.push({ fieldKey, song, popularity, normedAnswerScore, gridId })
+      answersWithScores.push({ fieldKey, song, popularity, normedAnswerScore, gridId });
     }
     return answersWithScores;
   }
