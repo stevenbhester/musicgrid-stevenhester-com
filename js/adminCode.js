@@ -209,7 +209,7 @@ async function answerEncoder(data, gridId) {
   }
 
   console.log("Encoded answers ready for calculation:", answerPops);
-  let richAnswersData = calculateAnswerScores(answerPops, gridId);
+  calculateAnswerScores(answerPops, gridId);
 
 }
 
@@ -235,7 +235,6 @@ async function calculateAnswerScores(answersUnscored, gridId) {
       }
       answersWithScores.push({ fieldKey, song, popularity, normedAnswerScore, gridId });
     }
-    return answersWithScores;
   }
   await updateEncodedAnswers(answersWithScores);
 }
