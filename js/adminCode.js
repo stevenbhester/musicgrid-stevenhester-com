@@ -23,19 +23,7 @@ function loadGridData() {
 function displayGridsSumm(data) {
   const gridContainer = document.getElementById("data-dump");
   gridContainer.innerHTML = ""; // Clear existing content
-
- <div class="row">
-            <div class="cell cellheader">Grid ID</div>
-            <div class="cell cellheader">Grid Created Date</div>
-            <div class="cell cellheader">Grid Post Date</div>
-            <div class="cell cellheader">Answers Updated PST</div>
-            <div class="cell cellheader">Num Artists</div>
-            <div class="cell cellheader">Num Categories</div>
-            <div class="cell cellheader">Num Raw Answers</div>
-            <div class="cell cellheader">Num Encoded Answers</div>
-            <div class="cell cellheader">Num Field W Encoded Answer</div>
-            <div class="cell cellheader">Load Grid</div>
-        </div>
+  
   const summHeader - document.createElement("div");
   summRow.classList.add("row");
   summRow.appendChild(createCell("cell cellheader","Grid ID"));
