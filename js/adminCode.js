@@ -108,6 +108,7 @@ function displayGridsSumm(data) {
         summRow.appendChild(createCell('summCell',item.num_fields_w_encoded_answers));
         summRow.appendChild(createLoadCell('loadCell',item.grid_id));
         gridContainer.appendChild(summRow);
+    }
 }
 
 function createCell(className, text = '') {
