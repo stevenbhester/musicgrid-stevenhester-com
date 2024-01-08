@@ -186,14 +186,15 @@ async function answerEncoder(data, gridId) {
   });
 
   const answerPops = {};
-  for (const [fieldKey, songs] of Object.entries(answers)) {
+  for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
     const nestedSongPops = [];
     for (const song of songs) {
+      let popNum = 0;
       try {
         const popularity = await searchSpotify(song);
         if (popularity !== null) {
-        popNum = parseInt(popularity);
-        nestedSongPops.push({song, popNum}) ;
+          popNum = parseInt(popularity);
+          nestedSongPops.push({song, popNum}) ;
         }
       } catch (error) {
         console.error("Error fetching Spotify data for song:", song, error);
@@ -213,8 +214,6 @@ async function calculateAnswerScores(answersUnscored, gridId) {
   var cellScoreMax = 0;
   var cellScoreMin = 0;
   var normedGuessScore = 0;
-  var popInt = parseInt(popularity);
-  console.log("Norming score off popularity of "+popInt+" from string "+popularity);
   
   const answersWithScores = [];
   for (const [fieldKey, songAnsObj] of Object.entries(answersUnscored)) {
