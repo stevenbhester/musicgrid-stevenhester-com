@@ -38,6 +38,7 @@ function displayGridsSumm(data) {
   summRow.appendChild(createCell("cellheader","Num Encoded Answers"));
   summRow.appendChild(createCell("cellheader","Num Field W Encoded Answer"));
   summRow.appendChild(createCell("cellheader","Load Grid"));
+  summRow.appendChild(createCell("cellheader","Encode Answers"));
   gridContainer.appendChild(summRow);
   
   data.forEach(item => {
@@ -54,7 +55,8 @@ function displayGridsSumm(data) {
     summRow.appendChild(createCell("summCell",item.num_raw_answer_cells));
     summRow.appendChild(createCell("summCell",item.num_encoded_answer));
     summRow.appendChild(createCell("summCell",item.num_fields_w_encoded_answers));
-    summRow.appendChild(createLoadCell("loadCell",item.grid_id));
+    summRow.appendChild(createLoadCell("loadCell","fetchGridData","Load grid id "+item.grid_id,item.grid_id));
+    summRow.appendChild(createLoadCell("loadCell","encodeAnswers","Encode grid id "+item.grid_id,item.grid_id));
     gridContainer.appendChild(summRow);
   });
 }
@@ -68,13 +70,13 @@ function createCell(className, text = "") {
 }
 
 // Button creator to load grid data
-function createLoadCell(className, text = "") {
+function createLoadCell(className, calledFunction, text = "", params = "") {
   const cell = document.createElement("div");
   cell.classList.add("cell", "song-cell");
   const button = document.createElement("input");
   button.type = "button";
-  button.setAttribute("value", "Load grid id "+text);
-  button.setAttribute("onclick", "fetchGridData("+text+")");
+  button.setAttribute("value", text);
+  button.setAttribute("onclick", calledFunction+"("+params+")");
   cell.appendChild(button);
   return cell;
 }
@@ -139,4 +141,75 @@ function buildGrid(data) {
 
     gridContainer.appendChild(categoryRow);
   });
+}
+
+// Get answer data to encode
+function encodeAnswers(gridId) {
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/grid-data", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ grid_id: gridId })
+  })
+    .then(response => response.json())
+    .then(data => answerEncoder(data, gridId))
+    .catch(error => console.error("Error encoding answers for grid:", error));
+}
+
+async function answerEncoder(data, gridId) {
+  console.log('Parsing answer popularities');
+  let answerPops = await searchAnswers(`${JSON.stringify(answers)}`);
+  console.log('Returned popularities: ', answerPops.toString());
+
+  // Filter out null values if any song wasn't found or popularity was missing
+  answerPops = answerPops.filter(pop => pop !== null);
+
+  console.log('Filtered answer popularities: ', answerPops.toString());
+  updateEncodedAnswers(gridId, answerPops);
+}
+
+
+// TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
+async function searchAnswers(answerTerms) {
+  console.log('Initializing evaluation of answers ' + answerTerms);
+  let promises = answerTerms.map(answerTerm => searchSpotify(answerTerm));
+  
+  // Wait for all promises to resolve
+  let results = await Promise.all(promises);
+  
+  // Process the results to extract popularity values
+  let answerPopsArr = results.map(result => {
+    // Assuming the result structure includes an array of songs
+    if (result.length > 0 && result[0].popularity !== undefined) {
+        return result[0].popularity; // Take the popularity of the first song as an example
+    }
+    return null; // Handle cases where no songs are found or structure is different
+  });
+  
+  console.log('Answer Pops Array now at: ', answerPopsArr.toString());
+  return answerPopsArr;
+}
+
+async function searchSpotify(searchTerm) {
+  console.log('Searching for '+searchTerm)
+  const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/search', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ searchTerm })
+  });
+  console.log('Received response: '+response)
+  if (!response.ok) throw new Error('Failed to fetch');
+  return response.json();
+}
+
+async function updateEncodedAnswers(gridId, answerPops) {
+  console.log("Updating encoded answer popularities for grid "+gridId);
+  console.log("Using answerPops of "+answerPops.toString());
+  const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/update-encoded-answers', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ grid_id: gridId, encodedAnswers: answerPops })
+  });
+  console.log('Received response: '+response)
+  if (!response.ok) throw new Error('Failed to update encoded answers');
+  return response.json();
 }
