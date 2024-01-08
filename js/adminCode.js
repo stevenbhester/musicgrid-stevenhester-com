@@ -85,10 +85,10 @@ function fetchGridData(gridId) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ grid_id: gridId })
-    })
+  })
     .then(response => response.json())
     .then(data => buildGrid(data))
-    .catch(error => console.error("Error fetching grid data:", error))
+    .catch(error => console.error("Error fetching grid data:", error));
 }
 
 function buildGrid(data) {
@@ -101,13 +101,13 @@ function buildGrid(data) {
   const answers = {};
 
   data.forEach(item => {
-      if (item.field_type === "Category") {
-          categories[item.field] = item.field_value;
-      } else if (item.field_type === "Artist") {
-          artists[item.field] = item.field_value;
-      } else if (item.field_type === "Answer") {
-          answers[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
-      }
+    if (item.field_type === "Category") {
+        categories[item.field] = item.field_value;
+    } else if (item.field_type === "Artist") {
+        artists[item.field] = item.field_value;
+    } else if (item.field_type === "Answer") {
+        answers[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
+    }
   });
 
   // Create artist row
@@ -119,19 +119,19 @@ function buildGrid(data) {
 
   // Create rows for each category
   Object.keys(categories).forEach(categoryKey => {
-      const categoryRow = document.createElement("div");
-      categoryRow.classList.add("row");
+    const categoryRow = document.createElement("div");
+    categoryRow.classList.add("row");
 
-      // Category cell
-      categoryRow.appendChild(createCell("genre-header", categories[categoryKey]));
+    // Category cell
+    categoryRow.appendChild(createCell("genre-header", categories[categoryKey]));
 
-      // Song cells
-      Object.keys(artists).forEach(artistKey => {
-          const cellKey = "${categoryKey} ${artistKey}";
-          const songAnswers = answers[cellKey] || [];
-          categoryRow.appendChild(createCell("song-cell", songAnswers));
-      });
+    // Song cells
+    Object.keys(artists).forEach(artistKey => {
+      const cellKey = "${categoryKey} ${artistKey}";
+      const songAnswers = answers[cellKey] || [];
+      categoryRow.appendChild(createCell("song-cell", songAnswers));
+    });
 
-      gridContainer.appendChild(categoryRow);
+    gridContainer.appendChild(categoryRow);
   });
 }
