@@ -436,7 +436,3 @@ function updateScoreTo(totalScore) {
     terminateGame();
   }
 }
-
-</script>
-</body>
-</html>
