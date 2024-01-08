@@ -167,7 +167,7 @@ async function answerEncoder(data, gridId) {
       answers[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
     }
   });
-
+  console.log("Raw answer data parsed to object: ", JSON.stringify(answers);
   const encodedAnswers = [];
   for (const [fieldKey, songs] of Object.entries(answers)) {
     for (const song of songs) {
