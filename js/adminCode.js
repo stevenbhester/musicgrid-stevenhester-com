@@ -80,17 +80,6 @@ function loadGrid() {
 function displayGridsSumm(data) {
     const gridContainer = document.getElementById('data-dump');
     gridContainer.innerHTML = ''; // Clear existing content
-
-    // Separate the data into categories, artists, and answers
-    const ids = {};
-    const create_dates = {};
-    const post_dates = {};
-    const answer_update_ts = {};
-    const artist_nums = {};
-    const category_nums = {};
-    const raw_answer_nums = {};
-    const encoded_answer_nums = {};
-    const fields_encoded_nums = {};
   
     data.forEach(item => {
         //Create summary row for each
