@@ -168,23 +168,23 @@ async function answerEncoder(data, gridId) {
     }
   });
 
-  const answerPops = {};
+  const encodedAnswers = [];
   for (const [fieldKey, songs] of Object.entries(answers)) {
     for (const song of songs) {
       try {
         const popularity = await searchSpotify(song);
-        answerPops[`${fieldKey}|${song}`] = popularity;
-        console.log(`Popularity of ${fieldKey}|${song} reads at `+popularity);
+        if (popularity !== null) {
+          encodedAnswers.push({ fieldKey, song, popularity, gridId });
+        }
       } catch (error) {
         console.error('Error fetching Spotify data for song:', song, error);
       }
     }
   }
 
-  console.log("Returned popularities: ", answerPops);
-  updateEncodedAnswers(gridId, answerPops);
+  console.log("Encoded answers ready for update:", encodedAnswers);
+  await updateEncodedAnswers(encodedAnswers);
 }
-
 
 // TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
 async function searchSpotify(searchTerm) {
@@ -203,15 +203,21 @@ async function searchSpotify(searchTerm) {
   return songs.length > 0 ? songs[0].popularity : null;
 }
 
-async function updateEncodedAnswers(gridId, answerPops) {
-  console.log("Updating encoded answer popularities for grid "+gridId);
-  console.log("Using answerPops of "+answerPops.toString());
-  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/update-encoded-answers", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ grid_id: gridId, encodedAnswers: answerPops })
-  });
-  console.log("Received response: "+response);
-  if (!response.ok) throw new Error("Failed to update encoded answers");
-  return response.json();
+async function updateEncodedAnswers(encodedAnswers) {
+  try {
+    const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/update-encoded-answers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ encodedAnswers })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update encoded answers');
+    }
+
+    console.log('Encoded answers updated successfully');
+  } catch (error) {
+    console.error('Error updating encoded answers:', error);
+  }
 }
+
