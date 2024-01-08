@@ -104,11 +104,11 @@ function buildGrid(data) {
 
   data.forEach(item => {
     if (item.field_type === "Category") {
-        categories[item.field] = item.field_value;
+      categories[item.field] = item.field_value;
     } else if (item.field_type === "Artist") {
-        artists[item.field] = item.field_value;
+      artists[item.field] = item.field_value;
     } else if (item.field_type === "Answer") {
-        answers[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
+      answers[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
     }
   });
 
