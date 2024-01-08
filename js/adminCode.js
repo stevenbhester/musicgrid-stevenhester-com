@@ -196,9 +196,9 @@ async function searchSpotify(searchTerm) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ searchTerm })
   });
-  console.log("Received response: "+response);
+  console.log("Received response: "+response[songs]);
   if (!response.ok) throw new Error("Failed to fetch");
-  console.log("Returning "+response.songs[0]);
+  console.log("Returning "+response[songs][0]);
   return response.songs[0];
 }
 
