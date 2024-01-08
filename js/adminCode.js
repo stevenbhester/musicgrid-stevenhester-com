@@ -166,7 +166,7 @@ async function answerEncoder(data, gridId) {
   console.log("Parsing answer popularities");
   console.log(`Searching answers for ${JSON.stringify(answers)}`);
   const answerPops = {};
-  for (fieldkey in answers) {
+  for (const fieldkey in answers) {
     console.log("Scrutinizing "+fieldkey+" | "+answers[fieldkey]);
     for (const songfield of answers[fieldkey]) {
       console.log("Searching answer "+songfield);
