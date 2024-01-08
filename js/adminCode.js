@@ -126,10 +126,15 @@ function buildGrid(data) {
     categoryRow.appendChild(createCell("genre-header", categories[categoryKey]));
 
     // Song cells
+    console.log("Appending answer cells");
     Object.keys(artists).forEach(artistKey => {
       const cellKey = "${categoryKey} ${artistKey}";
+      console.log("Gen answers for: "+cellKey);
       const songAnswers = answers[cellKey] || [];
-      categoryRow.appendChild(createCell("song-cell", JSON.stringify(songAnswers)));
+      console.log("Gen answers for parsed: "+cellKey);
+      categoryRow.appendChild(createCell("song-cell", ${JSON.stringify(songAnswers)}));
+      console.log("Appended "+songAnswers);
+      console.log("Appended parsed ${JSON.stringify(songAnswers)}");
     });
 
     gridContainer.appendChild(categoryRow);
