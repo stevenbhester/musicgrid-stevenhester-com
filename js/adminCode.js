@@ -24,7 +24,7 @@ function displayGridsSumm(data) {
   const gridContainer = document.getElementById("data-dump");
   gridContainer.innerHTML = ""; // Clear existing content
   
-  const summHeader - document.createElement("div");
+  const summHeader = document.createElement("div");
   summRow.classList.add("row");
   summRow.appendChild(createCell("cell cellheader","Grid ID"));
   summRow.appendChild(createCell("cell cellheader","Grid Created Date"));
