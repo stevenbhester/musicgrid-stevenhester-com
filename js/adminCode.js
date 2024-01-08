@@ -29,7 +29,7 @@ function displayGridsSumm(data) {
     console.log("Creating summary row for id: "+item.grid_id);
     const summRow = document.createElement("div");
     summRow.classList.add("row");
-    summRow.appendChild(createCell("summCell",item.grid_id));
+    summRow.appendChild(createCell("genre-header",item.grid_id));
     summRow.appendChild(createCell("summCell",item.create_date));
     summRow.appendChild(createCell("summCell",item.post_date));
     summRow.appendChild(createCell("summCell",item.answers_last_updated_pst));
