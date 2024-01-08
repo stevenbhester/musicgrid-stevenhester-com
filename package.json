@@ -4,8 +4,8 @@
   "description": "Idk whats going on",
   "main": "server.js",
   "scripts": {
-    "lint": "eslint ."
-  },
+    "lint": "eslint '**/*.{js,jsx,html}'"
+  }
   "devDependencies": {
     "eslint": "^8.56.0"
   },
