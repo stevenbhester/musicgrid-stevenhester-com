@@ -156,7 +156,16 @@ function encodeAnswers(gridId) {
 }
 
 async function answerEncoder(data, gridId) {
-  console.log('Parsing answer popularities');
+  console.log("Parsing grid data");
+  const answers = {};
+  data.forEach(item => {
+      if (item.field_type === 'Answer') {
+          answers[item.field] = item.field_value.split(', ').map(answer => answer.replace(/'/g, ""));
+      }
+  });
+  console.log("Built answer map: "+answers.ToString());
+  console.log("Parsing answer popularities");
+  console.log(`Searching answers for ${JSON.stringify(answers)}`);
   let answerPops = await searchAnswers(`${JSON.stringify(answers)}`);
   console.log('Returned popularities: ', answerPops.toString());
 
