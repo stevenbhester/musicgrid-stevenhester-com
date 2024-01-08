@@ -187,15 +187,16 @@ async function answerEncoder(data, gridId) {
 
   const answerPops = {};
   let numSongs = 0;
-  let i = 0;
+  let i = 1;
   for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
     numSongs = songs.length;
-    console.log(`Searching for ${song} (${i} of ${numSongs} in ${fieldKey})`);
-    i++;
+    i = 1;
     const nestedSongPops = [];
     for (const song of songs) {
       let popNum = 0;
       try {
+        console.log(`Searching for ${song} (${i} of ${numSongs} in ${fieldKey})`);
+        i++;
         const popularity = await searchSpotify(song);
         if (popularity !== null) {
           popNum = parseInt(popularity);
