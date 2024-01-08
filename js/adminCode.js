@@ -177,7 +177,7 @@ async function answerEncoder(data, gridId) {
           encodedAnswers.push({ fieldKey, song, popularity, gridId });
         }
       } catch (error) {
-        console.error('Error fetching Spotify data for song:', song, error);
+        console.error("Error fetching Spotify data for song:", song, error);
       }
     }
   }
@@ -205,19 +205,19 @@ async function searchSpotify(searchTerm) {
 
 async function updateEncodedAnswers(encodedAnswers) {
   try {
-    const response = await fetch('https://music-grid-io-42616e204fd3.herokuapp.com/update-encoded-answers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/update-encoded-answers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ encodedAnswers })
     });
 
     if (!response.ok) {
-      throw new Error('Failed to update encoded answers');
+      throw new Error("Failed to update encoded answers");
     }
 
-    console.log('Encoded answers updated successfully');
+    console.log("Encoded answers updated successfully");
   } catch (error) {
-    console.error('Error updating encoded answers:', error);
+    console.error("Error updating encoded answers:", error);
   }
 }
 
