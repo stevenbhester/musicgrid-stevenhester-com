@@ -163,7 +163,6 @@ async function answerEncoder(data, gridId) {
           answers[item.field] = item.field_value.split(', ').map(answer => answer.replace(/'/g, ""));
       }
   });
-  console.log("Built answer map: "+answers.ToString());
   console.log("Parsing answer popularities");
   console.log(`Searching answers for ${JSON.stringify(answers)}`);
   let answerPops = await searchAnswers(`${JSON.stringify(answers)}`);
