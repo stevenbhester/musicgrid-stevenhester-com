@@ -15,6 +15,6 @@
         "quotes": ["error", "double"],
         "semi": ["error", "always"],
         "no-unused-vars": "off",
-        "no-unnecessary-condition": "error"
+        "@typescript-eslint/no-unnecessary-condition": "error"
     }
 }
