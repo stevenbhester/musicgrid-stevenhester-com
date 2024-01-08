@@ -179,19 +179,22 @@ async function answerEncoder(data, gridId) {
 // TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
 async function searchAnswers(answerTerms) {
   console.log('Initializing evaluation of answers ' + answerTerms);
-  let promises = answerTerms.map(answerTerm => searchSpotify(answerTerm));
-  
-  // Wait for all promises to resolve
-  let results = await Promise.all(promises);
-  
-  // Process the results to extract popularity values
-  let answerPopsArr = results.map(result => {
-    // Assuming the result structure includes an array of songs
-    if (result.length > 0 && result[0].popularity !== undefined) {
-        return result[0].popularity; // Take the popularity of the first song as an example
-    }
-    return null; // Handle cases where no songs are found or structure is different
-  });
+  answerTerms.forEach(cellfield => {
+    console.log("Scrutinizing "+cellfield);
+    let promises = answerTerms.map(answerTerm => searchSpotify(answerTerm));
+    
+    // Wait for all promises to resolve
+    let results = await Promise.all(promises);
+    
+    // Process the results to extract popularity values
+    let answerPopsArr = results.map(result => {
+      // Assuming the result structure includes an array of songs
+      if (result.length > 0 && result[0].popularity !== undefined) {
+          return result[0].popularity; // Take the popularity of the first song as an example
+      }
+      return null; // Handle cases where no songs are found or structure is different
+    });
+  }
   
   console.log('Answer Pops Array now at: ', answerPopsArr.toString());
   return answerPopsArr;
