@@ -144,7 +144,7 @@ function buildGrid(data) {
 }
 
 // Get answer data to encode
-function encodeAnswers(gridId) {
+async function encodeAnswers(gridId) {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/grid-data", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
