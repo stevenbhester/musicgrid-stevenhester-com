@@ -170,7 +170,10 @@ async function answerEncoder(data, gridId) {
   console.log("Raw answer data parsed to object: ", JSON.stringify(answers));
   const encodedAnswers = [];
   for (const [fieldKey, songs] of Object.entries(answers)) {
+    let i = 1;
     for (const song of songs) {
+      let numSongs = songs.length;
+      console.log("Searching for " + song + ` ($i of $numSongs in $fieldKey)`;
       try {
         const popularity = await searchSpotify(song);
         if (popularity !== null) {
@@ -188,7 +191,6 @@ async function answerEncoder(data, gridId) {
 
 // TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
 async function searchSpotify(searchTerm) {
-  console.log("Searching for " + searchTerm);
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
