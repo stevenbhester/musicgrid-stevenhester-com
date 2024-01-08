@@ -132,7 +132,7 @@ function buildGrid(data) {
       console.log("Gen answers for: "+cellKey);
       const songAnswers = answers[cellKey] || [];
       console.log("Gen answers for parsed: "+cellKey);
-      categoryRow.appendChild(createCell("song-cell", ${JSON.stringify(songAnswers)}));
+      categoryRow.appendChild(createCell("song-cell", "${JSON.stringify(songAnswers)}"));
       console.log("Appended "+songAnswers);
       console.log("Appended parsed ${JSON.stringify(songAnswers)}");
     });
