@@ -169,9 +169,10 @@ async function answerEncoder(data, gridId) {
   for (const fieldkey in answers) {
     console.log("Scrutinizing "+fieldkey+" | "+answers[fieldkey]);
     for (const songfield of answers[fieldkey]) {
+      let answerResults = {};
       console.log("Searching answer "+songfield);
       searchSpotify(songfield)
-        .then(songs => let answerResult = songs)
+        .then(songs => answerResult = songs)
         .catch(error => console.error('Error fetching Spotify data:', error));
       let answerPop = answerResult.popularity;
       console.log("Received popularity of "+answerPop);
