@@ -55,7 +55,7 @@ function createLoadCell(className, text = "") {
   cell.classList.add("cell", "song-cell");
   const button = document.createElement("input");
   button.type = "button";
-  button.setAttribute("value", `Load grid id `+text);
+  button.setAttribute("value", "Load grid id "+text);
   button.setAttribute("onclick", "loadGrid("+text+")");
   cell.appendChild(button);
   return cell;
