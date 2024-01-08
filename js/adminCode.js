@@ -173,7 +173,8 @@ async function answerEncoder(data, gridId) {
     let i = 1;
     for (const song of songs) {
       let numSongs = songs.length;
-      console.log("Searching for " + song + ` (${i} of ${numSongs} in ${fieldKey})`);
+      console.log(`Searching for ${song} (${i} of ${numSongs} in ${fieldKey})`);
+      i++;
       try {
         const popularity = await searchSpotify(song);
         if (popularity !== null) {
