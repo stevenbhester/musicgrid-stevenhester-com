@@ -1,15 +1,16 @@
-// Call this function when the page loads to display the leaderboard
+// Start running code on page load
 window.onload = function() {
   initializeSite();
 };
 
+// Log functionality and ask to fetch grid summary
 function initializeSite() {
   console.log("Initializing Site");
   console.log("Loading grid");
   loadGridData();
 }
 
-// Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
+// Grab summary of all grids entered from Heroku
 function loadGridData() {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/fetch-grid-summary")
     .then(response => response.json())
@@ -20,6 +21,7 @@ function loadGridData() {
     .catch(error => console.error("Error fetching live grid id:", error));
 }
 
+// Display fetched grid summary data
 function displayGridsSumm(data) {
   const gridContainer = document.getElementById("data-dump");
   gridContainer.innerHTML = ""; // Clear existing content
@@ -57,6 +59,7 @@ function displayGridsSumm(data) {
   });
 }
 
+// Generic cell creator
 function createCell(className, text = "") {
   const cell = document.createElement("div");
   cell.classList.add("cell", className);
@@ -64,6 +67,7 @@ function createCell(className, text = "") {
   return cell;
 }
 
+// Button creator to load grid data
 function createLoadCell(className, text = "") {
   const cell = document.createElement("div");
   cell.classList.add("cell", "song-cell");
@@ -73,4 +77,61 @@ function createLoadCell(className, text = "") {
   button.setAttribute("onclick", "loadGrid("+text+")");
   cell.appendChild(button);
   return cell;
+}
+
+// Get data to populate a selected MusicGrid
+function fetchGridData(gridId) {
+  fetch('https://music-grid-io-42616e204fd3.herokuapp.com/grid-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grid_id: gridId })
+      })
+      .then(response => response.json())
+      .then(data => buildGrid(data))
+      .catch(error => console.error('Error fetching grid data:', error))
+}
+
+function buildGrid(data) {
+  const gridContainer = document.getElementById('grid-container');
+  gridContainer.innerHTML = ''; // Clear existing content
+
+  // Separate the data into categories, artists, and answers
+  const categories = {};
+  const artists = {};
+  const answers = {};
+
+  data.forEach(item => {
+      if (item.field_type === 'Category') {
+          categories[item.field] = item.field_value;
+      } else if (item.field_type === 'Artist') {
+          artists[item.field] = item.field_value;
+      } else if (item.field_type === 'Answer') {
+          answers[item.field] = item.field_value.split(', ').map(answer => answer.replace(/'/g, ""));
+      }
+  });
+
+  // Create artist row
+  const artistRow = document.createElement('div');
+  artistRow.classList.add('row');
+  artistRow.appendChild(createCell('invisible')); // Invisible cell for alignment
+  Object.keys(artists).forEach(key => artistRow.appendChild(createCell('artist', artists[key])));
+  gridContainer.appendChild(artistRow);
+
+  // Create rows for each category
+  Object.keys(categories).forEach(categoryKey => {
+      const categoryRow = document.createElement('div');
+      categoryRow.classList.add('row');
+
+      // Category cell
+      categoryRow.appendChild(createCell('genre-header', categories[categoryKey]));
+
+      // Song cells
+      Object.keys(artists).forEach(artistKey => {
+          const cellKey = `${categoryKey} ${artistKey}`;
+          const songAnswers = answers[cellKey] || [];
+          categoryRow.appendChild(createCell('song-cell', songAnswers));
+      });
+
+      gridContainer.appendChild(categoryRow);
+  });
 }
