@@ -186,7 +186,12 @@ async function answerEncoder(data, gridId) {
   });
 
   const answerPops = {};
+  let numSongs = 0;
+  let i = 0;
   for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
+    numSongs = songs.length;
+    console.log(`Searching for ${song} (${i} of ${numSongs} in ${fieldKey})`);
+    i++;
     const nestedSongPops = [];
     for (const song of songs) {
       let popNum = 0;
