@@ -145,64 +145,61 @@ function buildGrid(data) {
 
 // Get answer data to encode
 async function encodeAnswers(gridId) {
-  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/grid-data", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ grid_id: gridId })
-  })
-    .then(response => response.json())
-    .then(data => answerEncoder(data, gridId))
-    .catch(error => console.error("Error encoding answers for grid:", error));
+  try {
+    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/grid-data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ grid_id: gridId })
+    });
+
+    const data = await response.json();
+    await answerEncoder(data, gridId);
+  } catch (error) {
+    console.error("Error encoding answers for grid:", error);
+  }
 }
 
 async function answerEncoder(data, gridId) {
   console.log("Parsing grid data");
   const answers = {};
   data.forEach(item => {
-      if (item.field_type === "Answer") {
-          answers[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
-      }
-  });
-  console.log("Parsing answer popularities");
-  console.log(`Searching answers for ${JSON.stringify(answers)}`);
-  let answerPops = {};
-  for (const fieldkey in answers) {
-    console.log("Scrutinizing "+fieldkey+" | "+answers[fieldkey]);
-    for (const songfield of answers[fieldkey]) {
-      let answerResults = {};
-      console.log("Searching answer "+songfield);
-      searchSpotify(songfield)
-        .then(songs => answerResult = songs)
-        .catch(error => console.error('Error fetching Spotify data:', error));
-      let answerPop = answerResult.popularity;
-      console.log("Received popularity of "+answerPop);
-      answerPops[fieldkey+"|"+songfield] = answerPop; 
+    if (item.field_type === "Answer") {
+      answers[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
     }
-    console.log("Returned "+answerPops);
+  });
+
+  const answerPops = {};
+  for (const [fieldKey, songs] of Object.entries(answers)) {
+    for (const song of songs) {
+      try {
+        const popularity = await searchSpotify(song);
+        answerPops[`${fieldKey}|${song}`] = popularity;
+      } catch (error) {
+        console.error('Error fetching Spotify data for song:', song, error);
+      }
+    }
   }
-    
-  console.log("Returned popularities: ", answerPops.toString());
 
-  // Filter out null values if any song wasn"t found or popularity was missing
-  answerPops = answerPops.filter(pop => pop !== null);
-
-  console.log("Filtered answer popularities: ", answerPops.toString());
+  console.log("Returned popularities: ", answerPops);
   updateEncodedAnswers(gridId, answerPops);
 }
 
 
 // TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
 async function searchSpotify(searchTerm) {
-  console.log("Searching for "+searchTerm);
+  console.log("Searching for " + searchTerm);
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ searchTerm })
   });
-  console.log("Received response: "+response[songs]);
-  if (!response.ok) throw new Error("Failed to fetch");
-  console.log("Returning "+response[songs][0]);
-  return response.songs[0];
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch Spotify data for: " + searchTerm);
+  }
+
+  const songs = await response.json();
+  return songs.length > 0 ? songs[0].popularity : null;
 }
 
 async function updateEncodedAnswers(gridId, answerPops) {
