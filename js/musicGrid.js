@@ -107,11 +107,13 @@ function createSongCell(cellKey) {
   input.setAttribute("oninput", `liveSearch(this, "${cellKey}")`);
   input.setAttribute("placeholder", "Type to search...");
   cell.appendChild(input);
+
+  const whitespace = document.createElement("div");
+  cell.appendChild(whitespace);
   
   const button = document.createElement("button");
   button.setAttribute("class", btnClass);
   button.setAttribute("id", cellKey);
-  button.textContent = "<br>";
   cell.appendChild(button);
   
   return cell;
