@@ -181,7 +181,7 @@ async function answerEncoder(data, gridId) {
 
     for (const songData of songs) {
       try {
-        const searchTerm = `"${songData}" ${artistName}`; // Combines song name and artist
+        const searchTerm = `${songData} by ${artistName}`; // Combines song name and artist
         console.log(`Fetching data for ${searchTerm}`);
         const { popularity, previewUrl } = await searchSpotify(searchTerm);
         if (popularity !== null) {
