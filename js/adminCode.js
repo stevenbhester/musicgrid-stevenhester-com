@@ -247,7 +247,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
       } else {
         normedAnswerScore = 6+5*Math.round(10*(1 - ((popularityObserved - fieldScoreMin)/(fieldScoreMax - fieldScoreMin))))/10;
       }
-      songPopObj.map([song, popularity]answersWithScores.push({ fieldKey, songObserved, popularityObserved, normedAnswerScore, gridId });
+      answersWithScores.push({ fieldKey, songObserved, popularityObserved, normedAnswerScore, gridId });
     }
   }
   await updateEncodedAnswers(answersWithScores);
