@@ -110,7 +110,6 @@ function createSongCell(cellKey) {
   const button = document.createElement("button");
   button.class = "cheat-btn";
   button.id = cellKey;
-  button.textContent = 🎵;
   cell.appendChild(button);
   
   return cell;
