@@ -51,7 +51,7 @@ function displayGridsSumm(data) {
     summRow.appendChild(createCell("summCell",item.post_date));
     summRow.appendChild(createCell("summCell",item.answers_last_updated_pst));
     summRow.appendChild(createCell("summCell",item.num_artist_cells));
-    summRow.appendChild(createCell("summCell",item.num_category_cells));
+    summRow.appendChild(createCell("summCellLong",item.num_category_cells));
     summRow.appendChild(createCell("summCell",item.num_raw_answer_cells));
     summRow.appendChild(createCell("summCell",item.num_encoded_answer));
     summRow.appendChild(createCell("summCell",item.num_fields_w_encoded_answers));
