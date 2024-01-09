@@ -255,7 +255,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
         normedAnswerScore = 6+5*Math.round(10*(1 - ((popularityObserved - fieldScoreMin)/(fieldScoreMax - fieldScoreMin))))/10;
       }
       console.log(`Scoring for ${songObserved} set at ${normedAnswerScore}, adding to answersWithScores`);
-      answersWithScores.push({ fieldKey, songObserved, popularityObserved, normedAnswerScore, `${gridId}` });
+      answersWithScores.push({ fieldKey, songObserved, popularityObserved, normedAnswerScore, gridId.toString() });
       console.log("answersWithScores now at:");
       console.dir(answersWithScores);
     }
