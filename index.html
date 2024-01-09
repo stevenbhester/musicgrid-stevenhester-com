@@ -134,12 +134,15 @@
             box-sizing: border-box;
         }
 
+        .cheat-btn {
+          display: block; /* Ensures it takes up the full width */
+          margin-top: 10px; /* Adds some space above the button */
+        }
+
         .cheat-btn::after { 
           content: "\1F3B5"; /* Unicode value for a heart */
           font-size: 1rem; /* set font size */
           color: red; /* set color */
-          display: block; /* Ensures it takes up the full width */
-          margin-top: 10px; /* Adds some space above the button */
         } 
         
         .song-cell {
@@ -173,12 +176,15 @@
                 flex-direction: columnn;
             }
 
+            .cheat-btn {
+              display: block; /* Ensures it takes up the full width */
+              margin-top: 5px; /* Adds some space above the button */
+            }
+            
             .cheat-btn::after { 
               content: "\1F3B5"; /* Unicode value for a heart */
               font-size: 1rem; /* set font size */
               color: red; /* set color */
-              display: block; /* Ensures it takes up the full width */
-              margin-top: 5px; /* Adds some space above the button */
             } 
         }
     </style>
