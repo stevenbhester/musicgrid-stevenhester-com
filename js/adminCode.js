@@ -178,6 +178,7 @@ async function answerEncoder(data, gridId) {
         console.log(`Fetching data for ${song}`);
         const { popularity, previewUrl } = await searchSpotify(song);
         if (popularity !== null) {
+          let songPush = song.slice(1,song.length-2);
           nestedSongPops.push({ song, popularity, previewUrl });
         }
       } catch (error) {
