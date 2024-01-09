@@ -173,7 +173,7 @@ function displaySpotifyResults(songs, inputElement, cellKey) {
     resultsContainer.appendChild(songElement);
     songElement.onclick = () => {
       console.log("Selected song "+`${song.name} by ${song.artists.map(artist => artist.name).join(", ")}`);
-      selectSong(`${song.name} by ${song.artists.map(artist => artist.name).join(", ")}`, inputElement, cellKey, song.popularity);
+      selectSong(song.name, inputElement, cellKey, song.popularity);
       // Clear the dropdown after selection
       resultsContainer.innerHTML = "";
       resultsContainer.appendChild(songElement);
