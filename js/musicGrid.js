@@ -297,9 +297,6 @@ function endGame() {
     if (inputField) {
       console.log("Decided yes, there is an input field! Disabled:"+inputField.disabled);
       if (!inputField.disabled) {
-        // Extract correct answers from the oninput attribute
-        
-
         // Update the cell to show it"s incorrect and display correct answers
         cell.style.backgroundColor = "#ffcdd2"; // Red for incorrect
         
@@ -322,7 +319,7 @@ function endGame() {
 function displayEndGameMessage() {
   const endGameMessage = document.createElement("div");
   endGameMessage.innerHTML = "<strong>Game Over!</strong> Here are the songs you missed.";
-  document.querySelector(".container").prepend(endGameMessage);
+  document.querySelector(".grid-container").prepend(endGameMessage);
 }
 
 document.getElementById("shareButton").addEventListener("click", () => {
