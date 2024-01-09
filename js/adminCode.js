@@ -214,7 +214,7 @@ async function answerEncoder(data, gridId) {
       }
     }
     console.log(`Field ${fieldKey} complete, progressing`);
-    answerPops.fieldKey = nestedSongPops;
+    answerPops.`${fieldKey}` = nestedSongPops;
     console.log("Answer pops now at:");
     console.log(answerPops);
   }
