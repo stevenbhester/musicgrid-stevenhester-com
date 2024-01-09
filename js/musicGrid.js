@@ -210,13 +210,13 @@ function evaluateGuess(songInfo, inputElement, cellKey) {
     .then(response => response.json())
     .then(data => {
       guessScore = data.scoreReceived;
-      updateScoreForGuess(guessScore, inputElement);
-      })
+      updateScoreForGuess(guessScore, songInfo, inputElement);
+    })
     .catch(error => console.error("Error:", error));
 }
 
 // Function to update the score based on the user"s guess
-function updateScoreForGuess(guessScore, inputElement) {
+function updateScoreForGuess(guessScore, songInfo, inputElement) {
   // Grab the cell where user made the guess (TODO, do this on the field id?)
   const cell = inputElement.closest(".cell");
   
@@ -224,7 +224,7 @@ function updateScoreForGuess(guessScore, inputElement) {
   if (guessScore > 0) {
     // Give visual feedback
     cell.style.backgroundColor = "#c8e6c9"; // Green for correct
-    cell.textContent = "Correct: " + songInfo + " ("+normedGuessScore+" out of 11 points scored)";
+    cell.textContent = "Correct: " + songInfo + " ("+guessScore+" out of 11 points scored)";
     
     // Track that they got a guess right
     console.log("Guess correct!");
@@ -290,12 +290,12 @@ function endGame() {
       console.log("Decided yes, there is an input field! Disabled:"+inputField.disabled);
       if (!inputField.disabled) {
         // Extract correct answers from the oninput attribute
-        const correctAnswers = extractCorrectAnswers(inputField.getAttribute("oninput"));
+        
 
         // Update the cell to show it"s incorrect and display correct answers
         cell.style.backgroundColor = "#ffcdd2"; // Red for incorrect
         
-        cell.textContent = "Incorrect! Correct answers: " + correctAnswers.join(", ");
+        cell.textContent = "Incorrect! Steven's not up for coding the endpoint to show what was correct though, so google it if you wanna know that bad.";
         inputField.disabled = true;
       }
     } else {
