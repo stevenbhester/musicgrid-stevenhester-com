@@ -180,15 +180,16 @@ async function answerEncoder(data, gridId) {
     const artistName = artists[artistKey];
 
     for (const songData of songs) {
+      let songParsed = songData.slice(1,songData.length -1);
       try {
-        const searchTerm = `${songData} by ${artistName}`; // Combines song name and artist
+        const searchTerm = `${songParsed} by ${artistName}`; // Combines song name and artist
         console.log(`Fetching data for ${searchTerm}`);
         const { popularity, previewUrl } = await searchSpotify(searchTerm);
         if (popularity !== null) {
-          nestedSongPops.push({ song: songData, popularity, previewUrl });
+          nestedSongPops.push({ song: songParsed, popularity, previewUrl });
         }
       } catch (error) {
-        console.error("Error fetching Spotify data for song:", songData, error);
+        console.error("Error fetching Spotify data for song:", songParsed, error);
       }
     }
     answerPops[fieldKey] = nestedSongPops;
