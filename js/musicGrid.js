@@ -216,9 +216,9 @@ function scoreParse(data, songInfo, inputElement) {
   let guessScore = 0;
   console.log("Parsing score from data:");
   console.log(data);
-  guessScore = data.guessScore;
+  guessScore = data[0].guessScore;
   console.log("Score parsed as "+guessScore+", now updating");
-  updateScoreForGuess(guessScore, songInfo, inputElement);
+  updateScoreForGuess(Number(guessScore), songInfo, inputElement);
 }
 
 // Function to update the score based on the user"s guess
