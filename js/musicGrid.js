@@ -109,7 +109,7 @@ function createSongCell(cellKey) {
   button.setAttribute("class", btnClass);
   button.setAttribute("id", cellKey);
   button.textContent = "Cheat ";
-  button.style.display = 'none';
+  button.style.display = "none";
   cell.appendChild(button);
   
   const whitespace = document.createElement("div");
@@ -343,7 +343,7 @@ function displayEndGameMessage() {
 document.getElementById("easyModeToggle").addEventListener("change", function() {
   const isEasyMode = this.checked;
   easyModeBool = isEasyMode;
-  const cheatButtons = document.querySelectorAll('.cheat-btn');
+  const cheatButtons = document.querySelectorAll(".cheat-btn");
   cheatButtons.forEach(btn => {
     if (isEasyMode) {
       btn.style.display = "block"; // Show cheat buttons in easy mode
