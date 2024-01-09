@@ -162,24 +162,30 @@ async function encodeAnswers(gridId) {
 async function answerEncoder(data, gridId) {
   console.log("Parsing grid data for grid ID:", gridId);
   const answersUnscored = {};
+  const artists = {};
 
-  // Parse the answers from the data
+  // Parse the answers and artists from the data
   data.forEach(item => {
     if (item.field_type === "Answer") {
       answersUnscored[item.field] = item.field_value.split(", ").map(answer => answer.trim().replace(/^'|'$/g, ""));
+    } else if (item.field_type === "Artist") {
+      artists[item.field] = item.field_value;
     }
   });
 
   const answerPops = {};
   for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
     const nestedSongPops = [];
+    const [category, artistKey] = fieldKey.split(" ");
+    const artistName = artists[artistKey];
+
     for (const songData of songs) {
       try {
-        console.log(`Fetching data for ${songData}`);
-        const { popularity, previewUrl } = await searchSpotify(songData);
+        const searchTerm = `"${songData}" ${artistName}`; // Combines song name and artist
+        console.log(`Fetching data for ${searchTerm}`);
+        const { popularity, previewUrl } = await searchSpotify(searchTerm);
         if (popularity !== null) {
-          let song = songData.slice(1,songData.length-1);
-          nestedSongPops.push({ song, popularity, previewUrl });
+          nestedSongPops.push({ song: songData, popularity, previewUrl });
         }
       } catch (error) {
         console.error("Error fetching Spotify data for song:", songData, error);
@@ -189,9 +195,7 @@ async function answerEncoder(data, gridId) {
   }
 
   console.log("Encoded answers ready for update:", answerPops);
-  console.log("Encoded answers ready for calculation:", answerPops);
   calculateAnswerScores(answerPops, gridId);
-
 }
 
 // TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
