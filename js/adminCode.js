@@ -184,7 +184,7 @@ async function answerEncoder(data, gridId) {
       if (songParsed.slice(0,1) == "\"") {
         songParsed = songParsed.slice(1,songParsed.length);
       }
-      if (songParsed.slice(parsed.length-1,parsed.length) == "\"") {
+      if (songParsed.slice(songParsed.length-1,songParsed.length) == "\"") {
         songParsed = songParsed.slice(0,songParsed.length-1);
       }
       try {
