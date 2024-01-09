@@ -352,7 +352,7 @@ function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
     .then(response => response.json())
     .then(data => {
       if(data.previewUrl) {
-          playPreviewSnippet(data.previewUrl, cell);
+        playPreviewSnippet(data.previewUrl, cell);
       }
     })
     .catch(error => console.error("Error fetching preview URL:", error));
