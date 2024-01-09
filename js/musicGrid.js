@@ -208,13 +208,15 @@ function evaluateGuess(songInfo, inputElement, cellKey) {
     body: JSON.stringify({ songGuess: songInfo, fieldGuessed: cellKey, gridId: gridId })
   })
     .then(response => response.json())
-    .then(data => 
-      data.forEach(item => {
+    .then(data => scoreParse(data))
+    .catch(error => console.error("Error: Checking guess"));
+}
+
+function scoreParse(data, songInfo, inputElement) {
+  data.forEach(item => {
         guessScore = data.scoreReceived;
         updateScoreForGuess(guessScore, songInfo, inputElement);
-      }   
-    )
-    .catch(error => console.error("Error: Checking guess"));
+  });
 }
 
 // Function to update the score based on the user"s guess
