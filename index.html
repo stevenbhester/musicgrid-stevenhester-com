@@ -72,8 +72,7 @@
           position: relative;
           display: inline-block;
           width: 60px;
-          height: 34px;
-          font-size: 1.2em;
+          height: 15px;
           align-item: center;
           justify-content: center;
         }
@@ -290,7 +289,7 @@
         <div class="subheader">Guess the song that matches each artist and category</div>
         <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div>
     </div>
-        <br>
+    <br>
     <div class="header">
         <!-- Other header content -->
         <label class="switch">
@@ -298,15 +297,18 @@
             <span class="slider round"></span>
         </label>
         <span>Easy Mode</span>
+        <br>
+        <div class="subheader">Toggling Easy Mode relaxes Spotify search restrictions & adds a cheat button to play snippets of a popular song from that category+artist</div>
+        <br>
+        <div class="subheader"><i>get more points when you guess less popular song answers</i></div>
+        <br>
+        </div>
+        <div class="header-2">
+            <div class="subheader" id="guessWrapper"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
+        </div>
+        <br>
     </div>
-    <br>
-    <div class="subheader">Toggling Easy Mode relaxes Spotify search restrictions & adds a cheat button to play snippets of a popular song from that category+artist</div>
-    <br>
-    <div class="subheader"><i>get more points when you guess less popular song answers</i></div>
-    <br>
-    <div class="header-2">
-        <div class="subheader" id="guessWrapper"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
-    </div>
+    
 
     <div class="grid-container" id="grid-container">
         <!-- Artists Row -->
@@ -321,16 +323,16 @@
         <div class="row">
             <div class="cell genre-header">Songs Released in the 2010s</div>
             <div class="cell song-cell">
+                <button class="cheat-btn" id = 'C1 A1' style="display: none;"></button>
                 <input type="text" oninput="liveSearch(this, 'C1 A1')" placeholder="Type to search...">
-                <button class="cheat-btn" id = 'C1 A1'></button>
             </div>
             <div class="cell song-cell">
+                <button class="cheat-btn" id = 'C1 A2' style="display: none;"></button>
                 <input type="text" oninput="liveSearch(this, 'C1 A2')" placeholder="Type to search...">
-                <button class="cheat-btn" id = 'C1 A2'></button>
             </div>
             <div class="cell song-cell">
+                <button class="cheat-btn" id = 'C1 A3' style="display: none;"></button>
                 <input type="text" oninput="liveSearch(this, 'C1 A3')" placeholder="Type to search...">
-                <button class="cheat-btn" id = 'C1 A3'></button>
             </div>
         </div>
     
@@ -338,16 +340,16 @@
         <div class="row">
             <div class="cell genre-header">Charted Above Top 5 in Billboard 100</div>
             <div class="cell song-cell">
+                <button class="cheat-btn" id = 'C2 A1' style="display: none;"></button>
                 <input type="text" oninput="liveSearch(this, 'C2 A1')" placeholder="Type to search...">
-                <button class="cheat-btn" id = 'C2 A1'></button>
             </div>
             <div class="cell song-cell">
+                <button class="cheat-btn" id = 'C2 A2' style="display: none;"></button>
                 <input type="text" oninput="liveSearch(this, 'C2 A2')" placeholder="Type to search...">
-                <button class="cheat-btn" id = 'C2 A2'></button>
             </div>
             <div class="cell song-cell">
+                <button class="cheat-btn" id = 'C2 A3' style="display: none;"></button>
                 <input type="text" oninput="liveSearch(this, 'C2 A3')" placeholder="Type to search...">
-                <button class="cheat-btn" id = 'C2 A3'></button>
             </div>
         </div>
     
@@ -355,16 +357,16 @@
         <div class="row">
             <div class="cell genre-header">Songs That Won Song of the Year at the Grammy Awards</div>
             <div class="cell song-cell">
+                <button class="cheat-btn" id = 'C3 A1' style="display: none;"></button>
                 <input type="text" oninput="liveSearch(this, 'C3 A1')" placeholder="Type to search...">
-                <button class="cheat-btn" id = 'C3 A1'></button>
             </div>
             <div class="cell song-cell">
+                <button class="cheat-btn" id = 'C3 A2' style="display: none;"></button>
                 <input type="text" oninput="liveSearch(this, 'C3 A2')" placeholder="Type to search...">
-                <button class="cheat-btn" id = 'C3 A2'></button>
             </div>
             <div class="cell song-cell">
+                <button class="cheat-btn" id = 'C3 A3 style="display: none;"'></button>
                 <input type="text" oninput="liveSearch(this, 'C3 A3')" placeholder="Type to search...">
-                <button class="cheat-btn" id = 'C3 A3'></button>
             </div>
         </div>
     </div>
