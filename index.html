@@ -140,6 +140,11 @@
           color: red; /* set color */
         } 
         
+        .song-cell {
+            display: flex;
+            flex-direction: row;
+        }
+        
         @media (max-width: 600px) {
             .cell, .genre-header, .artist {
                 font-size: 14px; /* Adjust base font size */
@@ -162,6 +167,8 @@
                 font-size: 3.5vw; /* Adjust base font size */
                 word-wrap: break-word; /* Ensures words wrap and don't overflow */
                 padding: 1px 1px;
+                display: flex;
+                flex-direction: row;
             }
 
             .cheat-btn::after { 
