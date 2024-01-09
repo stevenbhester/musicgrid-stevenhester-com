@@ -173,12 +173,12 @@ async function answerEncoder(data, gridId) {
   const answerPops = {};
   for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
     const nestedSongPops = [];
-    for (const song of songs) {
+    for (const songData of songs) {
       try {
-        console.log(`Fetching data for ${song}`);
-        const { popularity, previewUrl } = await searchSpotify(song);
+        console.log(`Fetching data for ${songData}`);
+        const { popularity, previewUrl } = await searchSpotify(songData);
         if (popularity !== null) {
-          let songPush = song.slice(1,song.length-2);
+          let song = songData.slice(1,songData.length-2);
           nestedSongPops.push({ song, popularity, previewUrl });
         }
       } catch (error) {
