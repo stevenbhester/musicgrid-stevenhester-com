@@ -344,9 +344,7 @@ document.getElementById("grid-container").addEventListener("click", function(eve
 });
 
 function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
-  // Implement your logic to fetch the preview URL and then play it
-  // For example:
-  fetch("/get-cheat-preview-url", {
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/get-cheat-preview-url", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ gridId, fieldKey })
