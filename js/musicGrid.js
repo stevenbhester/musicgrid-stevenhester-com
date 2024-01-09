@@ -332,14 +332,36 @@ function displayEndGameMessage() {
   document.querySelector(".grid-container").prepend(endGameMessage);
 }
 
-document.querySelectorAll('.cheat-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        const cell = e.target.closest('.cell');
-        const fieldKey = cell.id;
+document.getElementById('grid-container').addEventListener('click', function(event) {
+    // Check if the clicked element is a cheat button
+    if (event.target && event.target.classList.contains('cheat-btn')) {
+        const cell = event.target.closest('.cell');
+        const gridId = ...; // Get the current gridId
+        const fieldKey = getFieldKeyForCell(cell);
 
+        // Here you can call your function to fetch the cheat preview URL and then play it
         fetchCheatPreviewUrl(gridId, fieldKey, cell);
-    });
+    }
 });
+
+function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
+    // Implement your logic to fetch the preview URL and then play it
+    // For example:
+    fetch('/get-cheat-preview-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gridId, fieldKey })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.previewUrl) {
+            playPreviewSnippet(data.previewUrl, cell);
+        }
+    })
+    .catch(error => console.error('Error fetching preview URL:', error));
+}
+
+// Rest of your functions like getFieldKeyForCell and playPreviewSnippet...
 
 async function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
     const response = await fetch('/get-cheat-preview-url', {
