@@ -1,7 +1,7 @@
 // You get one point just for being here
 let totalScore = 1; 
 
-// Guesses don"t last forever...
+// Guesses don"t last forever....
 let guessTotal = 10;
 
 // How good are ya really?
