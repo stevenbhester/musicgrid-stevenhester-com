@@ -143,22 +143,6 @@ function buildGrid(data) {
   });
 }
 
-// TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
-async function searchSpotify(searchTerm) {
-  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ searchTerm })
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch Spotify data for: " + searchTerm);
-  }
-
-  const songs = await response.json();
-  return songs.length > 0 ? songs[0].popularity : null;
-}
-
 // Get answer data to encode
 async function encodeAnswers(gridId) {
   try {
@@ -176,95 +160,105 @@ async function encodeAnswers(gridId) {
 }
 
 async function answerEncoder(data, gridId) {
-  console.log("Parsing grid data");
-  const answersUnscored = {};
-  data.forEach(item => {
-    if (item.field_type === "Answer") {
-      answersUnscored[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
-      console.log(answersUnscored[item.field]);
-      console.log("Answer parsed for "+item.field_value+" above");
-    }
-  });
+    console.log("Parsing grid data for grid ID:", gridId);
+    const answersUnscored = {};
 
-  const answerPops = {};
-  let numSongs = 0;
-  let i = 1;
-  for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
-    numSongs = songs.length;
-    i = 1;
-    const nestedSongPops = [];
-    for (const song of songs) {
-      let popNum = 0;
-      try {
-        console.log(`Searching for ${song} (${i} of ${numSongs} in ${fieldKey})`);
-        i++;
-        const popularity = await searchSpotify(song);
-        if (popularity !== null) {
-          let songPopObj = {};
-          console.log(`${song} popularity is ${popularity}`);
-          popNum = parseInt(popularity);
-          songPopObj["song"] = song;
-          songPopObj["popularity"] = popNum;
-          nestedSongPops.push(songPopObj);
-          console.log("Adding this songPopObj to nestedSongPops: ");
-          console.log(songPopObj);
-          console.log("Nested song popularities now at: ");
-          console.dir(nestedSongPops);
+    // Parse the answers from the data
+    data.forEach(item => {
+        if (item.field_type === "Answer") {
+            answersUnscored[item.field] = item.field_value.split(", ").map(answer => answer.trim().replace(/^'|'$/g, ""));
         }
-      } catch (error) {
-        console.error("Error fetching Spotify data for song:", song, error);
-      }
+    });
+
+    const answerPops = {};
+    for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
+        const nestedSongPops = [];
+        for (const song of songs) {
+            try {
+                console.log(`Fetching data for ${song}`);
+                const { popularity, previewUrl } = await searchSpotify(song);
+                if (popularity !== null) {
+                    nestedSongPops.push({ song, popularity, previewUrl });
+                }
+            } catch (error) {
+                console.error("Error fetching Spotify data for song:", song, error);
+            }
+        }
+        answerPops[fieldKey] = nestedSongPops;
     }
-    console.log(`Field ${fieldKey} complete, progressing`);
-    console.log(`Assigning ${fieldKey} key value of last nested song popularities`);
-    answerPops[fieldKey] = nestedSongPops;
-    console.log("Answer pops now at:");
-    console.log(answerPops);
-  }
+
+    console.log("Encoded answers ready for update:", answerPops);
+    // Here you can call a function to handle the answerPops, such as storing them in your database
+    // For example: await updateEncodedAnswers(gridId, answerPops);
+}
 
   console.log("Encoded answers ready for calculation:", answerPops);
   calculateAnswerScores(answerPops, gridId);
 
 }
 
+// TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
+async function searchSpotify(searchTerm) {
+  try {
+    console.log("Searching for " + searchTerm);
+    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ searchTerm })
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch Spotify data for: " + searchTerm);
+    }
+
+    const songs = await response.json();
+    if (songs.length > 0) {
+      const firstSong = songs[0];
+      return {
+        popularity: firstSong.popularity,
+        previewUrl: firstSong.preview_url // Assuming the Spotify API response includes this field
+      };
+    }
+
+    return { popularity: null, previewUrl: null };
+  } catch (error) {
+    console.error("Error in searchSpotify:", error);
+    return { popularity: null, previewUrl: null };
+  }
+}
 
 // Calculate how many points each answer will be worth
 async function calculateAnswerScores(answersUnscored, gridId) {
   console.log("Calculating answer scores for Answer pops");
-  let fieldScoreMax = 0;
-  let fieldScoreMin = 0;
-  let normedAnswerScore = 0;
-  const answersWithScores = [];
-  let songObserved = "";
-  let songLoad = "";
-  let popularityObserved = 0;
   let gridIdString = gridId.toString();
-  
+  const answersWithScores = [];
+
   for (const [fieldKey, nestedSongPopsArr] of Object.entries(answersUnscored)) {
-    console.log(`Calculating scores for ${fieldKey} based on:`);
-    console.dir(nestedSongPopsArr);
-    fieldScoreMax = Math.max(...nestedSongPopsArr.map(o => o.popularity));
-    fieldScoreMin = Math.min(...nestedSongPopsArr.map(o => o.popularity));
-    console.log(`Max popularity of field answer read as ${fieldScoreMax}, min as ${fieldScoreMin}`);
-    normedAnswerScore = 0;
-    for (const songPopObj of nestedSongPopsArr) {
-      songObserved = songPopObj.song;
-      popularityObserved = songPopObj.popularity;
-      console.log(`Evaluating ${songObserved} based on popularity of ${popularityObserved} against max of ${fieldScoreMax}, min of ${fieldScoreMin}`);
-      if (fieldScoreMin == fieldScoreMax) {
-        normedAnswerScore = 11;
-      } else {
-        normedAnswerScore = 6+5*Math.round(10*(1 - ((popularityObserved - fieldScoreMin)/(fieldScoreMax - fieldScoreMin))))/10;
-      }
-      songLoad = songObserved;
-      console.log(`Scoring for ${songObserved} (${songLoad}) set at ${normedAnswerScore}, adding to answersWithScores`);
-      answersWithScores.push({ fieldKey, songLoad, popularityObserved, normedAnswerScore, gridIdString });
-      console.log("answersWithScores now at:");
-      console.dir(answersWithScores);
+    console.log(`Calculating scores for ${fieldKey}`);
+
+    // Calculate max and min popularity in the field
+    let fieldScoreMax = Math.max(...nestedSongPopsArr.map(o => o.popularity));
+    let fieldScoreMin = Math.min(...nestedSongPopsArr.map(o => o.popularity));
+
+    // Calculate scores for each song
+    for (const { song, popularity, previewUrl } of nestedSongPopsArr) {
+      let normedAnswerScore = (fieldScoreMin === fieldScoreMax) ? 11 : 
+                              6 + 5 * Math.round(10 * (1 - ((popularity - fieldScoreMin) / (fieldScoreMax - fieldScoreMin)))) / 10;
+
+      answersWithScores.push({
+        fieldKey,
+        song,
+        popularity,
+        normedAnswerScore,
+        previewUrl,
+        gridId: gridIdString
+        });
     }
   }
+
   await updateEncodedAnswers(answersWithScores);
 }
+
 
 async function updateEncodedAnswers(encodedAnswers) {
   try {
@@ -275,7 +269,7 @@ async function updateEncodedAnswers(encodedAnswers) {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to update encoded answers", response);
+      throw new Error("Failed to update encoded answers");
     }
 
     console.log("Encoded answers updated successfully");
