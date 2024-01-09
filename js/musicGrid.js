@@ -209,14 +209,16 @@ function evaluateGuess(songInfo, inputElement, cellKey) {
   })
     .then(response => response.json())
     .then(data => scoreParse(data))
-    .catch(error => console.error("Error: Checking guess"));
+      .catch((error) => console.error("Error scoring:", error));
 }
 
 function scoreParse(data, songInfo, inputElement) {
   let guessScore = 0;
+  console.log("Parsing score");
   data.forEach(item => {
-      guessScore = data.scoreReceived;
-      updateScoreForGuess(guessScore, songInfo, inputElement);
+    guessScore = data.scoreReceived;
+    console.log("Score parsed as "+guessScore+", now updating");
+    updateScoreForGuess(guessScore, songInfo, inputElement);
   });
 }
 
