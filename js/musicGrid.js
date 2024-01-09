@@ -212,7 +212,7 @@ function evaluateGuess(songInfo, inputElement, cellKey) {
       guessScore = data.scoreReceived;
       updateScoreForGuess(guessScore, songInfo, inputElement);
     })
-    .catch(error => console.error("Error:", error));
+    .catch(error => console.error("Error: Checking guess"));
 }
 
 // Function to update the score based on the user"s guess
