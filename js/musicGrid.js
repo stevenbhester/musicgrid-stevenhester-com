@@ -213,9 +213,10 @@ function evaluateGuess(songInfo, inputElement, cellKey) {
 }
 
 function scoreParse(data, songInfo, inputElement) {
+  let guessScore = 0;
   data.forEach(item => {
-        guessScore = data.scoreReceived;
-        updateScoreForGuess(guessScore, songInfo, inputElement);
+      guessScore = data.scoreReceived;
+      updateScoreForGuess(guessScore, songInfo, inputElement);
   });
 }
 
