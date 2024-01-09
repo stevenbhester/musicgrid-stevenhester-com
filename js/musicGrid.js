@@ -209,8 +209,10 @@ function evaluateGuess(songInfo, inputElement, cellKey) {
   })
     .then(response => response.json())
     .then(data => {
-      guessScore = data.scoreReceived;
-      updateScoreForGuess(guessScore, songInfo, inputElement);
+      data.forEach(item => {
+        guessScore = data.scoreReceived;
+        updateScoreForGuess(guessScore, songInfo, inputElement);
+      }   
     })
     .catch(error => console.error("Error: Checking guess"));
 }
