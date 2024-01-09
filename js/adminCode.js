@@ -182,9 +182,10 @@ async function answerEncoder(data, gridId) {
     for (const songData of songs) {
       let songParsed = songData.slice(1,songData.length -1);
       try {
-        const searchTerm = `${songParsed} ${artistName}`; // Combines song name and artist
-        console.log(`Fetching data for ${searchTerm}`);
-        const { popularity, previewUrl } = await searchSpotify(searchTerm);
+        const searchTerm = `${songParsed}`; 
+        const artistSearch = `${artistName}`
+        console.log(`Fetching data for ${searchTerm} by ${artistSearch}`);
+        const { popularity, previewUrl } = await searchSpotify(searchTerm, artistSearch);
         if (popularity !== null) {
           nestedSongPops.push({ song: songParsed, popularity, previewUrl });
         }
@@ -200,23 +201,26 @@ async function answerEncoder(data, gridId) {
 }
 
 // TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
-async function searchSpotify(searchTerm) {
+async function searchSpotify(searchTerm, artistSearch) {
   let easyModeBool = true;
   try {
-    console.log("Searching for " + searchTerm);
     const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ searchTerm, easyModeBool })
+      body: JSON.stringify({ searchTerm, easyModeBool, artistSearch })
     });
 
     if (!response.ok) {
       throw new Error("Failed to fetch Spotify data for: " + searchTerm);
     }
-
+    
     const songs = await response.json();
     if (songs.length > 0) {
+      console.log("Found Results:");
+      console.dir(songs);
       const firstSong = songs[0];
+      console.log("Encoding song:");
+      console.log(firstSong);
       return {
         popularity: firstSong.popularity,
         previewUrl: firstSong.preview_url
