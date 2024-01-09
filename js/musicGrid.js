@@ -102,7 +102,7 @@ function createSongCell(cellKey) {
   cell.classList.add("cell", "song-cell");
   const input = document.createElement("input");
   input.type = "text";
-  input.setAttribute("oninput", `liveSearch(this, ${cellKey})`);
+  input.setAttribute("oninput", `liveSearch(this, "${cellKey}")`);
   input.setAttribute("placeholder", "Type to search...");
   cell.appendChild(input);
   return cell;
