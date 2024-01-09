@@ -360,23 +360,6 @@ function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
   .catch(error => console.error('Error fetching preview URL:', error));
 }
 
-// Rest of your functions like getFieldKeyForCell and playPreviewSnippet...
-
-async function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
-  const response = await fetch('/get-cheat-preview-url', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gridId, fieldKey })
-  });
-
-  if (response.ok) {
-    const data = await response.json();
-    playPreviewSnippet(data.previewUrl, cell);
-  } else {
-    console.error('Preview URL not found');
-  }
-}
-
 function playPreviewSnippet(url, cell) {
   // Create an audio element
   let audioPlayer = cell.querySelector('.preview-audio');
