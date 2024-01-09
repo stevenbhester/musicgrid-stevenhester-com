@@ -332,80 +332,79 @@ function displayEndGameMessage() {
   document.querySelector(".grid-container").prepend(endGameMessage);
 }
 
-document.getElementById('grid-container').addEventListener('click', function(event) {
-    // Check if the clicked element is a cheat button
-    if (event.target && event.target.classList.contains('cheat-btn')) {
-        const cell = event.target.closest('.cell');
-        const gridId = ...; // Get the current gridId
-        const fieldKey = getFieldKeyForCell(cell);
+document.getElementById("grid-container").addEventListener("click", function(event) {
+  // Check if the clicked element is a cheat button
+  if (event.target && event.target.classList.contains("cheat-btn")) {
+    const cell = event.target.closest(".cell");
+    const fieldKey = getFieldKeyForCell(cell);
 
-        // Here you can call your function to fetch the cheat preview URL and then play it
-        fetchCheatPreviewUrl(gridId, fieldKey, cell);
-    }
+    // Here you can call your function to fetch the cheat preview URL and then play it
+    fetchCheatPreviewUrl(gridId, fieldKey, cell);
+  }
 });
 
 function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
-    // Implement your logic to fetch the preview URL and then play it
-    // For example:
-    fetch('/get-cheat-preview-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gridId, fieldKey })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.previewUrl) {
-            playPreviewSnippet(data.previewUrl, cell);
-        }
-    })
-    .catch(error => console.error('Error fetching preview URL:', error));
+  // Implement your logic to fetch the preview URL and then play it
+  // For example:
+  fetch('/get-cheat-preview-url', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ gridId, fieldKey })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if(data.previewUrl) {
+        playPreviewSnippet(data.previewUrl, cell);
+    }
+  })
+  .catch(error => console.error('Error fetching preview URL:', error));
 }
 
 // Rest of your functions like getFieldKeyForCell and playPreviewSnippet...
 
 async function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
-    const response = await fetch('/get-cheat-preview-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gridId, fieldKey })
-    });
+  const response = await fetch('/get-cheat-preview-url', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ gridId, fieldKey })
+  });
 
-    if (response.ok) {
-        const data = await response.json();
-        playPreviewSnippet(data.previewUrl, cell);
-    } else {
-        console.error('Preview URL not found');
-    }
+  if (response.ok) {
+    const data = await response.json();
+    playPreviewSnippet(data.previewUrl, cell);
+  } else {
+    console.error('Preview URL not found');
+  }
 }
 
 function playPreviewSnippet(url, cell) {
-    // Create an audio element
-    let audioPlayer = cell.querySelector('.preview-audio');
-    if (!audioPlayer) {
-        audioPlayer = document.createElement('audio');
-        audioPlayer.className = 'preview-audio';
-        audioPlayer.controls = true;
-        cell.appendChild(audioPlayer);
-    }
+  // Create an audio element
+  let audioPlayer = cell.querySelector('.preview-audio');
+  if (!audioPlayer) {
+    audioPlayer = document.createElement('audio');
+    audioPlayer.className = 'preview-audio';
+    audioPlayer.controls = true;
+    cell.appendChild(audioPlayer);
+  }
 
-    // Set the source and play
-    audioPlayer.src = url;
-    audioPlayer.play()
-        .catch(error => console.error('Error playing audio:', error));
+  // Set the source and play
+  audioPlayer.src = url;
+  audioPlayer.play()
+    .catch(error => console.error('Error playing audio:', error));
 
-    // Optional: Hide the cheat button to prevent replaying during playback
-    const cheatBtn = cell.querySelector('.cheat-btn');
+  // Optional: Hide the cheat button to prevent replaying during playback
+  const cheatBtn = cell.querySelector('.cheat-btn');
+  if (cheatBtn) {
+    cheatBtn.style.display = 'none';
+  }
+
+  // Optional: Add event listener to hide the audio player after it finishes playing
+  audioPlayer.onended = () => {
+    audioPlayer.style.display = 'none';
     if (cheatBtn) {
-        cheatBtn.style.display = 'none';
+        cheatBtn.style.display = 'block';
     }
-
-    // Optional: Add event listener to hide the audio player after it finishes playing
-    audioPlayer.onended = () => {
-        audioPlayer.style.display = 'none';
-        if (cheatBtn) {
-            cheatBtn.style.display = 'block';
-        }
-    };
+  };
 }
 
 document.getElementById("shareButton").addEventListener("click", () => {
