@@ -71,7 +71,7 @@
         .switch {
           position: relative;
           display: inline-block;
-          width: 1000px;
+          width: 60px;
           height: 34px;
         }
         
@@ -287,20 +287,23 @@
         <div class="subheader">Guess the song that matches each artist and category</div>
         <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div><label class="switch">
         <br>
-        <div class = "subheader">
-            <label class="switch">
-                <input type="checkbox" id="easyModeToggle">
-                <span class="slider round"></span>
-            </label>
-        </div>
-        <div class="switchText">Toggle Easy Mode (Relaxes Spotify search restrictions & adds a cheat button to play snippets of a popular song from that category/artist) </div>
-        
-        <br>
-        <div class="subheader"><i>get more points when you guess less popular song answers</i></div>
-        <br>
-        <div class="header-2">
-            <div class="subheader" id="guessWrapper"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
-        </div>
+    <div>
+    <div class="header">
+        <!-- Other header content -->
+        <label class="switch">
+            <input type="checkbox" id="easyModeToggle">
+            <span class="slider round"></span>
+        </label>
+        <span>Easy Mode</span>
+    </div>
+    <br>
+    <div class="subheader">Toggling Easy Mode relaxes Spotify search restrictions & adds a cheat button to play snippets of a popular song from that category+artist </div>
+    <br>
+    <div class="subheader"><i>get more points when you guess less popular song answers</i></div>
+    <br>
+    <div class="header-2">
+        <div class="subheader" id="guessWrapper"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
+    </div>
         
     </div>
 
