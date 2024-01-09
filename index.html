@@ -63,6 +63,61 @@
             position: relative;
         }
 
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 60px;
+          height: 34px;
+        }
+        
+        .switch input { 
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+        
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+        
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 26px;
+          width: 26px;
+          left: 4px;
+          bottom: 4px;
+          background-color: white;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+        
+        input:checked + .slider {
+          background-color: #2196F3;
+        }
+        
+        input:checked + .slider:before {
+          -webkit-transform: translateX(26px);
+          -ms-transform: translateX(26px);
+          transform: translateX(26px);
+        }
+        
+        .slider.round {
+          border-radius: 34px;
+        }
+        
+        .slider.round:before {
+          border-radius: 50%;
+        }
+        
         .cell {
             flex: 1;
             padding: 15px 20px;
@@ -225,13 +280,20 @@
     <div class="header">
         <div class="title">musicgrid.io</div>
         <div class="subheader">Guess the song that matches each artist and category</div>
-        <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div>
-        <div class="subheader"><i>Cheat button plays a snippet of a popular answer for that category/artist</i></div>
+        <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div><label class="switch">
+        
+        <label class="switch">
+            <input type="checkbox" id="easyModeToggle">
+            <span class="slider round"></span>
+        </label>
+        <span>Toggle Easy Mode (Relaxes Spotify search restrictions & adds a cheat button to play snippets of a popular song from that category/artist) </span>
+        
         <div class="subheader"><i>get more points when you guess less popular song answers</i></div>
         <br>
         <div class="header-2">
             <div class="subheader" id="guessWrapper"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
         </div>
+        
     </div>
 
     <div class="grid-container" id="grid-container">
