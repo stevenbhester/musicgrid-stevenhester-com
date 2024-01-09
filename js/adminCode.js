@@ -237,18 +237,25 @@ async function calculateAnswerScores(answersUnscored, gridId) {
   let popularityObserved = 0;
   
   for (const [fieldKey, nestedSongPopsArr] of Object.entries(answersUnscored)) {
-    fieldScoreMax = 0;
-    fieldScoreMin = 0;
+    console.log(`Calculating scores for ${fieldKey} based on:`);
+    console.dir(nestedSongPopsArr);
+    fieldScoreMax = Math.max(...nestedSongPopsArr.map(o => o.popularity));
+    fieldScoreMin = Math.min(...nestedSongPopsArr.map(o => o.popularity));
+    console.log(`Max popularity of field answer read as ${fieldScoreMax}, min as ${fieldScoreMin}`);
     normedAnswerScore = 0;
     for (const songPopObj of nestedSongPopsArr) {
       songObserved = songPopObj.song;
       popularityObserved = songPopObj.popularity;
+      console.log(`Evaluating ${songObserved} based on popularity of ${popularityObserved} against max of ${fieldScoreMax}, min of ${fieldScoreMin}`);
       if (fieldScoreMin == fieldScoreMax) {
         normedAnswerScore = 11;
       } else {
         normedAnswerScore = 6+5*Math.round(10*(1 - ((popularityObserved - fieldScoreMin)/(fieldScoreMax - fieldScoreMin))))/10;
       }
+      console.log(`Scoring for ${songObserved} set at ${normedAnswerScore}, adding to answersWithScores`);
       answersWithScores.push({ fieldKey, songObserved, popularityObserved, normedAnswerScore, gridId });
+      console.log("answersWithScores now at:");
+      console.dir(answersWithScores);
     }
   }
   await updateEncodedAnswers(answersWithScores);
