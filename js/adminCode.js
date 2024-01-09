@@ -180,7 +180,13 @@ async function answerEncoder(data, gridId) {
     const artistName = artists[artistKey];
 
     for (const songData of songs) {
-      let songParsed = songData.slice(1,songData.length -1);
+      let songParsed = songData;
+      if (songParsed.slice(0,1) == "\"") {
+        songParsed = songParsed.slice(1,songParsed.length);
+      }
+      if (songParsed.slice(parsed.length-1,parsed.length) == "\"") {
+        songParsed = songParsed.slice(0,songParsed.length-1);
+      }
       try {
         const searchTerm = `${songParsed}`; 
         const artistSearch = `${artistName}`;
