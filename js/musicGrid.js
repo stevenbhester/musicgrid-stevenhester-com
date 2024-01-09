@@ -324,6 +324,31 @@ function displayEndGameMessage() {
   document.querySelector(".grid-container").prepend(endGameMessage);
 }
 
+document.querySelectorAll('.cheat-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const cell = e.target.closest('.cell');
+        const fieldKey = cell.id;
+
+        fetchCheatPreviewUrl(gridId, fieldKey, cell);
+    });
+});
+
+async function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
+    const response = await fetch('/get-cheat-preview-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gridId, fieldKey })
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        playPreviewSnippet(data.previewUrl, cell);
+    } else {
+        console.error('Preview URL not found');
+    }
+}
+
+
 document.getElementById("shareButton").addEventListener("click", () => {
   if (navigator.share) {
     navigator.share({
