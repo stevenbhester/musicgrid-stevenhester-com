@@ -209,7 +209,7 @@ function evaluateGuess(songInfo, inputElement, cellKey) {
   })
     .then(response => response.json())
     .then(data => scoreParse(data, songInfo, inputElement))
-      .catch((error) => console.error("Error scoring:", error));
+    .catch((error) => console.error("Error scoring:", error));
 }
 
 function scoreParse(data, songInfo, inputElement) {
