@@ -248,7 +248,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
         normedAnswerScore,
         previewUrl,
         gridId: gridIdString
-    });
+      });
     }
   }
 
