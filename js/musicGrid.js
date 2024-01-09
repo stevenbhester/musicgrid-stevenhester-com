@@ -100,11 +100,19 @@ function createCell(className, text = "") {
 function createSongCell(cellKey) {
   const cell = document.createElement("div");
   cell.classList.add("cell", "song-cell");
+  
   const input = document.createElement("input");
   input.type = "text";
   input.setAttribute("oninput", `liveSearch(this, "${cellKey}")`);
   input.setAttribute("placeholder", "Type to search...");
   cell.appendChild(input);
+  
+  const button = document.createElement("button");
+  button.class = "cheat-btn";
+  button.id = cellKey;
+  button.textContent = 🎵;
+  cell.appendChild(button);
+  
   return cell;
 }
 
