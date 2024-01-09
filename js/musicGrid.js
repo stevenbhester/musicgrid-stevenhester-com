@@ -99,6 +99,7 @@ function createCell(className, text = "") {
 
 function createSongCell(cellKey) {
   const cell = document.createElement("div");
+  const btnClass = "cheat-btn";
   cell.classList.add("cell", "song-cell");
   
   const input = document.createElement("input");
@@ -108,7 +109,7 @@ function createSongCell(cellKey) {
   cell.appendChild(input);
   
   const button = document.createElement("button");
-  button.class = "cheat-btn";
+  button.class = btnClass;
   button.id = cellKey;
   cell.appendChild(button);
   
