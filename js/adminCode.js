@@ -145,7 +145,6 @@ function buildGrid(data) {
 
 // TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
 async function searchSpotify(searchTerm) {
-  console.log("Searching for " + searchTerm);
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -199,14 +198,25 @@ async function answerEncoder(data, gridId) {
         i++;
         const popularity = await searchSpotify(song);
         if (popularity !== null) {
+          let songPopObj = {};
+          console.log(`${song} popularity is ${popularity}`);
           popNum = parseInt(popularity);
-          nestedSongPops.push({song, popNum}) ;
+          songPopObj['song'] = song;
+          songPopObj['popularity'] = popNum;
+          nestedSongPops.push(songPopObj);
+          console.log("Adding this songPopObj to nestedSongPops: ");
+          console.log(songPopObj);
+          console.log("Nested song popularities now at: ");
+          console.dir(nestedSongPops);
         }
       } catch (error) {
         console.error("Error fetching Spotify data for song:", song, error);
       }
     }
+    console.log(`Field ${fieldKey} complete, progressing`);
     answerPops[fieldKey] = nestedSongPops;
+    console.log("Answer pops now at:");
+    console.log(answerPops);
   }
 
   console.log("Encoded answers ready for calculation:", answerPops);
@@ -217,24 +227,22 @@ async function answerEncoder(data, gridId) {
 
 // Calculate how many points each answer will be worth
 async function calculateAnswerScores(answersUnscored, gridId) {
-  var cellScoreMax = 0;
-  var cellScoreMin = 0;
-  var normedGuessScore = 0;
-  
+  console.log("Calculating answer scores for Answer pops");
+  let fieldScoreMax = 0;
+  let fieldScoreMin = 0;
+  let normedAnswerScore = 0;
   const answersWithScores = [];
-  for (const [fieldKey, songAnsObj] of Object.entries(answersUnscored)) {
-    let fieldScoreMax = 0;
-    let fieldScoreMin = 0;
-    let normedAnswerScore = 0;
-    for (const [song, popularity] of Object.entries(songAnsObj)) {
-      fieldScoreMax = Math.max.apply(Math,popularity);
-      fieldScoreMin = Math.min.apply(Math,popularity);
+  for (const [fieldKey, nestedSongPopsArr] of Object.entries(answersUnscored)) {
+    fieldScoreMax = 0;
+    fieldScoreMin = 0;
+    normedAnswerScore = 0;
+    for (const songPopObj of nestedSongPopsArr) {
       if (fieldScoreMin == fieldScoreMax) {
         normedAnswerScore = 11;
       } else {
-        normedAnswerScore = 6+5*Math.round(10*(1 - ((popularity - fieldScoreMin)/(fieldScoreMax - fieldScoreMin))))/10;
+        normedAnswerScore = 6+5*Math.round(10*(1 - ((songPopObj.popularity - fieldScoreMin)/(fieldScoreMax - fieldScoreMin))))/10;
       }
-      answersWithScores.push({ fieldKey, song, popularity, normedAnswerScore, gridId });
+      answersWithScores.push({ fieldKey, songPopObj.song, songPopObj.popularity, normedAnswerScore, gridId });
     }
   }
   await updateEncodedAnswers(answersWithScores);
