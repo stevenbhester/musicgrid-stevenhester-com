@@ -142,8 +142,11 @@
 
         .cheat-btn {
           margin-top: 10px; /* Adds some space above the button */
-          top:50%;
-          left:50%;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-right: -50%;
+          transform: translate(-50%, -50%)
         }
 
         .cheat-btn::after { 
@@ -188,9 +191,12 @@
             }
 
             .cheat-btn {
-              margin-top: 5px; /* Adds some space above the button */          
-              top:50%;
-              left:50%;
+              margin-top: 5px; /* Adds some space above the button */ 
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              margin-right: -50%;
+              transform: translate(-50%, -50%)
             }
             
             .cheat-btn::after { 
