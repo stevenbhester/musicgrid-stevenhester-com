@@ -386,7 +386,7 @@ function playPreviewSnippet(url, cell) {
     audioPlayer = document.createElement("audio");
     audioPlayer.className = "preview-audio";
     audioPlayer.controls = true;
-    cell.appendChild(audioPlayer);
+    cell.prepend(audioPlayer);
   }
 
   // Set the source and play
