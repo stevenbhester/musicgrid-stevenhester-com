@@ -247,6 +247,8 @@ function updateScoreForGuess(guessScore, songInfo, inputElement) {
     cell.style.backgroundColor = "#ffcdd2"; // Red for incorrect
     // TODO: GIVE BETTER FEEDBACK FOR COLORBLIND PEOPLE THAT THEY GOT IT WRONG (and for further wrong guesses)
     // List incorrect guesses at top of cell?
+
+    updateScoreTo(totalScore);
   }
 
   // Clear the dropdown menu (this is kinda buggy)
