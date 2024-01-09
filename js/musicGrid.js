@@ -101,6 +101,15 @@ function createSongCell(cellKey) {
   const cell = document.createElement("div");
   const btnClass = "cheat-btn";
   cell.classList.add("cell", "song-cell");
+
+  const button = document.createElement("button");
+  button.setAttribute("class", btnClass);
+  button.setAttribute("id", cellKey);
+  button.textContent = "Cheat ";
+  cell.appendChild(button);
+  
+  const whitespace = document.createElement("div");
+  cell.appendChild(whitespace);
   
   const input = document.createElement("input");
   input.type = "text";
@@ -108,15 +117,6 @@ function createSongCell(cellKey) {
   input.setAttribute("placeholder", "Type to search...");
   cell.appendChild(input);
 
-  const whitespace = document.createElement("div");
-  cell.appendChild(whitespace);
-  
-  const button = document.createElement("button");
-  button.setAttribute("class", btnClass);
-  button.setAttribute("id", cellKey);
-  button.textContent = "Cheat ";
-  cell.appendChild(button);
-  
   return cell;
 }
 
