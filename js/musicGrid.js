@@ -208,7 +208,7 @@ function evaluateGuess(songInfo, inputElement, cellKey) {
     body: JSON.stringify({ songGuess: songInfo, fieldGuessed: cellKey, gridId: gridId })
   })
     .then(response => response.json())
-    .then(data => scoreParse(data))
+    .then(data => scoreParse(data, songInfo, inputElement))
       .catch((error) => console.error("Error scoring:", error));
 }
 
