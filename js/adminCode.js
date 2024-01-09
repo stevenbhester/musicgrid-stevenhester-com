@@ -160,38 +160,34 @@ async function encodeAnswers(gridId) {
 }
 
 async function answerEncoder(data, gridId) {
-    console.log("Parsing grid data for grid ID:", gridId);
-    const answersUnscored = {};
+  console.log("Parsing grid data for grid ID:", gridId);
+  const answersUnscored = {};
 
-    // Parse the answers from the data
-    data.forEach(item => {
-        if (item.field_type === "Answer") {
-            answersUnscored[item.field] = item.field_value.split(", ").map(answer => answer.trim().replace(/^'|'$/g, ""));
-        }
-    });
-
-    const answerPops = {};
-    for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
-        const nestedSongPops = [];
-        for (const song of songs) {
-            try {
-                console.log(`Fetching data for ${song}`);
-                const { popularity, previewUrl } = await searchSpotify(song);
-                if (popularity !== null) {
-                    nestedSongPops.push({ song, popularity, previewUrl });
-                }
-            } catch (error) {
-                console.error("Error fetching Spotify data for song:", song, error);
-            }
-        }
-        answerPops[fieldKey] = nestedSongPops;
+  // Parse the answers from the data
+  data.forEach(item => {
+    if (item.field_type === "Answer") {
+      answersUnscored[item.field] = item.field_value.split(", ").map(answer => answer.trim().replace(/^'|'$/g, ""));
     }
+  });
 
-    console.log("Encoded answers ready for update:", answerPops);
-    // Here you can call a function to handle the answerPops, such as storing them in your database
-    // For example: await updateEncodedAnswers(gridId, answerPops);
-}
+  const answerPops = {};
+  for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
+    const nestedSongPops = [];
+    for (const song of songs) {
+      try {
+        console.log(`Fetching data for ${song}`);
+        const { popularity, previewUrl } = await searchSpotify(song);
+        if (popularity !== null) {
+          nestedSongPops.push({ song, popularity, previewUrl });
+        }
+      } catch (error) {
+        console.error("Error fetching Spotify data for song:", song, error);
+      }
+    }
+    answerPops[fieldKey] = nestedSongPops;
+  }
 
+  console.log("Encoded answers ready for update:", answerPops);
   console.log("Encoded answers ready for calculation:", answerPops);
   calculateAnswerScores(answerPops, gridId);
 
@@ -216,7 +212,7 @@ async function searchSpotify(searchTerm) {
       const firstSong = songs[0];
       return {
         popularity: firstSong.popularity,
-        previewUrl: firstSong.preview_url // Assuming the Spotify API response includes this field
+        previewUrl: firstSong.preview_url
       };
     }
 
