@@ -109,6 +109,7 @@ function createSongCell(cellKey) {
   button.setAttribute("class", btnClass);
   button.setAttribute("id", cellKey);
   button.textContent = "Cheat ";
+  button.style.display = 'none';
   cell.appendChild(button);
   
   const whitespace = document.createElement("div");
