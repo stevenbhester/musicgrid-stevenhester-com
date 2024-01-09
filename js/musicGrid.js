@@ -356,6 +356,35 @@ async function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
     }
 }
 
+function playPreviewSnippet(url, cell) {
+    // Create an audio element
+    let audioPlayer = cell.querySelector('.preview-audio');
+    if (!audioPlayer) {
+        audioPlayer = document.createElement('audio');
+        audioPlayer.className = 'preview-audio';
+        audioPlayer.controls = true;
+        cell.appendChild(audioPlayer);
+    }
+
+    // Set the source and play
+    audioPlayer.src = url;
+    audioPlayer.play()
+        .catch(error => console.error('Error playing audio:', error));
+
+    // Optional: Hide the cheat button to prevent replaying during playback
+    const cheatBtn = cell.querySelector('.cheat-btn');
+    if (cheatBtn) {
+        cheatBtn.style.display = 'none';
+    }
+
+    // Optional: Add event listener to hide the audio player after it finishes playing
+    audioPlayer.onended = () => {
+        audioPlayer.style.display = 'none';
+        if (cheatBtn) {
+            cheatBtn.style.display = 'block';
+        }
+    };
+}
 
 document.getElementById("shareButton").addEventListener("click", () => {
   if (navigator.share) {
