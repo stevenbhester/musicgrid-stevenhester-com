@@ -180,7 +180,7 @@ async function answerEncoder(data, gridId) {
   const answersUnscored = {};
   data.forEach(item => {
     if (item.field_type === "Answer") {
-      answersUnscored[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, "").slice(1,answer.replace(/"/g, "").length - 1));
+      answersUnscored[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
       console.log(answersUnscored[item.field]);
       console.log("Answer parsed for "+item.field_value+" above");
     }
@@ -273,7 +273,7 @@ async function updateEncodedAnswers(encodedAnswers) {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to update encoded answers");
+      throw new Error("Failed to update encoded answers", response);
     }
 
     console.log("Encoded answers updated successfully");
