@@ -182,7 +182,7 @@ async function answerEncoder(data, gridId) {
           nestedSongPops.push({ song, popularity, previewUrl });
         }
       } catch (error) {
-        console.error("Error fetching Spotify data for song:", song, error);
+        console.error("Error fetching Spotify data for song:", songData, error);
       }
     }
     answerPops[fieldKey] = nestedSongPops;
