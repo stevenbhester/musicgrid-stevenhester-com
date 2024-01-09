@@ -114,6 +114,7 @@ function createSongCell(cellKey) {
   const button = document.createElement("button");
   button.setAttribute("class", btnClass);
   button.setAttribute("id", cellKey);
+  button.textContent = "Cheat by playing some of a popular answer";
   cell.appendChild(button);
   
   return cell;
