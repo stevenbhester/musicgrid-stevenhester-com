@@ -109,8 +109,8 @@ function createSongCell(cellKey) {
   cell.appendChild(input);
   
   const button = document.createElement("button");
-  button.class = btnClass;
-  button.id = cellKey;
+  button.setAttribute("class", btnClass);
+  button.setAttribute("id", cellKey);
   cell.appendChild(button);
   
   return cell;
