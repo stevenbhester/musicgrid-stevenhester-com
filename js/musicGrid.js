@@ -343,13 +343,14 @@ function displayEndGameMessage() {
 document.getElementById("easyModeToggle").addEventListener("change", function() {
   const isEasyMode = this.checked;
   easyModeBool = isEasyMode;
+  const cheatButtons = document.querySelectorAll('.cheat-btn');
   cheatButtons.forEach(btn => {
-        if (isEasyMode) {
-            btn.style.display = "block"; // Show cheat buttons in easy mode
-        } else {
-            btn.style.display = "none"; // Hide cheat buttons when easy mode is off
-        }
-    });
+    if (isEasyMode) {
+      btn.style.display = "block"; // Show cheat buttons in easy mode
+    } else {
+      btn.style.display = "none"; // Hide cheat buttons when easy mode is off
+    }
+  });
 });
 
 document.getElementById("grid-container").addEventListener("click", function(event) {
