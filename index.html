@@ -143,10 +143,6 @@
         .cheat-btn {
           margin-top: 10px; /* Adds some space above the button */
           position: absolute;
-          top: 50%;
-          left: 50%;
-          margin-right: -50%;
-          transform: translate(-50%, -50%)
         }
 
         .cheat-btn::after { 
@@ -154,6 +150,12 @@
           font-size: 1rem; /* set font size */
           color: red; /* set color */
         } 
+
+        .preview-audio {
+          margin-top: 10px; /* Adds some space above the button */
+          position: absolute;
+          max-width: 200px;
+        }
         
         .song-cell {
             display: flex;
@@ -197,6 +199,16 @@
               left: 50%;
               margin-right: -50%;
               transform: translate(-50%, -50%)
+            }
+
+            .preview-audio {
+              margin-top: 5px; /* Adds some space above the button */ 
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              margin-right: -50%;
+              transform: translate(-50%, -50%);
+              max-width: 125px;
             }
             
             .cheat-btn::after { 
