@@ -336,7 +336,7 @@ document.getElementById("grid-container").addEventListener("click", function(eve
   // Check if the clicked element is a cheat button
   if (event.target && event.target.classList.contains("cheat-btn")) {
     const cell = event.target.closest(".cell");
-    const fieldKey = event.target.getAttribute('id');
+    const fieldKey = event.target.getAttribute("id");
 
     // Here you can call your function to fetch the cheat preview URL and then play it
     fetchCheatPreviewUrl(gridId, fieldKey, cell);
