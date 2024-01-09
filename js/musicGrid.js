@@ -214,12 +214,11 @@ function evaluateGuess(songInfo, inputElement, cellKey) {
 
 function scoreParse(data, songInfo, inputElement) {
   let guessScore = 0;
-  console.log("Parsing score");
-  data.forEach(item => {
-    guessScore = data.guessScore;
-    console.log("Score parsed as "+guessScore+", now updating");
-    updateScoreForGuess(guessScore, songInfo, inputElement);
-  });
+  console.log("Parsing score from data:");
+  console.log(data);
+  guessScore = data.guessScore;
+  console.log("Score parsed as "+guessScore+", now updating");
+  updateScoreForGuess(guessScore, songInfo, inputElement);
 }
 
 // Function to update the score based on the user"s guess
