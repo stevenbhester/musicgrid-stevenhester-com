@@ -181,6 +181,8 @@ async function answerEncoder(data, gridId) {
   data.forEach(item => {
     if (item.field_type === "Answer") {
       answersUnscored[item.field] = item.field_value.split(", ").map(answer => answer.replace(/"/g, ""));
+      console.log(answersUnscored[item.field]);
+      console.log("Answer parsed for "+item.field_value+" above");
     }
   });
 
