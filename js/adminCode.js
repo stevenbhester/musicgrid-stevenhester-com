@@ -167,7 +167,7 @@ async function answerEncoder(data, gridId) {
   // Parse the answers and artists from the data
   data.forEach(item => {
     if (item.field_type === "Answer") {
-      answersUnscored[item.field] = item.field_value.split(", ").map(answer => answer.trim().replace(/^'|'$/g, ""));
+      answersUnscored[item.field] = item.field_value.split("\", \"", ").map(answer => answer.trim().replace(/^'|'$/g, ""));
     } else if (item.field_type === "Artist") {
       artists[item.field] = item.field_value;
     }
