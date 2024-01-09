@@ -10,6 +10,9 @@ let correctGuesses = 0;
 // What grid are we goofin around with?
 let gridId = 0;
 
+// Easy mode boolean
+let easyModeBool = false;
+
 // Call this function when the page loads to display the leaderboard
 window.onload = function() {
   initializeSite();
@@ -159,7 +162,7 @@ async function searchSpotify(searchTerm) {
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ searchTerm })
+    body: JSON.stringify({ searchTerm, easyModeBool })
   });
   console.log("Received response: "+response);
   if (!response.ok) throw new Error("Failed to fetch");
@@ -336,12 +339,24 @@ function displayEndGameMessage() {
   document.querySelector(".grid-container").prepend(endGameMessage);
 }
 
+document.getElementById("easyModeToggle").addEventListener("change", function() {
+  const isEasyMode = this.checked;
+  easyModeBool = isEasyMode;
+  cheatButtons.forEach(btn => {
+        if (isEasyMode) {
+            btn.style.display = "block"; // Show cheat buttons in easy mode
+        } else {
+            btn.style.display = "none"; // Hide cheat buttons when easy mode is off
+        }
+    });
+});
+
 document.getElementById("grid-container").addEventListener("click", function(event) {
   // Check if the clicked element is a cheat button
   if (event.target && event.target.classList.contains("cheat-btn")) {
     const cell = event.target.closest(".cell");
     const fieldKey = event.target.getAttribute("id");
-
+    
     // Here you can call your function to fetch the cheat preview URL and then play it
     fetchCheatPreviewUrl(gridId, fieldKey, cell);
   }
