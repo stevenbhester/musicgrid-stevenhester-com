@@ -201,8 +201,8 @@ async function answerEncoder(data, gridId) {
           let songPopObj = {};
           console.log(`${song} popularity is ${popularity}`);
           popNum = parseInt(popularity);
-          songPopObj['song'] = song;
-          songPopObj['popularity'] = popNum;
+          songPopObj["song"] = song;
+          songPopObj["popularity"] = popNum;
           nestedSongPops.push(songPopObj);
           console.log("Adding this songPopObj to nestedSongPops: ");
           console.log(songPopObj);
@@ -232,7 +232,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
   let fieldScoreMin = 0;
   let normedAnswerScore = 0;
   const answersWithScores = [];
-  let songObserved = '';
+  let songObserved = "";
   let popularityObserved = 0;
   
   for (const [fieldKey, nestedSongPopsArr] of Object.entries(answersUnscored)) {
