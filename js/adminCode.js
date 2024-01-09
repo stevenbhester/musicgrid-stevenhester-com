@@ -256,7 +256,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
       } else {
         normedAnswerScore = 6+5*Math.round(10*(1 - ((popularityObserved - fieldScoreMin)/(fieldScoreMax - fieldScoreMin))))/10;
       }
-      songLoad = songObserved[0]+songObserved.slice(1,songObserved.length - 1).replaceAll("'","''")+songObserved[songObserved.length];
+      songLoad = songObserved;
       console.log(`Scoring for ${songObserved} (${songLoad}) set at ${normedAnswerScore}, adding to answersWithScores`);
       answersWithScores.push({ fieldKey, songLoad, popularityObserved, normedAnswerScore, gridIdString });
       console.log("answersWithScores now at:");
