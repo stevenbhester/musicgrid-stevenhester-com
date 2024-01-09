@@ -239,8 +239,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
 
     // Calculate scores for each song
     for (const { song, popularity, previewUrl } of nestedSongPopsArr) {
-      let normedAnswerScore = (fieldScoreMin === fieldScoreMax) ? 11 : 
-                              6 + 5 * Math.round(10 * (1 - ((popularity - fieldScoreMin) / (fieldScoreMax - fieldScoreMin)))) / 10;
+      let normedAnswerScore = (fieldScoreMin === fieldScoreMax) ? 11 : 6 + 5 * Math.round(10 * (1 - ((popularity - fieldScoreMin) / (fieldScoreMax - fieldScoreMin)))) / 10;
 
       answersWithScores.push({
         fieldKey,
@@ -249,7 +248,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
         normedAnswerScore,
         previewUrl,
         gridId: gridIdString
-        });
+    });
     }
   }
 
