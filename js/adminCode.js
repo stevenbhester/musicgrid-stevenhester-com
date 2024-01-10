@@ -215,13 +215,13 @@ async function searchSpotify(searchTerm, artistSearch) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ searchTerm, easyModeBool, artistSearch, encoderReq })
   })
-  .then(response => response.json())
-  .then(data => {
-    return { 
-      popularity: data.popularity,
-      previewUrl: data.preview_url
-    }
-  })
+    .then(response => response.json())
+    .then(data => {
+      return { 
+        popularity: data.popularity,
+        previewUrl: data.preview_url
+      };
+    });
   if (!response.ok) {
     throw new Error("Failed to fetch Spotify data for: " + searchTerm);
   }
