@@ -193,11 +193,12 @@ async function answerEncoder(data, gridId) {
         console.log(`Fetching data for ${searchTerm} by ${artistSearch}`);
         const resultsObj = await searchSpotify(searchTerm, artistSearch);
         console.log("Received passback resultsObj");
-        console.log(resultsObj);
+        console.dir(resultsObj);
         console.log(resultsObj.popularity);
+        console.log(resultsObj.preview_url);
         const popularity = resultsObj.popularity || -1;
-        const previewUrl = resultsObj.previewUrl;
-        nestedSongPops.push({ song: songParsed, popularity, previewUrl });
+        const previewUrl = resultsObj.preview_url || '';
+        nestedSongPops.push({ song: songParsed, popularity, previewUrl: preview_url });
       } catch (error) {
         console.error("Error fetching Spotify data for song:", songParsed, error);
       }
