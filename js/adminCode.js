@@ -232,7 +232,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
   for (const [fieldKey, nestedSongPopsArr] of Object.entries(answersUnscored)) {
     console.log(`Calculating scores for ${fieldKey}`);
     const filteredSongPopsArr = [];
-    for (songPopElement of nestedSongPopsArr) {
+    for (const songPopElement of nestedSongPopsArr) {
       if(songPopElement.popularity > 0) {
         filteredSongPopsArr.push(songPopElement);
       }
@@ -244,7 +244,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
     // Calculate scores for each song
     for (const { song, popularity, previewUrl } of nestedSongPopsArr) {
       let normedAnswerScore = 11;
-      if( popularity = -1 ) {
+      if( popularity == -1 ) {
         normedAnswerScore = 11;
       } else {
         let normedAnswerScore = (fieldScoreMin === fieldScoreMax) ? 11 : 6 + 5 * Math.round(10 * (1 - ((popularity - fieldScoreMin) / (fieldScoreMax - fieldScoreMin)))) / 10;
