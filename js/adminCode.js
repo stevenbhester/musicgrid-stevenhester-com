@@ -209,11 +209,12 @@ async function answerEncoder(data, gridId) {
 // TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
 async function searchSpotify(searchTerm, artistSearch) {
   let easyModeBool = true;
+  let encoderReq = true;
   try {
-    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
+    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search-encoding-answer", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ searchTerm, easyModeBool, artistSearch })
+      body: JSON.stringify({ searchTerm, easyModeBool, artistSearch, encoderReq })
     });
 
     if (!response.ok) {
