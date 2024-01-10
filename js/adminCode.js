@@ -195,11 +195,9 @@ async function answerEncoder(data, gridId) {
         console.log("Received passback resultsObj");
         console.log(resultsObj);
         console.log(resultsObj.popularity);
-        const popularity = resultsObj.popularity;
+        const popularity = resultsObj.popularity || -1;
         const previewUrl = resultsObj.previewUrl;
-        if (popularity !== null) {
-          nestedSongPops.push({ song: songParsed, popularity, previewUrl });
-        }
+        nestedSongPops.push({ song: songParsed, popularity, previewUrl });
       } catch (error) {
         console.error("Error fetching Spotify data for song:", songParsed, error);
       }
@@ -233,15 +231,23 @@ async function calculateAnswerScores(answersUnscored, gridId) {
 
   for (const [fieldKey, nestedSongPopsArr] of Object.entries(answersUnscored)) {
     console.log(`Calculating scores for ${fieldKey}`);
-
+    const filteredSongPopsArr = [];
+    for (songPopElement of nestedSongPopsArr) {
+      if(songPopElement.popularity > 0) {
+        filteredSongPopsArr.push(songPopElement);
+    }
     // Calculate max and min popularity in the field
-    let fieldScoreMax = Math.max(...nestedSongPopsArr.map(o => o.popularity));
-    let fieldScoreMin = Math.min(...nestedSongPopsArr.map(o => o.popularity));
+    let fieldScoreMax = Math.max(...filteredSongPopsArr.map(o => o.popularity));
+    let fieldScoreMin = Math.min(...filteredSongPopsArr.map(o => o.popularity));
 
     // Calculate scores for each song
     for (const { song, popularity, previewUrl } of nestedSongPopsArr) {
-      let normedAnswerScore = (fieldScoreMin === fieldScoreMax) ? 11 : 6 + 5 * Math.round(10 * (1 - ((popularity - fieldScoreMin) / (fieldScoreMax - fieldScoreMin)))) / 10;
-
+      let normedAnswerScore = 11;
+      if( popularity = -1 ) {
+        normedAnswerScore = 11;
+      } else {
+        let normedAnswerScore = (fieldScoreMin === fieldScoreMax) ? 11 : 6 + 5 * Math.round(10 * (1 - ((popularity - fieldScoreMin) / (fieldScoreMax - fieldScoreMin)))) / 10;
+      }
       answersWithScores.push({
         fieldKey,
         song,
