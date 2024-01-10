@@ -235,6 +235,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
     for (songPopElement of nestedSongPopsArr) {
       if(songPopElement.popularity > 0) {
         filteredSongPopsArr.push(songPopElement);
+      }
     }
     // Calculate max and min popularity in the field
     let fieldScoreMax = Math.max(...filteredSongPopsArr.map(o => o.popularity));
