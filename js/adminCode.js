@@ -247,7 +247,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
       if( popularity == -1 ) {
         normedAnswerScore = 11;
       } else {
-        let normedAnswerScore = (fieldScoreMin === fieldScoreMax) ? 11 : 6 + 5 * Math.round(10 * (1 - ((popularity - fieldScoreMin) / (fieldScoreMax - fieldScoreMin)))) / 10;
+        normedAnswerScore = (fieldScoreMin === fieldScoreMax) ? 11 : 6 + 5 * Math.round(10 * (1 - ((popularity - fieldScoreMin) / (fieldScoreMax - fieldScoreMin)))) / 10;
       }
       answersWithScores.push({
         fieldKey,
