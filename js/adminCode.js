@@ -191,10 +191,9 @@ async function answerEncoder(data, gridId) {
         const searchTerm = `${songParsed}`; 
         const artistSearch = `${artistName}`;
         console.log(`Fetching data for ${searchTerm} by ${artistSearch}`);
-        const resultsArr = await searchSpotify(searchTerm, artistSearch);
-        console.log("Received passback resultsArr");
-        console.log(resultsArr);
-        const resultsObj = resultsArr[0];
+        const resultsObj = await searchSpotify(searchTerm, artistSearch);
+        console.log("Received passback resultsObj");
+        console.log(resultsObj);
         const popularity = resultsObj.popularity;
         const previewUrl = resultsObj.previewUrl;
         if (popularity !== null) {
