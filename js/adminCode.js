@@ -198,7 +198,7 @@ async function answerEncoder(data, gridId) {
         console.log(resultsObj.preview_url);
         const popularity = resultsObj.popularity || -1;
         const previewUrl = resultsObj.preview_url || '';
-        nestedSongPops.push({ song: songParsed, popularity, previewUrl: preview_url });
+        nestedSongPops.push({ song: songParsed, popularity, previewUrl });
       } catch (error) {
         console.error("Error fetching Spotify data for song:", songParsed, error);
       }
