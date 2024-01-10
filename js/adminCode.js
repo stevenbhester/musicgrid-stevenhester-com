@@ -191,7 +191,7 @@ async function answerEncoder(data, gridId) {
         const searchTerm = `${songParsed}`; 
         const artistSearch = `${artistName}`;
         console.log(`Fetching data for ${searchTerm} by ${artistSearch}`);
-        searchSpotify(searchTerm, artistSearch);
+        searchSpotify(searchTerm, artistSearch)
           .then(songs => const { popularity, previewUrl } = {songs[0].popularity, songs[0].preview_url} )
           .catch(error => console.error("Error fetching Spotify data:", error));
         if (popularity !== null) {
