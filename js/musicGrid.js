@@ -282,7 +282,7 @@ function updateScoreTo(totalScore) {
   let scoreReadable = " "+totalScore;
   document.getElementById("totalScore").textContent=scoreReadable;
   // Check if game is now complete
-  if (correctGuesses == 9 && !(totalScore.equals("(updating score)"))) {
+  if (correctGuesses == 9) {
     terminateGame();
   }
 }
