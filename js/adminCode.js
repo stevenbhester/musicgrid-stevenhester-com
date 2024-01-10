@@ -222,7 +222,7 @@ async function searchSpotify(searchTerm, artistSearch) {
     }
     
     const songs = await response.json();
-    if (songs.length > 0) {
+    if (songs[0] && songs[0].name) {
       console.log("Found Results:");
       console.dir(songs);
       const firstSong = songs[0];
