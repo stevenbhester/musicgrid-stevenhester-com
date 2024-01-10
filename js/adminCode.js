@@ -192,7 +192,7 @@ async function answerEncoder(data, gridId) {
         const artistSearch = `${artistName}`;
         console.log(`Fetching data for ${searchTerm} by ${artistSearch}`);
         const resultsArr = await searchSpotify(searchTerm, artistSearch);
-        const resultsObj = resulstArr[0];
+        const resultsObj = resultsArr[0];
         const popularity = resultsObj.popularity;
         const previewUrl = resultsObj.previewUrl;
         if (popularity !== null) {
@@ -217,7 +217,7 @@ async function searchSpotify(searchTerm, artistSearch) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ searchTerm, easyModeBool, artistSearch, encoderReq })
-  })
+  });
   console.log("Received response: "+response);
   if (!response.ok) throw new Error("Failed to fetch");
   return response.json();
