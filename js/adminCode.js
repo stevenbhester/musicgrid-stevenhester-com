@@ -192,7 +192,9 @@ async function answerEncoder(data, gridId) {
         const artistSearch = `${artistName}`;
         console.log(`Fetching data for ${searchTerm} by ${artistSearch}`);
         const resultsArr = await searchSpotify(searchTerm, artistSearch);
-        const {popularity, previewUrl} = {resultsArr[0].popularity, resultsArr[0].previewUrl};
+        const resultsObj = resulstArr[0];
+        const popularity = resultsObj.popularity;
+        const previewUrl = resultsObj.previewUrl;
         if (popularity !== null) {
           nestedSongPops.push({ song: songParsed, popularity, previewUrl });
         }
