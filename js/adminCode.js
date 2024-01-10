@@ -194,8 +194,8 @@ async function answerEncoder(data, gridId) {
         const resultsObj = await searchSpotify(searchTerm, artistSearch);
         console.log("Received passback resultsObj");
         console.log(resultsObj);
-        const popularity = resultsObj.popularity;
-        const previewUrl = resultsObj.previewUrl;
+        const popularity = resultsObj.data.popularity;
+        const previewUrl = resultsObj.data.previewUrl;
         if (popularity !== null) {
           nestedSongPops.push({ song: songParsed, popularity, previewUrl });
         }
