@@ -210,34 +210,20 @@ async function answerEncoder(data, gridId) {
 async function searchSpotify(searchTerm, artistSearch) {
   let easyModeBool = true;
   let encoderReq = true;
-  try {
-    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search-encoding-answer", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ searchTerm, easyModeBool, artistSearch, encoderReq })
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch Spotify data for: " + searchTerm);
+  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search-encoding-answer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ searchTerm, easyModeBool, artistSearch, encoderReq })
+  })
+  .then(response => response.json())
+  .then(data => {
+    return { 
+      popularity: data.popularity,
+      previewUrl: data.preview_url
     }
-    
-    const songs = await response.json();
-    if (songs[0] && songs[0].name) {
-      console.log("Found Results:");
-      console.dir(songs);
-      const firstSong = songs[0];
-      console.log("Encoding song:");
-      console.log(firstSong);
-      return {
-        popularity: firstSong.popularity,
-        previewUrl: firstSong.preview_url
-      };
-    }
-
-    return { popularity: null, previewUrl: null };
-  } catch (error) {
-    console.error("Error in searchSpotify:", error);
-    return { popularity: null, previewUrl: null };
+  })
+  if (!response.ok) {
+    throw new Error("Failed to fetch Spotify data for: " + searchTerm);
   }
 }
 
