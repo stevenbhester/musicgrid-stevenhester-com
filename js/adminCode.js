@@ -191,7 +191,9 @@ async function answerEncoder(data, gridId) {
         const searchTerm = `${songParsed}`; 
         const artistSearch = `${artistName}`;
         console.log(`Fetching data for ${searchTerm} by ${artistSearch}`);
-        const { popularity, previewUrl } = await searchSpotify(searchTerm, artistSearch);
+        searchSpotify(searchTerm, artistSearch);
+          .then(songs => const { popularity, previewUrl } = {songs[0].popularity, songs[0].preview_url} )
+          .catch(error => console.error("Error fetching Spotify data:", error));
         if (popularity !== null) {
           nestedSongPops.push({ song: songParsed, popularity, previewUrl });
         }
@@ -215,8 +217,9 @@ async function searchSpotify(searchTerm, artistSearch) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ searchTerm, easyModeBool, artistSearch, encoderReq })
   })
-    .then(songs => return {popularity: songs[0].popularity,previewUrl: songs[0].preview_url})
-    .catch(error => console.error("Error fetching Spotify data:", error));
+  console.log("Received response: "+response);
+  if (!response.ok) throw new Error("Failed to fetch");
+  return response.json();
 }
 
 // Calculate how many points each answer will be worth
