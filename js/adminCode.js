@@ -191,9 +191,8 @@ async function answerEncoder(data, gridId) {
         const searchTerm = `${songParsed}`; 
         const artistSearch = `${artistName}`;
         console.log(`Fetching data for ${searchTerm} by ${artistSearch}`);
-        searchSpotify(searchTerm, artistSearch)
-          .then(songs => const { popularity, previewUrl } = {songs[0].popularity, songs[0].preview_url} )
-          .catch(error => console.error("Error fetching Spotify data:", error));
+        const resultsArr = await searchSpotify(searchTerm, artistSearch);
+        const {popularity, previewUrl} = {resultsArr[0].popularity, resultsArr[0].previewUrl};
         if (popularity !== null) {
           nestedSongPops.push({ song: songParsed, popularity, previewUrl });
         }
