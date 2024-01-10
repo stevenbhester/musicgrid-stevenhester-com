@@ -215,13 +215,8 @@ async function searchSpotify(searchTerm, artistSearch) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ searchTerm, easyModeBool, artistSearch, encoderReq })
   })
-    .then(response => response.json())
-    .then(data => {
-      return { 
-        popularity: data.popularity,
-        previewUrl: data.preview_url
-      };
-    });
+    .then(songs => return {popularity: songs[0].popularity,previewUrl: songs[0].preview_url})
+    .catch(error => console.error("Error fetching Spotify data:", error));
 }
 
 // Calculate how many points each answer will be worth
