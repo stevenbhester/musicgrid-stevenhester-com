@@ -83,7 +83,7 @@ function buildGrid(data) {
     // Song cells
     Object.keys(artists).forEach(artistKey => {
       const cellKey = `${categoryKey} ${artistKey}`;
-      categoryRow.appendChild(createSongCell(cellKey));
+      categoryRow.appendChild(createSongCell(cellKey, artists[artistKey]));
     });
 
     gridContainer.appendChild(categoryRow);
@@ -100,7 +100,7 @@ function createCell(className, text = "") {
   return cell;
 }
 
-function createSongCell(cellKey) {
+function createSongCell(cellKey, artistName) {
   const cell = document.createElement("div");
   const btnClass = "cheat-btn";
   cell.classList.add("cell", "song-cell");
@@ -117,7 +117,7 @@ function createSongCell(cellKey) {
   
   const input = document.createElement("input");
   input.type = "text";
-  input.setAttribute("oninput", `liveSearch(this, "${cellKey}")`);
+  input.setAttribute("oninput", `liveSearch(this, "${cellKey}", "${artistName}")`);
   input.setAttribute("placeholder", "Type to search...");
   cell.appendChild(input);
 
@@ -147,10 +147,10 @@ function loadLeaderboard() {
     .catch(error => console.error("Error:", error));
 }
 
-function liveSearch(inputElement, cellKey) {
+function liveSearch(inputElement, cellKey, artistName) {
   if (inputElement.value.length > 2) {
     console.log("Requesting search for "+inputElement.value);
-    searchSpotify(inputElement.value)
+    searchSpotify(inputElement.value, artistName)
       .then(songs => displaySpotifyResults(songs, inputElement, cellKey))
       .catch(error => console.error("Error fetching Spotify data:", error));
   } else {
@@ -158,12 +158,12 @@ function liveSearch(inputElement, cellKey) {
   }
 }
 
-async function searchSpotify(searchTerm) {
+async function searchSpotify(searchTerm, artistName) {
   console.log("Searching for "+searchTerm);
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ searchTerm, easyModeBool })
+    body: JSON.stringify({ searchTerm, easyModeBool, artistName })
   });
   console.log("Received response: "+response);
   if (!response.ok) throw new Error("Failed to fetch");
