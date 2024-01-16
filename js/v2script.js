@@ -9,4 +9,15 @@ document.addEventListener("DOMContentLoaded", function() {
     // Toggles the "show" class on the mobile nav
     mobileNav.classList.toggle("show");
   });
+
+  // Get all grid cells
+  var cells = document.querySelectorAll('.grid-cell');
+
+  // Add click event to each cell
+  cells.forEach(function(cell) {
+    cell.addEventListener("click", function() {
+      // Toggle a class or perform an action to indicate selection
+      this.classList.toggle("selected");
+    });
+  });
 });
