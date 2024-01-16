@@ -221,6 +221,12 @@ header {
     background-color: #e0e0e0;
 }
 
+.grid-cell.selected {
+    background-color: #9EC9F5; /* Light blue to indicate selection */
+    color: #333;
+    border-color: #4A90E2; /* Darker blue border for selected cell */
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .grid-container {
