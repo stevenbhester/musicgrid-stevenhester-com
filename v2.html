@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MusicGrid</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <nav>
-            <ul>
+        <nav class="navbar">
+            <div class="nav-logo">
+                <img src="musicgrid-logo.png" alt="MusicGrid Logo" class="header-logo">
+                MusicGrid
+            </div>
+            <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#play">Play</a></li>
                 <li><a href="#leaderboard">Leaderboard</a></li>
@@ -18,13 +22,18 @@
         </nav>
     </header>
     <main>
-        <div class="grid">
-            <!-- Grid cells go here -->
-        </div>
+        <section class="hero">
+            <div class="overlay"></div>
+            <div class="hero-content">
+                <h1>Welcome to MusicGrid</h1>
+                <p>The ultimate music trivia game</p>
+                <button class="cta-button">Play Now</button>
+            </div>
+        </section>
+        <!-- Additional content sections can be added here -->
     </main>
-    <footer>
+    <footer class="footer">
         <p>&copy; 2024 MusicGrid</p>
     </footer>
-    <script src="script.js"></script>
 </body>
 </html>
