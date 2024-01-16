@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   // Get all grid cells
-  var cells = document.querySelectorAll('.grid-cell');
+  var cells = document.querySelectorAll(".grid-cell");
 
   // Add click event to each cell
   cells.forEach(function(cell) {
