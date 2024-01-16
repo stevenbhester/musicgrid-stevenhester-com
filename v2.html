@@ -9,6 +9,8 @@
           type="image/png" 
           href="/img/favicon.png">
 </head>
+<!DOCTYPE html>
+<html lang="en">
 <body>
     <header>
         <nav class="navbar">
@@ -16,7 +18,21 @@
                 <img src="/img/musicgrid-logo.png" alt="MusicGrid Logo" class="header-logo">
                 MusicGrid
             </div>
+            <!-- Hamburger Icon -->
+            <div class="hamburger-menu">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <!-- Desktop Navigation Links -->
             <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#play">Play</a></li>
+                <li><a href="#leaderboard">Leaderboard</a></li>
+                <li><a href="#settings">Settings</a></li>
+            </ul>
+            <!-- Mobile Navigation Links -->
+            <ul class="mobile-nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#play">Play</a></li>
                 <li><a href="#leaderboard">Leaderboard</a></li>
@@ -38,5 +54,6 @@
     <footer class="footer">
         <p>&copy; 2024 MusicGrid</p>
     </footer>
+    <script src="script.js"></script>
 </body>
 </html>
