@@ -53,7 +53,7 @@ function loadHeader() {
   const guessesWrapper = document.createElement("div");
   guessesWrapper.classList.add("subheader", "guessCount");
   guessesWrapper.id = "guessWrapper";
-  guessesWrapper.innerHTML = "<i><u>Lives Remaining</u></i></span><br><span id=\"livesRemaining\"><span id=\"life3\">\u2764</span><span id=\"life2\">\u2764</span><span id=\"life1\">\u2764</span></span>";
+  guessesWrapper.innerHTML = "<i><u>Lives Remaining</u></i></span><br><span id=\"livesRemaining\"><span id=\"life1\">\u2764</span><span id=\"life2\">\u2764</span><span id=\"life3\">\u2764</span></span>";
 
   //Place elements on page
   titleContainer.appendChild(titleText);
@@ -355,7 +355,7 @@ function updateScoreForGuess(guessScore, songInfo, inputElement) {
   removeDropdown(inputElement);
   
   // Check if game has ended on this guess, decrease displayed guesses remaining if not
-  if (guessTotal == 0 || correctGuesses == 9) {
+  if (livesLost == 4 || correctGuesses == 9) {
     terminateGame();
   } 
 }
@@ -372,6 +372,11 @@ function decrementLives() {
   let lifeID = "life"+livesLost;
   console.log("Recording loss of life #"+livesLost+" and updating element "+lifeID);
   document.getElementById(lifeID).innerText = "\u274C";
+  if (livesLost == 3) {
+    const lifeWarning = document.createElement("div");
+    lifeWarning.innerText = "\u1F6A8 NEXT MISS IS DEATH \u1F6A8"
+    document.getElementById("guessWrapper").appendChild(lifeWarning);
+  }
 }
 
 function terminateGame() {
