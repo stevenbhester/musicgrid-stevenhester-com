@@ -253,112 +253,6 @@ input[type="text"] {
     justify-content: center;
 }
 
-@media (max-width: 600px) {
-    .cell, .genre-header, .artist {
-        font-size: 14px; /* Adjust base font size */
-        word-wrap: break-word; /* Ensures words wrap and don't overflow */
-        padding: 1px 1px;
-        min-height: 25vw;
-    }
-
-    .results-dropdown {
-        width: 100%;
-        box-sizing: border-box;
-        top: 100%;
-    }
-
-    .results-dropdown div {
-        padding: 5px;
-    }
-
-    .song-cell {
-        position: relative;
-        font-size: 3.5vw; /* Adjust base font size */
-        word-wrap: break-word; /* Ensures words wrap and don't overflow */
-        padding: 1px 1px;
-        display: flex;
-        flex-direction: columnn;
-        align-items: flex-start; /* Align items to the start of the cell */
-        justify-content: center;
-    }
-
-    .cheat-btn {
-      margin-top: 5px; /* Adds some space above the button */ 
-      width: 100%;
-      padding: 5px;
-      margin: 5px 0;
-      box-sizing: border-box;
-    }
-
-    .preview-audio {
-      margin-top: 1px; /* Adds some space above the button */ 
-      width: 100%;
-      padding: 5px;
-      margin: 3px 0;
-      box-sizing: border-box;
-    }
-    
-    .cheat-btn::after { 
-      content: "\1F3B5"; /* Unicode value for a heart */
-      font-size: 1rem; /* set font size */
-      color: red; /* set color */
-    } 
-
-     .grid-container {
-        grid-template-columns: 1fr;
-    }
-
-    .grid-header {
-        display: none; /* Hide categories on small screens */
-    }
-
-    .navbar .nav-links {
-        display: none; /* Hide the desktop links */
-    }
-
-    .hamburger-menu {
-        display: block; /* Show the hamburger menu */
-    }
-
-    .mobile-nav-links li a {
-        padding: 15px;
-    }
-
-    .nav-links li {
-        width: 50%;
-    }
-    
-    .header-logo {
-        height: 40px;
-    }
-
-    .nav-logo {
-        width: 50%;
-        justify-content: space-between;
-        font-size: 1.2em;
-        margin-bottom: 10px;
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 2;
-        color: #333;
-        text-align: center;
-        padding-top: 40%;
-        margin-left: 15%;
-        margin-right: 15%
-    }
-    
-    .under-game {
-        position: relative;
-        z-index: 2;
-        color: #333;
-        text-align: center;
-        margin-left: 15%;
-        margin-right: 15%;
-    }
-}
-
 .nav-logo {
     display: flex;
     align-items: center;
@@ -578,3 +472,108 @@ input[type="text"] {
     border-color: #4A90E2; /* Darker blue border for selected cell */
 }
 
+@media (max-width: 600px) {
+    .cell, .genre-header, .artist {
+        font-size: 14px; /* Adjust base font size */
+        word-wrap: break-word; /* Ensures words wrap and don't overflow */
+        padding: 1px 1px;
+        min-height: 25vw;
+    }
+
+    .results-dropdown {
+        width: 100%;
+        box-sizing: border-box;
+        top: 100%;
+    }
+
+    .results-dropdown div {
+        padding: 5px;
+    }
+
+    .song-cell {
+        position: relative;
+        font-size: 3.5vw; /* Adjust base font size */
+        word-wrap: break-word; /* Ensures words wrap and don't overflow */
+        padding: 1px 1px;
+        display: flex;
+        flex-direction: columnn;
+        align-items: flex-start; /* Align items to the start of the cell */
+        justify-content: center;
+    }
+
+    .cheat-btn {
+      margin-top: 5px; /* Adds some space above the button */ 
+      width: 100%;
+      padding: 5px;
+      margin: 5px 0;
+      box-sizing: border-box;
+    }
+
+    .preview-audio {
+      margin-top: 1px; /* Adds some space above the button */ 
+      width: 100%;
+      padding: 5px;
+      margin: 3px 0;
+      box-sizing: border-box;
+    }
+    
+    .cheat-btn::after { 
+      content: "\1F3B5"; /* Unicode value for a heart */
+      font-size: 1rem; /* set font size */
+      color: red; /* set color */
+    } 
+
+     .grid-container {
+        grid-template-columns: 1fr;
+    }
+
+    .grid-header {
+        display: none; /* Hide categories on small screens */
+    }
+
+    .navbar .nav-links {
+        display: none; /* Hide the desktop links */
+    }
+
+    .hamburger-menu {
+        display: block; /* Show the hamburger menu */
+    }
+
+    .mobile-nav-links li a {
+        padding: 15px;
+    }
+
+    .nav-links li {
+        width: 50%;
+    }
+    
+    .header-logo {
+        height: 40px;
+    }
+
+    .nav-logo {
+        width: 50%;
+        justify-content: space-between;
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        color: #333;
+        text-align: center;
+        padding-top: 40%;
+        margin-left: 15%;
+        margin-right: 15%
+    }
+    
+    .under-game {
+        position: relative;
+        z-index: 2;
+        color: #333;
+        text-align: center;
+        margin-left: 15%;
+        margin-right: 15%;
+    }
+}
