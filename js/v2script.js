@@ -16,7 +16,36 @@ let easyModeBool = false;
 function initializeSite() {
   console.log("Initializing Site");
   console.log("Loading grid");
+  loadHeader();
   loadGrid();
+}
+
+function loadHeader() {
+  console.log("Building header");
+  const titleContainer = document.getElementById("hero-content");
+  
+  //Build Title
+  const titleText = document.createElement("div");
+  titleText.classList.add("h1");
+  titleText.textContent = "Millenium Alt Rock"; //TODO: Dynamically load Title
+
+  //Build cheat button
+  const cheatButton = document.createElement("label");
+  cheatButton.classList.add("switch");
+  const checkBox = document.createElement("input");
+  checkBox.type = "checkbox";
+  checkBox.id = "easyModeToggle";
+  const sliderRound = document.createElement("span");
+  sliderRound.classList.add("slider","round");
+  const cheatDescriptor = document.createElement("span");
+  cheatDescriptor.innerText = "<i>Toggle to Enable Easy Mode</i>";
+
+  //Place elements on page
+  titleContainer.appendChild(titleText);
+  cheatButton.appendChild(checkBox);
+  cheatButton.appendChild(sliderRound);
+  titleContainer.appendChild(cheatButton);
+  titleContainer.appendChild(cheatDescriptor);
 }
 
 // Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
@@ -510,7 +539,7 @@ document.addEventListener("DOMContentLoaded", function() {
   playButton.addEventListener("click", function() {
     gridContainer.classList.add("active");
     gridContainer.style.removeProperty("display");
-    heroContent.remove();
+    heroContent.innerHTML = "";
     startGame();
   });
 });
