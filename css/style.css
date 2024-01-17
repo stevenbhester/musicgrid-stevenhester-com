@@ -462,13 +462,23 @@ input[type="text"] {
     z-index: 1;
 }
 
-.hero-content, .under-game {
+ .under-game {
     position: relative;
     z-index: 2;
     color: #333;
     text-align: center;
     margin-left: 15%;
-    margin-right: 15%
+    margin-right: 15%;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    color: #333;
+    text-align: center;
+    margin-left: 15%;
+    margin-right: 15%;
+    margin-top: 33%;
 }
 
 .hero-content h1 {
