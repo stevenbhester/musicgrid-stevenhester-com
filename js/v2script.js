@@ -18,7 +18,6 @@ function initializeSite() {
   console.log("Loading grid");
   loadHeader();
   loadGrid();
-  loadFooter();
 }
 
 function loadHeader() {
@@ -59,6 +58,8 @@ function loadHeader() {
   titleContainer.appendChild(titleText);
   titleContainer.appendChild(headWrapper);
   titleContainer.appendChild(guessesWrapper);
+  
+  loadLeaderboard();
 }
 
 function loadFooter() {
@@ -170,8 +171,8 @@ function buildGrid(data) {
     gridContainer.appendChild(categoryRow);
   });
 
-  // Now build the leaderboars
-  loadLeaderboard();
+  // Now build the footer
+  loadFooter();
 }
 
 function createCell(className, text = "") {
