@@ -154,7 +154,7 @@ input:checked + .slider:before {
     padding-bottom: 2%;
     padding-top: 2%;
     border-radius: 4px;
-    background-color: #CBC3E3;
+    background-color: rgba(203, 195, 227, 0.5);
 }
 
 .results-dropdown div:hover {
