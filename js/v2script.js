@@ -35,7 +35,7 @@ function loadHeader() {
 
   //Build cheat button
   const headWrapper = document.createElement("div");
-  headWrapper.classList.add("subheader");
+  headWrapper.classList.add("subheader","cheatZone);
   const cheatButton = document.createElement("label");
   cheatButton.classList.add("switch");
   const checkBox = document.createElement("input");
@@ -43,13 +43,15 @@ function loadHeader() {
   checkBox.id = "easyModeToggle";
   const sliderRound = document.createElement("span");
   sliderRound.classList.add("slider","round");
+  cheatButton.appendChild(checkBox);
+  cheatButton.appendChild(sliderRound);
+
+  //Build descriptors for Cheat Button
   const cheatDescriptorPre = document.createElement("span");
   cheatDescriptorPre.innerHTML = "<br><i>Hard Mode</i>";
   const cheatDescriptorPost = document.createElement("span");
   cheatDescriptorPost.innerHTML = "<i>Easy Mode</i><br>";
-  cheatButton.appendChild(cheatDescriptorPre);
-  cheatButton.appendChild(checkBox);
-  cheatButton.appendChild(sliderRound);
+  headWrapper.appendChild(cheatDescriptorPre);
   headWrapper.appendChild(cheatButton);
   headWrapper.appendChild(cheatDescriptorPost);
 
