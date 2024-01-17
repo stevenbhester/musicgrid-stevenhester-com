@@ -144,6 +144,16 @@ input:checked + .slider:before {
     visibility: hidden;
 }
 
+.leaderboard-wrapper {
+    position: relative;
+    z-index: 2;
+    color: #333;
+    text-align: center;
+    margin-left: 15%;
+    margin-right: 15%;
+    margin-bottom: 8%;
+}
+
 .results-dropdown div:hover {
     background-color: #f0f0f0;
 }
@@ -340,7 +350,7 @@ input[type="text"] {
         color: #333;
         text-align: center;
         margin-left: 15%;
-        margin-right: 15%
+        margin-right: 15%;
     }
 }
 
