@@ -3,6 +3,7 @@ let totalScore = 1;
 
 // Guesses don"t last forever....
 let guessTotal = 10;
+let livesLost = 0;
 
 // How good are ya really?
 let correctGuesses = 0;
@@ -13,15 +14,105 @@ let gridId = 0;
 // Easy mode boolean
 let easyModeBool = false;
 
-// Call this function when the page loads to display the leaderboard
-window.onload = function() {
-  initializeSite();
-};
-
 function initializeSite() {
   console.log("Initializing Site");
   console.log("Loading grid");
+  loadHeader();
   loadGrid();
+}
+
+function loadHeader() {
+  console.log("Building header");
+  const titleContainer = document.querySelector(".hero-content");
+
+  //Adjust css for hero-content
+  titleContainer.style.marginTop= "9%";
+  titleContainer.style.paddingTop= "7%";
+  
+  //Build Title
+  const titleText = document.createElement("div");
+  titleText.innerHTML = "<span style=\"font-size:2.3em;\">Millenium Alt Rock</span>"; //TODO: Dynamically load Title
+
+  //Build cheat button
+  const headWrapper = document.createElement("div");
+  headWrapper.classList.add("subheader","cheatZone");
+  const cheatButton = document.createElement("label");
+  cheatButton.classList.add("switch");
+  const checkBox = document.createElement("input");
+  checkBox.type = "checkbox";
+  checkBox.id = "easyModeToggle";
+  const sliderRound = document.createElement("span");
+  sliderRound.classList.add("slider","round");
+  cheatButton.appendChild(checkBox);
+  cheatButton.appendChild(sliderRound);
+
+  //Build descriptors for Cheat Button
+  const cheatDescriptorPre = document.createElement("span");
+  cheatDescriptorPre.innerHTML = "<br><i>Hard Mode </i>";
+  const cheatDescriptorPost = document.createElement("span");
+  cheatDescriptorPost.innerHTML = "<i> Easy Mode</i><br>";
+  headWrapper.appendChild(cheatDescriptorPre);
+  headWrapper.appendChild(cheatButton);
+  headWrapper.appendChild(cheatDescriptorPost);
+
+  //Place elements on page
+  titleContainer.appendChild(titleText);
+  titleContainer.appendChild(headWrapper);
+}
+
+function loadFooter() {
+  const underGameWrapper = document.querySelector(".under-game");
+  
+  //Build guesses
+  const guessesWrapper = document.createElement("div");
+  guessesWrapper.classList.add("subheader", "guessCount");
+  guessesWrapper.id = "guessWrapper";
+  guessesWrapper.innerHTML = "<i><u>Lives Remaining</u></i></span><br><span id=\"livesRemaining\"><span id=\"life1\">\u2764</span><span id=\"life2\">\u2764</span><span id=\"life3\">\u2764</span></span>";
+
+  //Build score counter
+  const scoreWrapper = document.createElement("div");
+  scoreWrapper.classList.add("score-wrapper");
+  const scoreInner = document.createElement("div");
+  scoreInner.classList.add("score-inner");
+  scoreInner.innerHTML = "<span id=\"totalScore\" style=\"font-size:4.5em\"><b>1</b></span><br><sup>Total Score</sup><br>";
+  scoreWrapper.appendChild(scoreInner);
+
+  //Build quit button
+  const quitWrapper = document.createElement("div");
+  quitWrapper.classList.add("quit-wrapper");
+  const quitButton = document.createElement("button");
+  quitButton.type = "button";
+  quitButton.id = "quitButton";
+  quitButton.onclick = function() { terminateGame(); };
+  quitButton.innerText = "Give Up?";
+  quitWrapper.appendChild(quitButton);
+
+  //Build dummy leaderboard to be built later, this can def be optimized to do in one function later one
+  const leaderboardSuperWrapper = document.createElement("div");
+  leaderboardSuperWrapper.classList.add("leaderboard-super-wrapper");
+  const leaderboardWrapper = document.createElement("div");
+  leaderboardWrapper.classList.add("leaderboard-wrapper");
+  const leaderBoard = document.createElement("div");
+  leaderBoard.id = "leaderboard";
+  leaderBoard.innerHTML = "<h2>Leaderboard</h2> <ul id=\"leaderboardList\"></ul>";
+  leaderboardWrapper.appendChild(leaderBoard);
+  leaderboardSuperWrapper.appendChild(leaderboardWrapper);
+  
+  //Build share button for later insertion
+  const shareButton = document.createElement("button");
+  shareButton.id = "shareButton";
+  shareButton.innerText = "Share My Results";
+  shareButton.style.display = "none";
+  
+  //Assemble on page
+  underGameWrapper.appendChild(guessesWrapper);
+  underGameWrapper.appendChild(scoreWrapper);
+  underGameWrapper.appendChild(quitWrapper);
+  underGameWrapper.appendChild(leaderboardSuperWrapper);
+  underGameWrapper.appendChild(shareButton);
+
+  
+  loadLeaderboard();
 }
 
 // Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
@@ -89,8 +180,8 @@ function buildGrid(data) {
     gridContainer.appendChild(categoryRow);
   });
 
-  // Now build the leaderboars
-  loadLeaderboard();
+  // Now build the footer
+  loadFooter();
 }
 
 function createCell(className, text = "") {
@@ -171,7 +262,7 @@ async function searchSpotify(searchTerm, artistName) {
 }
 
 function displaySpotifyResults(songs, inputElement, cellKey) {
-  removeDropdown(inputElement); // Remove existing dropdown if present
+  removeAllDropdowns(); // Remove existing dropdown if present
   console.log("Creating results container");
   const resultsContainer = document.createElement("div");
   resultsContainer.className = "results-dropdown";
@@ -203,7 +294,7 @@ function displaySpotifyResults(songs, inputElement, cellKey) {
 
 function selectSong(songInfo, inputElement, cellKey, popularity) {
   // Give user feedback
-  updateScoreTo("(updating score)");
+  updateScoreTo("loading");
   
   // Decrease guess total for making a guess
   let newGuessTotal = guessTotal - 1;
@@ -263,33 +354,45 @@ function updateScoreForGuess(guessScore, songInfo, inputElement) {
     cell.style.backgroundColor = "#ffcdd2"; // Red for incorrect
     // TODO: GIVE BETTER FEEDBACK FOR COLORBLIND PEOPLE THAT THEY GOT IT WRONG (and for further wrong guesses)
     // List incorrect guesses at top of cell?
-
     updateScoreTo(totalScore);
+    decrementLives();
   }
 
   // Clear the dropdown menu (this is kinda buggy)
   removeDropdown(inputElement);
   
   // Check if game has ended on this guess, decrease displayed guesses remaining if not
-  if (guessTotal == 0 || correctGuesses == 9) {
+  if (livesLost >= 4 || correctGuesses == 9) {
     terminateGame();
-  } else {
-    decrementGuesses();
-  }
+  } 
 }
 
 function updateScoreTo(totalScore) {
-  let scoreReadable = " "+totalScore;
-  document.getElementById("totalScore").textContent=scoreReadable;
+  if (totalScore == "loading") {
+    document.getElementById("totalScore").innerHTML="<img src=\"/img/loading.gif\" alt=\"calculating score\" style=\"height:3em;\">";
+  } else {
+    document.getElementById("totalScore").innerHTML="<b>"+totalScore+"</b>";
+  }
   // Check if game is now complete
   if (correctGuesses == 9) {
     terminateGame();
   }
 }
 
-function decrementGuesses() {
-  let guessesReadable = " "+guessTotal;
-  document.getElementById("guessesRemaining").textContent=guessesReadable;
+function decrementLives() {
+  livesLost += 1;
+  let lifeID = "life"+livesLost;
+  if(livesLost >= 4) {
+    terminateGame();
+  } else {
+    console.log("Recording loss of life #"+livesLost+" and updating element "+lifeID);
+    document.getElementById(lifeID).innerText = "\u274C";
+    if (livesLost == 3) {
+      const lifeWarning = document.createElement("div");
+      lifeWarning.innerHTML = "<b>\u26A0 NEXT MISS IS DEATH \u26A0</b>";
+      document.getElementById("guessWrapper").appendChild(lifeWarning);
+    }
+  }
 }
 
 function terminateGame() {
@@ -332,6 +435,8 @@ function endGame() {
   if (playerName) {
     leaderboardUpdate(playerName, totalScore);
   }
+  document.getElementById("shareButton").show();
+  
 }
 
 function displayEndGameMessage() {
@@ -340,29 +445,6 @@ function displayEndGameMessage() {
   document.querySelector(".grid-container").prepend(endGameMessage);
 }
 
-document.getElementById("easyModeToggle").addEventListener("change", function() {
-  const isEasyMode = this.checked;
-  easyModeBool = isEasyMode;
-  const cheatButtons = document.querySelectorAll(".cheat-btn");
-  cheatButtons.forEach(btn => {
-    if (isEasyMode) {
-      btn.style.display = "block"; // Show cheat buttons in easy mode
-    } else {
-      btn.style.display = "none"; // Hide cheat buttons when easy mode is off
-    }
-  });
-});
-
-document.getElementById("grid-container").addEventListener("click", function(event) {
-  // Check if the clicked element is a cheat button
-  if (event.target && event.target.classList.contains("cheat-btn")) {
-    const cell = event.target.closest(".cell");
-    const fieldKey = event.target.getAttribute("id");
-    
-    // Here you can call your function to fetch the cheat preview URL and then play it
-    fetchCheatPreviewUrl(gridId, fieldKey, cell);
-  }
-});
 
 function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/get-cheat-preview-url", {
@@ -409,20 +491,6 @@ function playPreviewSnippet(url, cell) {
   };
 }
 
-document.getElementById("shareButton").addEventListener("click", () => {
-  if (navigator.share) {
-    navigator.share({
-      title: "My MusicGrid Results",
-      text: `I scored ${totalScore} on MusicGrid! Can you beat me?`,
-      url: document.location.href
-    })
-      .then(() => console.log("Successful share"))
-      .catch((error) => console.error("Error sharing:", error));
-  } else {
-    console.error("Web Share API is not supported in your browser.");
-  }
-});
-
 // Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
 function leaderboardUpdate(playerName, score) {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/submit-score", {
@@ -448,3 +516,120 @@ function removeDropdown(inputElement) {
     console.error("Input element is not in the DOM or has no parent.");
   }
 }
+
+function removeAllDropdowns() {
+  const dropdowns = document.querySelectorAll(".results-dropdown");
+  dropdowns.forEach((dropdown) => {
+    if(dropdown) {
+      dropdown.remove();
+    }
+  });
+}
+
+function startGame() {
+  // Build grid
+  initializeSite();
+  
+  // Tag listeners
+  document.getElementById("easyModeToggle").addEventListener("change", function() {
+    const isEasyMode = this.checked;
+    easyModeBool = isEasyMode;
+    const cheatButtons = document.querySelectorAll(".cheat-btn");
+    cheatButtons.forEach(btn => {
+      if (isEasyMode) {
+        btn.style.display = "block"; // Show cheat buttons in easy mode
+      } else {
+        btn.style.display = "none"; // Hide cheat buttons when easy mode is off
+      }
+    });
+  });
+  
+  document.getElementById("grid-container").addEventListener("click", function(event) {
+    // Check if the clicked element is a cheat button
+    if (event.target && event.target.classList.contains("cheat-btn")) {
+      const cell = event.target.closest(".cell");
+      const fieldKey = event.target.getAttribute("id");
+      
+      // Here you can call your function to fetch the cheat preview URL and then play it
+      fetchCheatPreviewUrl(gridId, fieldKey, cell);
+    }
+  });
+  
+  document.getElementById("shareButton").addEventListener("click", () => {
+    if (navigator.share) {
+      navigator.share({
+        title: "My MusicGrid Results",
+        text: `I scored ${totalScore} on MusicGrid, you could never. Try at: musicgrid.erincullison.com`,
+        url: document.location.href
+      })
+        .then(() => console.log("Successful share"))
+        .catch((error) => console.error("Error sharing:", error));
+    } else {
+      console.error("Web Share API is not supported in your browser.");
+    }
+  });
+
+  // Get all grid cells
+  var cells = document.querySelectorAll(".grid-cell");
+  cells.forEach(function(cell) {
+    // Mouse enter event to highlight category and artist
+    cell.addEventListener("mouseenter", function() {
+      highlightRelated(this.dataset.category, this.dataset.artist);
+    });
+    // Mouse leave event to remove highlight
+    cell.addEventListener("mouseleave", function() {
+      removeHighlight(this.dataset.category, this.dataset.artist);
+    });
+  });
+
+  function highlightRelated(category, artist) {
+    // Highlight the related category and artist
+    var categoryElement = document.querySelector(`.grid-category[data-category="${category}"]`);
+    var artistElement = document.querySelector(`.grid-artist[data-artist="${artist}"]`);
+    console.log(categoryElement);
+    console.log(artistElement);
+    if(categoryElement) categoryElement.classList.add("highlight");
+    if(artistElement) artistElement.classList.add("highlight");
+  }
+
+  function removeHighlight(category, artist) {
+    // Remove highlight from the related category and artist
+    var categoryElements = document.querySelectorAll(".grid-category.highlight, .grid-artist.highlight");
+    categoryElements.forEach(function(element) {
+      element.classList.remove("highlight");
+    });
+  }
+  
+  // Add click event to each cell
+  cells.forEach(function(cell) {
+    cell.addEventListener("click", function() {
+      // Toggle a class or perform an action to indicate selection
+      this.classList.toggle("selected");
+    });
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  var hamburger = document.querySelector(".hamburger-menu");
+  var mobileNav = document.querySelector(".mobile-nav");
+
+  hamburger.addEventListener("click", function() {
+    // Toggles the "open" class on the hamburger menu
+    this.classList.toggle("open");
+  
+    // Toggles the "show" class on the mobile nav
+    mobileNav.classList.toggle("show");
+  });
+
+  var playButton = document.querySelector(".play-button");
+  var gridContainer = document.querySelector(".grid-container");
+  var heroContent = document.querySelector(".hero-content");
+  
+  // Play button event listener
+  playButton.addEventListener("click", function() {
+    gridContainer.classList.add("active");
+    gridContainer.style.removeProperty("display");
+    heroContent.innerHTML = "";
+    startGame();
+  });
+});
