@@ -288,7 +288,7 @@ function displaySpotifyResults(songs, inputElement, cellKey) {
 
 function selectSong(songInfo, inputElement, cellKey, popularity) {
   // Give user feedback
-  updateScoreTo("(updating score)");
+  updateScoreTo("loading");
   
   // Decrease guess total for making a guess
   let newGuessTotal = guessTotal - 1;
@@ -361,8 +361,11 @@ function updateScoreForGuess(guessScore, songInfo, inputElement) {
 }
 
 function updateScoreTo(totalScore) {
-  let scoreReadable = " "+totalScore;
-  document.getElementById("totalScore").textContent=scoreReadable;
+  if (totalScore == "loading") {
+     document.getElementById("totalScore").innerHTML="<img src=\"/img/loading.gif\" alt=\"calculating score\" style=\"height:4.5em;\">";
+  } else {
+    document.getElementById("totalScore").innerHTML="<b>"+totalScore+"</b>";
+  }
   // Check if game is now complete
   if (correctGuesses == 9) {
     terminateGame();
