@@ -22,7 +22,7 @@ function initializeSite() {
 
 function loadHeader() {
   console.log("Building header");
-  const titleContainer = document.getElementById("hero-content");
+  const titleContainer = document.querySelector(".hero-content");
   
   //Build Title
   const titleText = document.createElement("div");
