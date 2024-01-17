@@ -63,7 +63,7 @@ function loadHeader() {
 }
 
 function loadFooter() {
-  const gridContainer = document.getElementById("grid-container");
+  const underGameWrapper = document.querySelector(".under-game");
   
   //Build score counter
   const scoreWrapper = document.createElement("div");
@@ -101,10 +101,10 @@ function loadFooter() {
   shareButton.style.display = "none";
   
   //Assemble on page
-  gridContainer.appendChild(scoreWrapper);
-  gridContainer.appendChild(quitWrapper);
-  gridContainer.appendChild(leaderboardSuperWrapper);
-  gridContainer.appendChild(shareButton);
+  underGameWrapper.appendChild(scoreWrapper);
+  underGameWrapper.appendChild(quitWrapper);
+  underGameWrapper.appendChild(leaderboardSuperWrapper);
+  underGameWrapper.appendChild(shareButton);
 }
 
 // Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
