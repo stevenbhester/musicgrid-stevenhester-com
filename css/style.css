@@ -335,6 +335,16 @@ input[type="text"] {
         margin-left: 15%;
         margin-right: 15%
     }
+    
+    .under-game {
+        position: relative;
+        z-index: 2;
+        color: #333;
+        text-align: center;
+        padding-top: 40%;
+        margin-left: 15%;
+        margin-right: 15%
+    }
 }
 
 .nav-logo {
@@ -455,7 +465,7 @@ input[type="text"] {
     z-index: 1;
 }
 
-.hero-content {
+.hero-content, .under-game {
     position: relative;
     z-index: 2;
     color: #333;
