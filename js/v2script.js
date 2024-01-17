@@ -34,8 +34,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
   function highlightRelated(category, artist) {
     // Highlight the related category and artist
-    var categoryElement = document.querySelector(".grid-category[data-category="" + category + ""]");
-    var artistElement = document.querySelector(".grid-artist[data-artist="" + artist + ""]");
+    var categoryElement = document.querySelector(".grid-category[data-category="" + category + """]");
+    var artistElement = document.querySelector(".grid-artist[data-artist="" + artist + """]");
     if(categoryElement) categoryElement.classList.add("highlight");
     if(artistElement) artistElement.classList.add("highlight");
   }
