@@ -52,7 +52,7 @@ function loadHeader() {
   const guessesWrapper = document.createElement("div");
   guessesWrapper.classList.add("subheader", "guessCount");
   guessesWrapper.id = "guessWrapper";
-  guessesWrapper.innerHTML = "<i><u>Lives Remaining</u></i></span><br><span id=\"guessesRemaining\">";
+  guessesWrapper.innerHTML = "<i><u>Lives Remaining</u></i></span><br><span id=\"livesRemaining\"><span id=\"life3\">\u2764</span><span id=\"life2\">\u2764</span><span id=\"life1\">\u2764</span></span>;
 
   //Place elements on page
   titleContainer.appendChild(titleText);
@@ -347,8 +347,7 @@ function updateScoreForGuess(guessScore, songInfo, inputElement) {
     cell.style.backgroundColor = "#ffcdd2"; // Red for incorrect
     // TODO: GIVE BETTER FEEDBACK FOR COLORBLIND PEOPLE THAT THEY GOT IT WRONG (and for further wrong guesses)
     // List incorrect guesses at top of cell?
-
-    updateScoreTo(totalScore);
+    decrementLives();
   }
 
   // Clear the dropdown menu (this is kinda buggy)
@@ -357,23 +356,19 @@ function updateScoreForGuess(guessScore, songInfo, inputElement) {
   // Check if game has ended on this guess, decrease displayed guesses remaining if not
   if (guessTotal == 0 || correctGuesses == 9) {
     terminateGame();
-  } else {
-    decrementGuesses();
-  }
+  } 
 }
 
 function updateScoreTo(totalScore) {
-  let scoreReadable = " "+totalScore;
-  document.getElementById("totalScore").textContent=scoreReadable;
   // Check if game is now complete
   if (correctGuesses == 9) {
     terminateGame();
   }
 }
 
-function decrementGuesses() {
-  let guessesReadable = " "+guessTotal;
-  document.getElementById("guessesRemaining").textContent=guessesReadable;
+function decrementLives() {
+  let livesLost = guessTotal-correctGuesses;
+  document.getElementById("life"+livesLost).innerText = "\u274C";
 }
 
 function terminateGame() {
