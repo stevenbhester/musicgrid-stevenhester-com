@@ -95,11 +95,11 @@ header {
 .slider:before {
   position: absolute;
   content: "";
-  height: 13px;
-  width: 13px;
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
+  height: 10px;
+  width: 10px;
+  left: 2.5px;
+  bottom: 2.5px;
+  background-color: black;
   -webkit-transition: .4s;
   transition: .4s;
 }
@@ -109,9 +109,9 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-  -webkit-transform: translateX(47px);
-  -ms-transform: translateX(47px);
-  transform: translateX(47px);
+  -webkit-transform: translateX(46px);
+  -ms-transform: translateX(46px);
+  transform: translateX(46px);
 }
 
 .slider.round {
