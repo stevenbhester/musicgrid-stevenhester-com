@@ -341,7 +341,7 @@ input[type="text"] {
         z-index: 2;
         color: #333;
         text-align: center;
-        padding-top: 40%;
+        padding-top: 5%;
         margin-left: 15%;
         margin-right: 15%
     }
@@ -470,7 +470,7 @@ input[type="text"] {
     z-index: 2;
     color: #333;
     text-align: center;
-    padding-top: 33%;
+    padding-top: 5%;
     margin-left: 15%;
     margin-right: 15%
 }
