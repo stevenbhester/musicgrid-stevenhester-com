@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // Play button event listener
   playButton.addEventListener("click", function() {
     gridContainer.classList.add("active");
-    gridContainer.style.display() = "block";
+    gridContainer.style.display = "block";
   });
 
   // Get all grid cells
