@@ -52,7 +52,7 @@ function loadHeader() {
   const guessesWrapper = document.createElement("div");
   guessesWrapper.classList.add("subheader", "guessCount");
   guessesWrapper.id = "guessWrapper";
-  guessesWrapper.innerHTML = "<i><u>Lives Remaining</u></i></span><br><span id=\"livesRemaining\"><span id=\"life3\">\u2764</span><span id=\"life2\">\u2764</span><span id=\"life1\">\u2764</span></span>;
+  guessesWrapper.innerHTML = "<i><u>Lives Remaining</u></i></span><br><span id=\"livesRemaining\"><span id=\"life3\">\u2764</span><span id=\"life2\">\u2764</span><span id=\"life1\">\u2764</span></span>";
 
   //Place elements on page
   titleContainer.appendChild(titleText);
