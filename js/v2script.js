@@ -25,11 +25,11 @@ function loadHeader() {
   const titleContainer = document.querySelector(".hero-content");
 
   //Adjust css for hero-content
-  titleContainer["padding-top"]="7%";
+  titleContainer.style.paddingTop= "7%";
   
   //Build Title
   const titleText = document.createElement("div");
-  titleText.textContent = "<h1>Millenium Alt Rock</h1><br>"; //TODO: Dynamically load Title
+  titleText.innerHTML = "<h1>Millenium Alt Rock</h1><br>"; //TODO: Dynamically load Title
 
   //Build wrapper for headers
   const headWrapper = document.createElement("div");
@@ -43,7 +43,7 @@ function loadHeader() {
   const sliderRound = document.createElement("span");
   sliderRound.classList.add("slider","round");
   const cheatDescriptor = document.createElement("span");
-  cheatDescriptor.innerText = "<i>Toggle to Enable Easy Mode</i>";
+  cheatDescriptor.innerHTML = "<i>Toggle to Enable Easy Mode</i>";
 
   //Place elements on page
   titleContainer.appendChild(titleText);
