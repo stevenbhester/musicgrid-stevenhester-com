@@ -356,7 +356,7 @@ function updateScoreForGuess(guessScore, songInfo, inputElement) {
   removeDropdown(inputElement);
   
   // Check if game has ended on this guess, decrease displayed guesses remaining if not
-  if (livesLost == 4 || correctGuesses == 9) {
+  if (livesLost >= 4 || correctGuesses == 9) {
     terminateGame();
   } 
 }
@@ -376,12 +376,16 @@ function updateScoreTo(totalScore) {
 function decrementLives() {
   livesLost += 1;
   let lifeID = "life"+livesLost;
-  console.log("Recording loss of life #"+livesLost+" and updating element "+lifeID);
-  document.getElementById(lifeID).innerText = "\u274C";
-  if (livesLost == 3) {
-    const lifeWarning = document.createElement("div");
-    lifeWarning.innerHTML = "<b>\u26A0 NEXT MISS IS DEATH \u26A0</b>";
-    document.getElementById("guessWrapper").appendChild(lifeWarning);
+  if(livesLost >= 4) {
+    terminateGame();
+  } else {
+    console.log("Recording loss of life #"+livesLost+" and updating element "+lifeID);
+    document.getElementById(lifeID).innerText = "\u274C";
+    if (livesLost == 3) {
+      const lifeWarning = document.createElement("div");
+      lifeWarning.innerHTML = "<b>\u26A0 NEXT MISS IS DEATH \u26A0</b>";
+      document.getElementById("guessWrapper").appendChild(lifeWarning);
+    }
   }
 }
 
