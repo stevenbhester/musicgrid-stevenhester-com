@@ -374,7 +374,7 @@ function decrementLives() {
   document.getElementById(lifeID).innerText = "\u274C";
   if (livesLost == 3) {
     const lifeWarning = document.createElement("div");
-    lifeWarning.innerText = "\u1F6A8 NEXT MISS IS DEATH \u1F6A8"
+    lifeWarning.innerHTML = "<b>\u26A0 NEXT MISS IS DEATH \u26A0</b>"
     document.getElementById("guessWrapper").appendChild(lifeWarning);
   }
 }
