@@ -291,7 +291,7 @@ input[type="text"] {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 9px 20px;
     position: relative;
     z-index: 4200;
 }
@@ -331,7 +331,7 @@ input[type="text"] {
 
 .mobile-nav-links li a {
     display: block;
-    padding: 10px;
+    padding: 5px 10px;
     border-bottom: 1px solid #ccc;
     color: #333;
     text-decoration: none;
@@ -540,7 +540,7 @@ input[type="text"] {
     }
 
     .mobile-nav-links li a {
-        padding: 15px;
+        padding: 7px 15px;
     }
 
     .nav-links li {
@@ -548,14 +548,14 @@ input[type="text"] {
     }
     
     .header-logo {
-        height: 40px;
+        height: 30px;
     }
 
     .nav-logo {
         width: 50%;
         justify-content: space-between;
         font-size: 1.2em;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
     }
 
     .hero-content {
