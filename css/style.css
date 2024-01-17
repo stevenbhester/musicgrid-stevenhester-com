@@ -50,6 +50,12 @@ header {
     max-width: 800px;
     margin: 10px auto;
     padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transition: transform 0.5s ease, opacity 0.5s ease;
+    transform: scale(0.9);
+    opacity: 0;
+    z-index: 100;
 }
 
 .row {
@@ -483,24 +489,9 @@ input[type="text"] {
     padding: 1em 0;
 }
 
-.grid-container {
-    margin-top: 20px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    transition: transform 0.5s ease, opacity 0.5s ease;
-    transform: scale(0.9);
-    opacity: 0;
-    z-index: 100;
-}
-
 .grid-container.active {
     transform: scale(1);
     opacity: 1;
-    display: grid; /* Show the grid when active */
 }
 
 .grid-category {
