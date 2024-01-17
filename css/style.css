@@ -87,7 +87,7 @@ header {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: black;
   -webkit-transition: .4s;
   transition: .4s;
 }
@@ -99,7 +99,7 @@ header {
   width: 10px;
   left: 2.5px;
   bottom: 2.5px;
-  background-color: black;
+  background-color: white;
   -webkit-transition: .4s;
   transition: .4s;
 }
