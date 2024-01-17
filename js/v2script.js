@@ -3,6 +3,7 @@ let totalScore = 1;
 
 // Guesses don"t last forever....
 let guessTotal = 10;
+let livesLost = 0;
 
 // How good are ya really?
 let correctGuesses = 0;
@@ -367,8 +368,10 @@ function updateScoreTo(totalScore) {
 }
 
 function decrementLives() {
-  let livesLost = guessTotal-correctGuesses;
-  document.getElementById("life"+livesLost).innerText = "\u274C";
+  livesLost += 1;
+  let lifeID = "life"+livesLost;
+  console.log("Recording loss of life #"+livesLost+" and updating element "+lifeID);
+  document.getElementById(lifeID).innerText = "\u274C";
 }
 
 function terminateGame() {
