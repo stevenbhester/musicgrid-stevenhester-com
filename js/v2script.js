@@ -79,7 +79,7 @@ function loadFooter() {
   quitButton.type = "button";
   quitButton.id = "quitButton";
   quitButton.onclick = "terminateGame()";
-  quitButton.innerText = "Give Up?"
+  quitButton.innerText = "Give Up?";
   quitWrapper.appendChild(quitButton);
 
   //Build dummy leaderboard to be built later, this can def be optimized to do in one function later one
