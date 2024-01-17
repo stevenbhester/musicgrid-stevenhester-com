@@ -1,4 +1,4 @@
-// You get one point just for being here
+e// You get one point just for being here
 let totalScore = 1; 
 
 // Guesses don"t last forever....
@@ -65,9 +65,9 @@ function loadFooter() {
   
   //Build score counter
   const scoreWrapper = document.createElement("div");
-  scoreWrapper.classList.add("header-2", "score-wrapper");
+  scoreWrapper.classList.add("score-wrapper");
   const scoreInner = document.createElement("div");
-  scoreInner.classList.add("subheader", "score-inner");
+  scoreInner.classList.add("score-inner");
   scoreInner.innerHTML = "Total Score:<span id=\"totalScore\"> 1</span>";
   scoreWrapper.appendChild(scoreInner);
 
@@ -83,9 +83,9 @@ function loadFooter() {
 
   //Build dummy leaderboard to be built later, this can def be optimized to do in one function later one
   const leaderboardSuperWrapper = document.createElement("div");
-  leaderboardSuperWrapper.classList.add("header-2", "leaderboard-super-wrapper");
+  leaderboardSuperWrapper.classList.add("leaderboard-super-wrapper");
   const leaderboardWrapper = document.createElement("div");
-  leaderboardWrapper.classList.add("subheader", "leaderboard-wrapper");
+  leaderboardWrapper.classList.add("leaderboard-wrapper");
   const leaderBoard = document.createElement("div");
   leaderBoard.id = "leaderboard";
   leaderBoard.innerHTML = "<h2>Leaderboard</h2> <ul id=\"leaderboardList\"></ul>";
