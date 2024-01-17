@@ -426,6 +426,7 @@ input[type="text"] {
 
 .hero {
     background: url('/img/hero-background.png') no-repeat center center / cover;
+    background-attachment: fixed;
     position: relative;
     height: 100vh;
     max-width: 100%;
