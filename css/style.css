@@ -152,6 +152,7 @@ input:checked + .slider:before {
     margin-left: 15%;
     margin-right: 15%;
     padding-bottom: 2%;
+    padding-top: 2%;
     border-radius: 4px;
     background-color: #CBC3E3;
 }
