@@ -258,6 +258,7 @@ input[type="text"] {
         font-size: 14px; /* Adjust base font size */
         word-wrap: break-word; /* Ensures words wrap and don't overflow */
         padding: 1px 1px;
+        min-height: 8%;
     }
 
     .results-dropdown {
