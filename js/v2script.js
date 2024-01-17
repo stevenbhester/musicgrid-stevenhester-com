@@ -13,11 +13,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
   var playButton = document.querySelector(".play-button");
   var gridContainer = document.querySelector(".grid-container");
+  var heroContent = document.querySelector(".hero-content");
   
   // Play button event listener
   playButton.addEventListener("click", function() {
     gridContainer.classList.add("active");
-    gridContainer.style.display = "block";
+    gridContainer.style.removeProperty("display");
+    heroContent.remove();
   });
 
   // Get all grid cells
