@@ -3,7 +3,6 @@ body {
     background-color: #EFEFEF; /* Light Gray Background */
     display: flex;
     justify-content: flex-start;
-    align-items: center;
     height: 80vh;
     flex-direction: column;
 }
