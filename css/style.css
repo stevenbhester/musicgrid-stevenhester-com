@@ -172,6 +172,17 @@ input:checked + .slider:before {
     cursor: pointer;
     font-size: 16px;
 }
+
+#quitButton {
+    background-color: #6D071A;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
 .results-dropdown div {
     padding: 5px; /* add more padding for spacing between results */
     cursor: pointer;
