@@ -58,8 +58,6 @@ function loadHeader() {
   titleContainer.appendChild(titleText);
   titleContainer.appendChild(headWrapper);
   titleContainer.appendChild(guessesWrapper);
-  
-  loadLeaderboard();
 }
 
 function loadFooter() {
@@ -105,6 +103,9 @@ function loadFooter() {
   underGameWrapper.appendChild(quitWrapper);
   underGameWrapper.appendChild(leaderboardSuperWrapper);
   underGameWrapper.appendChild(shareButton);
+
+  
+  loadLeaderboard();
 }
 
 // Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
