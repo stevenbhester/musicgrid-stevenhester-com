@@ -348,6 +348,7 @@ function updateScoreForGuess(guessScore, songInfo, inputElement) {
     cell.style.backgroundColor = "#ffcdd2"; // Red for incorrect
     // TODO: GIVE BETTER FEEDBACK FOR COLORBLIND PEOPLE THAT THEY GOT IT WRONG (and for further wrong guesses)
     // List incorrect guesses at top of cell?
+    updateScoreTo(totalScore);
     decrementLives();
   }
 
@@ -362,7 +363,7 @@ function updateScoreForGuess(guessScore, songInfo, inputElement) {
 
 function updateScoreTo(totalScore) {
   if (totalScore == "loading") {
-    document.getElementById("totalScore").innerHTML="<img src=\"/img/loading.gif\" alt=\"calculating score\" style=\"height:4.5em;\">";
+    document.getElementById("totalScore").innerHTML="<img src=\"/img/loading.gif\" alt=\"calculating score\" style=\"height:3em;\">";
   } else {
     document.getElementById("totalScore").innerHTML="<b>"+totalScore+"</b>";
   }
