@@ -17,8 +17,8 @@ function initializeSite() {
   console.log("Initializing Site");
   console.log("Loading grid");
   loadHeader();
-  loadFooter();
   loadGrid();
+  loadFooter();
 }
 
 function loadHeader() {
@@ -62,7 +62,7 @@ function loadHeader() {
 }
 
 function loadFooter() {
-  const titleContainer = document.querySelector(".hero-content");
+  const gridContainer = document.getElementById("grid-container");
   
   //Build score counter
   const scoreWrapper = document.createElement("div");
