@@ -99,10 +99,10 @@ function loadFooter() {
   shareButton.innerText = "Share My Results";
 
   //Assemble on page
-  titleContainer.appendChild(scoreWrapper);
-  titleContainer.appendChild(quitWrapper);
-  titleContainer.appendChild(leaderboardSuperWrapper);
-  titleContainer.appendChild(shareButton);
+  gridContainer.appendChild(scoreWrapper);
+  gridContainer.appendChild(quitWrapper);
+  gridContainer.appendChild(leaderboardSuperWrapper);
+  gridContainer.appendChild(shareButton);
 }
 
 // Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
