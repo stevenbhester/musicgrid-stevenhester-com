@@ -477,7 +477,6 @@ input[type="text"] {
         font-size: 14px; /* Adjust base font size */
         word-wrap: break-word; /* Ensures words wrap and don't overflow */
         padding: 1px 1px;
-        min-height: 25vw;
     }
 
     .results-dropdown {
@@ -499,6 +498,7 @@ input[type="text"] {
         flex-direction: columnn;
         align-items: flex-start; /* Align items to the start of the cell */
         justify-content: center;
+        min-height: 25vw;
     }
 
     .cheat-btn {
