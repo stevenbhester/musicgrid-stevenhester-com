@@ -98,7 +98,8 @@ function loadFooter() {
   const shareButton = document.createElement("button");
   shareButton.id = "shareButton";
   shareButton.innerText = "Share My Results";
-
+  shareButton.style.display = "none";
+  
   //Assemble on page
   gridContainer.appendChild(scoreWrapper);
   gridContainer.appendChild(quitWrapper);
@@ -414,6 +415,8 @@ function endGame() {
   if (playerName) {
     leaderboardUpdate(playerName, totalScore);
   }
+  document.getElementById("shareButton").show();
+  
 }
 
 function displayEndGameMessage() {
