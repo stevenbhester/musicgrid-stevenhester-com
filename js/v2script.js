@@ -256,7 +256,7 @@ async function searchSpotify(searchTerm, artistName) {
 }
 
 function displaySpotifyResults(songs, inputElement, cellKey) {
-  removeDropdown(inputElement); // Remove existing dropdown if present
+  removeAllDropdowns(); // Remove existing dropdown if present
   console.log("Creating results container");
   const resultsContainer = document.createElement("div");
   resultsContainer.className = "results-dropdown";
@@ -503,6 +503,13 @@ function removeDropdown(inputElement) {
     }
   } else {
     console.error("Input element is not in the DOM or has no parent.");
+  }
+}
+
+function removeAllDropdowns() {
+  const dropdowns = document.querySelectorAll(".results-dropdown");
+  for (const dropdown in dropdowns) {
+    dropdown.remove();
   }
 }
 
