@@ -362,7 +362,7 @@ function updateScoreForGuess(guessScore, songInfo, inputElement) {
 
 function updateScoreTo(totalScore) {
   if (totalScore == "loading") {
-     document.getElementById("totalScore").innerHTML="<img src=\"/img/loading.gif\" alt=\"calculating score\" style=\"height:4.5em;\">";
+    document.getElementById("totalScore").innerHTML="<img src=\"/img/loading.gif\" alt=\"calculating score\" style=\"height:4.5em;\">";
   } else {
     document.getElementById("totalScore").innerHTML="<b>"+totalScore+"</b>";
   }
@@ -508,9 +508,11 @@ function removeDropdown(inputElement) {
 
 function removeAllDropdowns() {
   const dropdowns = document.querySelectorAll(".results-dropdown");
-  for (const dropdown in dropdowns) {
-    dropdown.remove();
-  }
+  dropdowns.forEach((dropdown) => {
+    if(dropdown) {
+      dropdown.remove();
+    }
+  });
 }
 
 function startGame() {
