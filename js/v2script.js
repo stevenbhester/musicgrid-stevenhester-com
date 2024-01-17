@@ -30,7 +30,7 @@ function loadHeader() {
   
   //Build Title
   const titleText = document.createElement("div");
-  titleText.innerHTML = "<h1>Millenium Alt Rock</h1><br>"; //TODO: Dynamically load Title
+  titleText.innerHTML = "<h1>Millenium Alt Rock</h1>"; //TODO: Dynamically load Title
 
   //Build cheat button
   const headWrapper = document.createElement("div");
