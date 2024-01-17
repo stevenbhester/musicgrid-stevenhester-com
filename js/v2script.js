@@ -27,6 +27,7 @@ function loadHeader() {
 
   //Adjust css for hero-content
   titleContainer.style.marginTop= "7%";
+  titleContainer.style.paddingTop= "7%";
   
   //Build Title
   const titleText = document.createElement("div");
