@@ -51,7 +51,7 @@ function loadHeader() {
   cheatButton.appendChild(checkBox);
   cheatButton.appendChild(sliderRound);
   headWrapper.appendChild(cheatButton);
-  headWrapper.appendChild(cheatDescriptor);
+  headWrapper.appendChild(cheatDescriptorPost);
 
   //Place elements on page
   titleContainer.appendChild(titleText);
