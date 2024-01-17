@@ -3,401 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>musicgrid.io game of royalty</title>
-    <link rel="icon" type="image/x-icon" href="/img/favicon.png">
-    <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-/*             background-image: url('/img/bgimg.png'); */
-            background-color: #669DB3;
-            color: #333;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-        }
-
-        .header {
-            background-color: #1B4F72;
-            color: #C5C6D0;
-            padding: 10px 20px;
-            padding-bottom: 20px;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .header-2 {
-            background-color: #FFFAD5;
-            color: #333;
-            padding: 10px 20px;
-            padding-bottom: 20px;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .title {
-            font-size: 2.5em;
-            margin: 0;
-        }
-
-        .subheader {
-            font-size: 1.2em;
-            margin-top: 10px;
-        }
-
-        .subheader {
-            font-size: 1.2em;
-            margin-top: 4px;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 95%;
-            max-width: 800px;
-            margin: 10px auto;
-            padding: 10px;
-        }
-
-        .row {
-            display: flex;
-            width: 100%;
-            position: relative;
-        }
-
-        .switch {
-          position: relative;
-          display: inline-block;
-          width: 60px;
-          height: 15px;
-          align-item: center;
-          justify-content: center;
-        }
-        
-        .switch input { 
-          opacity: 0;
-          width: 0;
-          height: 0;
-        }
-        
-        .slider {
-          position: absolute;
-          cursor: pointer;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: #ccc;
-          -webkit-transition: .4s;
-          transition: .4s;
-        }
-        
-        .slider:before {
-          position: absolute;
-          content: "";
-          height: 13px;
-          width: 13px;
-          left: 2px;
-          bottom: 2px;
-          background-color: white;
-          -webkit-transition: .4s;
-          transition: .4s;
-        }
-        
-        input:checked + .slider {
-          background-color: #2196F3;
-        }
-        
-        input:checked + .slider:before {
-          -webkit-transform: translateX(47px);
-          -ms-transform: translateX(47px);
-          transform: translateX(47px);
-        }
-        
-        .slider.round {
-          border-radius: 34px;
-        }
-        
-        .slider.round:before {
-          border-radius: 50%;
-        }
-        
-        .cell {
-            flex: 1;
-            padding: 15px 20px;
-            text-align: center;
-            font-size: 1.5em;
-            min-height: 50px;
-            background-color: #e3f2fd;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            word-break: break-word;
-        }
-
-        .genre-header, .artist {
-            background-color: #bbdefb;
-        }
-
-        .invisible {
-            visibility: hidden;
-        }
-
-        .results-dropdown div:hover {
-            background-color: #f0f0f0;
-        }
-        .results-dropdown {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            max-height: 200px;
-            overflow-y: auto;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            position: absolute;
-            width: calc(100% - 20px); /* adjust width as needed */
-            z-index: 1000;
-            top: 100%; /* make sure it starts right after the input field */
-            left: 0; /* align to the left edge of the input field */
-            margin-top: 1px; /* add a little space below the input field */
-        }
-
-        #shareButton {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .results-dropdown div {
-            padding: 5px; /* add more padding for spacing between results */
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0; /* add a subtle line between each result */
-        }
-
-        .results-dropdown div:last-child {
-            border-bottom: none; /* no border for the last item */
-        }
-
-        /* Style for the song title to be bold */
-        .song-title {
-            font-weight: bold;
-        }
-
-        .song-cell input[type="text"] {
-            display: block;
-            width: 100%;
-            /* Other styling as needed */
-        }
-        
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            box-sizing: border-box;
-        }
-
-        .cheat-btn {
-          margin-top: 10px; /* Adds some space above the button */
-          width: 100%;
-          padding: 10px;
-          margin: 5px 0;
-          box-sizing: border-box;
-        }
-
-        .cheat-btn::after { 
-          content: "\1F3B5"; /* Unicode value for a heart */
-          font-size: 1rem; /* set font size */
-          color: red; /* set color */
-        } 
-
-        .preview-audio {
-          margin-top: 10px; /* Adds some space above the button */
-          width: 100%;
-          padding: 10px;
-          margin: 5px 0;
-          box-sizing: border-box;
-        }
-        
-        .song-cell {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start; /* Align items to the start of the cell */
-            justify-content: center;
-        }
-        
-        @media (max-width: 600px) {
-            .cell, .genre-header, .artist {
-                font-size: 14px; /* Adjust base font size */
-                word-wrap: break-word; /* Ensures words wrap and don't overflow */
-                padding: 1px 1px;
-            }
-        
-            .results-dropdown {
-                width: 100%;
-                box-sizing: border-box;
-                top: 100%;
-            }
-        
-            .results-dropdown div {
-                padding: 5px;
-            }
-        
-            .song-cell {
-                position: relative;
-                font-size: 3.5vw; /* Adjust base font size */
-                word-wrap: break-word; /* Ensures words wrap and don't overflow */
-                padding: 1px 1px;
-                display: flex;
-                flex-direction: columnn;
-                align-items: flex-start; /* Align items to the start of the cell */
-                justify-content: center;
-            }
-
-            .cheat-btn {
-              margin-top: 5px; /* Adds some space above the button */ 
-              width: 100%;
-              padding: 5px;
-              margin: 5px 0;
-              box-sizing: border-box;
-            }
-
-            .preview-audio {
-              margin-top: 1px; /* Adds some space above the button */ 
-              width: 100%;
-              padding: 5px;
-              margin: 3px 0;
-              box-sizing: border-box;
-            }
-            
-            .cheat-btn::after { 
-              content: "\1F3B5"; /* Unicode value for a heart */
-              font-size: 1rem; /* set font size */
-              color: red; /* set color */
-            } 
-        }
-    </style>
+    <title>MusicGrid, Game of Royalty</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" 
+          type="image/png" 
+          href="/img/favicon.png">
 </head>
 <body>
-    <div class="header">
-        <div class="title">musicgrid.io</div>
-        <div class="subheader">Guess the song that matches each artist and category</div>
-        <div class="subheader">now andrew can roast <i>everyone's</i> music taste</div>
-    </div>
-    <br>
-    <div class="header">
-        <!-- Other header content -->
-        <label class="switch">
-            <input type="checkbox" id="easyModeToggle">
-            <span class="slider round"></span>
-        </label>
-        <span><i>Toggle to Enable Easy Mode</i></span>
-        <br>
-        <div class="subheader">Toggling Easy Mode relaxes Spotify search restrictions & adds a cheat button to play snippets of a popular song from that category+artist</div>
-        <br>
-        <div class="subheader"><i>get more points when you guess less popular song answers</i></div>
+    <header>
+        <nav class="navbar">
+            <div class="nav-logo">
+                <img src="/img/musicgrid-logo.png" alt="MusicGrid Logo" class="header-logo">
+                MusicGrid
+            </div>
+            <div class="hamburger-menu">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#play">Play</a></li>
+                <li><a href="#leaderboard">Leaderboard</a></li>
+                <li><a href="#settings">Settings</a></li>
+            </ul>
+        </nav>
+        <div class="mobile-nav">
+            <ul class="mobile-nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#play">Play</a></li>
+                <li><a href="#leaderboard">Leaderboard</a></li>
+                <li><a href="#settings">Settings</a></li>
+            </ul>
         </div>
-        <br>
-        <div class="header-2">
-            <div class="subheader" id="guessWrapper"><i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>
-        </div>
-        <br>
-    </div>
-    
-
-    <div class="grid-container" id="grid-container">
-        <!-- Artists Row -->
-        <div class="row">
-            <div class="cell invisible"></div>
-            <div class="cell artist">Adele</div>
-            <div class="cell artist">Bruno Mars</div>
-            <div class="cell artist">Ed Sheeran</div>
-        </div>
-    
-        <!-- Category 1: Songs Released in the 2010s -->
-        <div class="row">
-            <div class="cell genre-header">Songs Released in the 2010s</div>
-            <div class="cell song-cell">
-                <button class="cheat-btn" id = 'C1 A1' style="display: none;"></button>
-                <input type="text" oninput="liveSearch(this, 'C1 A1')" placeholder="Type to search...">
+    </header>
+    <main>
+        <section class="hero">
+            <div class="overlay"></div>
+            <div class="hero-content">
+                <h1>Welcome to MusicGrid</h1>
+                <p>The ultimate music trivia game</p>
+                <button class="play-button">Play Now</button>
             </div>
-            <div class="cell song-cell">
-                <button class="cheat-btn" id = 'C1 A2' style="display: none;"></button>
-                <input type="text" oninput="liveSearch(this, 'C1 A2')" placeholder="Type to search...">
+            
+            <div class="grid-container" id="grid-container" style="display:none">
+                <!-- Artists Row -->
+                <div class="row">
+                    <div class="cell invisible"></div>
+                    <div class="cell artist">Adele</div>
+                    <div class="cell artist">Bruno Mars</div>
+                    <div class="cell artist">Ed Sheeran</div>
+                </div>
+            
+                <!-- Category 1: Songs Released in the 2010s -->
+                <div class="row">
+                    <div class="cell genre-header">Songs Released in the 2010s</div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C1 A1' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C1 A1')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C1 A2' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C1 A2')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C1 A3' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C1 A3')" placeholder="Type to search...">
+                    </div>
+                </div>
+            
+                <!-- Category 1: Charted Above Top 5 in the Billboard 100 -->
+                <div class="row">
+                    <div class="cell genre-header">Charted Above Top 5 in Billboard 100</div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C2 A1' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C2 A1')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C2 A2' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C2 A2')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C2 A3' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C2 A3')" placeholder="Type to search...">
+                    </div>
+                </div>
+            
+                <!-- Category 1: Songs That Won Song of the Year at the Grammy Awards -->
+                <div class="row">
+                    <div class="cell genre-header">Songs That Won Song of the Year at the Grammy Awards</div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C3 A1' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C3 A1')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C3 A2' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C3 A2')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C3 A3 style="display: none;"'></button>
+                        <input type="text" oninput="liveSearch(this, 'C3 A3')" placeholder="Type to search...">
+                    </div>
+                </div>
             </div>
-            <div class="cell song-cell">
-                <button class="cheat-btn" id = 'C1 A3' style="display: none;"></button>
-                <input type="text" oninput="liveSearch(this, 'C1 A3')" placeholder="Type to search...">
-            </div>
-        </div>
-    
-        <!-- Category 1: Charted Above Top 5 in the Billboard 100 -->
-        <div class="row">
-            <div class="cell genre-header">Charted Above Top 5 in Billboard 100</div>
-            <div class="cell song-cell">
-                <button class="cheat-btn" id = 'C2 A1' style="display: none;"></button>
-                <input type="text" oninput="liveSearch(this, 'C2 A1')" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <button class="cheat-btn" id = 'C2 A2' style="display: none;"></button>
-                <input type="text" oninput="liveSearch(this, 'C2 A2')" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <button class="cheat-btn" id = 'C2 A3' style="display: none;"></button>
-                <input type="text" oninput="liveSearch(this, 'C2 A3')" placeholder="Type to search...">
-            </div>
-        </div>
-    
-        <!-- Category 1: Songs That Won Song of the Year at the Grammy Awards -->
-        <div class="row">
-            <div class="cell genre-header">Songs That Won Song of the Year at the Grammy Awards</div>
-            <div class="cell song-cell">
-                <button class="cheat-btn" id = 'C3 A1' style="display: none;"></button>
-                <input type="text" oninput="liveSearch(this, 'C3 A1')" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <button class="cheat-btn" id = 'C3 A2' style="display: none;"></button>
-                <input type="text" oninput="liveSearch(this, 'C3 A2')" placeholder="Type to search...">
-            </div>
-            <div class="cell song-cell">
-                <button class="cheat-btn" id = 'C3 A3' style="display: none;"'></button>
-                <input type="text" oninput="liveSearch(this, 'C3 A3')" placeholder="Type to search...">
-            </div>
-        </div>
-    </div>
-
-    <br>
-    <!-- Placeholder for the final score -->
-    <div class="header-2">
-        <div class="subheader">
-            Total Score:<span id="totalScore"> 1</span>
-        </div>
-    </div>
-    <br>
-    <!-- Quitter zone -->
-    <div>
-        <button type="button" id="quitButton" onclick = "terminateGame()">Give Up?</button>
-    </div>
-    <br>
-    <div class="header-2">
-        <div class="subheader">
-            <div id="leaderboard">
-                <h2>Leaderboard</h2>
-                <ul id="leaderboardList">
-                    <!-- Leaderboard entries will be added here -->
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <button id="shareButton">Share My Results</button>
-        
-    </div>
+            <br>
+            <div class = "under-game"></div>
+            <br>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2024 MusicGrid</p>
+    </footer>
+    <script src="/js/v2script.js"></script>
 </body>
-<script src="/js/musicGrid.js"></script>
 </html>
