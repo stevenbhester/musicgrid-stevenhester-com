@@ -44,7 +44,7 @@ function loadHeader() {
   const sliderRound = document.createElement("span");
   sliderRound.classList.add("slider","round");
   const cheatDescriptorPre = document.createElement("span");
-  cheatDescriptorPre.innerHTML = "<i>Hard Mode</i><br>";
+  cheatDescriptorPre.innerHTML = "<br><i>Hard Mode</i>";
   const cheatDescriptorPost = document.createElement("span");
   cheatDescriptorPost.innerHTML = "<i>Easy Mode</i><br>";
   cheatButton.appendChild(cheatDescriptorPre);
