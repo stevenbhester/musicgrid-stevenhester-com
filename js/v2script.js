@@ -48,9 +48,9 @@ function loadHeader() {
 
   //Build descriptors for Cheat Button
   const cheatDescriptorPre = document.createElement("span");
-  cheatDescriptorPre.innerHTML = "<br><i>Hard Mode</i>";
+  cheatDescriptorPre.innerHTML = "<br><i>Hard Mode </i>";
   const cheatDescriptorPost = document.createElement("span");
-  cheatDescriptorPost.innerHTML = "<i>Easy Mode</i><br>";
+  cheatDescriptorPost.innerHTML = "<i> Easy Mode</i><br>";
   headWrapper.appendChild(cheatDescriptorPre);
   headWrapper.appendChild(cheatButton);
   headWrapper.appendChild(cheatDescriptorPost);
