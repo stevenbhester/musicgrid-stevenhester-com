@@ -78,7 +78,7 @@ function loadFooter() {
   const quitButton = document.createElement("button");
   quitButton.type = "button";
   quitButton.id = "quitButton";
-  quitButton.onclick = "terminateGame()";
+  quitButton.onclick = function() { terminateGame(); };
   quitButton.innerText = "Give Up?";
   quitWrapper.appendChild(quitButton);
 
