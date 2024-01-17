@@ -35,7 +35,7 @@ function loadHeader() {
 
   //Build cheat button
   const headWrapper = document.createElement("div");
-  headWrapper.classList.add("subheader","cheatZone);
+  headWrapper.classList.add("subheader","cheatZone");
   const cheatButton = document.createElement("label");
   cheatButton.classList.add("switch");
   const checkBox = document.createElement("input");
