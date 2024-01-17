@@ -42,7 +42,7 @@ function loadHeader() {
   const sliderRound = document.createElement("span");
   sliderRound.classList.add("slider","round");
   const cheatDescriptor = document.createElement("span");
-  cheatDescriptor.innerHTML = "<i>Toggle to Enable Easy Mode</i>";
+  cheatDescriptor.innerHTML = "<br><i>Toggle to Enable Easy Mode</i><br>";
   cheatButton.appendChild(checkBox);
   cheatButton.appendChild(sliderRound);
   headWrapper.appendChild(cheatButton);
