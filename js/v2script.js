@@ -31,7 +31,7 @@ function loadHeader() {
   
   //Build Title
   const titleText = document.createElement("div");
-  titleText.innerHTML = "<h1>Millenium Alt Rock</h1>"; //TODO: Dynamically load Title
+  titleText.innerHTML = "<span style=\"font-size:2.3em;\">Millenium Alt Rock</span>"; //TODO: Dynamically load Title
 
   //Build cheat button
   const headWrapper = document.createElement("div");
@@ -50,21 +50,20 @@ function loadHeader() {
   headWrapper.appendChild(cheatButton);
   headWrapper.appendChild(cheatDescriptor);
 
+  //Place elements on page
+  titleContainer.appendChild(titleText);
+  titleContainer.appendChild(headWrapper);
+}
+
+function loadFooter() {
+  const underGameWrapper = document.querySelector(".under-game");
+  
   //Build guesses
   const guessesWrapper = document.createElement("div");
   guessesWrapper.classList.add("subheader", "guessCount");
   guessesWrapper.id = "guessWrapper";
   guessesWrapper.innerHTML = "<i><u>Lives Remaining</u></i></span><br><span id=\"livesRemaining\"><span id=\"life1\">\u2764</span><span id=\"life2\">\u2764</span><span id=\"life3\">\u2764</span></span>";
 
-  //Place elements on page
-  titleContainer.appendChild(titleText);
-  titleContainer.appendChild(headWrapper);
-  titleContainer.appendChild(guessesWrapper);
-}
-
-function loadFooter() {
-  const underGameWrapper = document.querySelector(".under-game");
-  
   //Build score counter
   const scoreWrapper = document.createElement("div");
   scoreWrapper.classList.add("score-wrapper");
@@ -101,6 +100,7 @@ function loadFooter() {
   shareButton.style.display = "none";
   
   //Assemble on page
+  underGameWrapper.appendChild(guessesWrapper);
   underGameWrapper.appendChild(scoreWrapper);
   underGameWrapper.appendChild(quitWrapper);
   underGameWrapper.appendChild(leaderboardSuperWrapper);
