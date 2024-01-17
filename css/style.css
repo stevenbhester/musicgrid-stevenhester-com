@@ -151,7 +151,8 @@ input:checked + .slider:before {
     text-align: center;
     margin-left: 15%;
     margin-right: 15%;
-    margin-bottom: 8%;
+    padding-bottom: 8%;
+    background-color: #ddd;
 }
 
 .results-dropdown div:hover {
