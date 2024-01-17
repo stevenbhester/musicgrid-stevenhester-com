@@ -17,6 +17,7 @@ function initializeSite() {
   console.log("Initializing Site");
   console.log("Loading grid");
   loadHeader();
+  loadFooter();
   loadGrid();
 }
 
@@ -31,10 +32,9 @@ function loadHeader() {
   const titleText = document.createElement("div");
   titleText.innerHTML = "<h1>Millenium Alt Rock</h1><br>"; //TODO: Dynamically load Title
 
-  //Build wrapper for headers
-  const headWrapper = document.createElement("div");
-  
   //Build cheat button
+  const headWrapper = document.createElement("div");
+  headWrapper.classList.add("subheader");
   const cheatButton = document.createElement("label");
   cheatButton.classList.add("switch");
   const checkBox = document.createElement("input");
@@ -44,14 +44,65 @@ function loadHeader() {
   sliderRound.classList.add("slider","round");
   const cheatDescriptor = document.createElement("span");
   cheatDescriptor.innerHTML = "<i>Toggle to Enable Easy Mode</i>";
-
-  //Place elements on page
-  titleContainer.appendChild(titleText);
   cheatButton.appendChild(checkBox);
   cheatButton.appendChild(sliderRound);
   headWrapper.appendChild(cheatButton);
   headWrapper.appendChild(cheatDescriptor);
+
+  //Build guesses
+  const guessesWrapper = document.createElement("div");
+  guessesWrapper.classList.add("subheader", "guessCount);
+  guessesWrapper.id = "guessWrapper";
+  guessesWrapper.innerHTML = "<i>Guesses remaining:<span id="guessesRemaining"> 10</span> out of 10</i></div>";
+
+  //Place elements on page
+  titleContainer.appendChild(titleText);
   titleContainer.appendChild(headWrapper);
+  titleContainer.appendChild(guessesWrapper);
+}
+
+function loadFooter() {
+  const titleContainer = document.querySelector(".hero-content");
+  
+  //Build score counter
+  const scoreWrapper = document.createElement("div");
+  scoreWrapper.classList.add("header-2", "score-wrapper");
+  const scoreInner = document.createElement("div");
+  scoreInner.classList.add("subheader", "score-inner");
+  scoreInner.innerHTML = "Total Score:<span id=\"totalScore\"> 1</span>";
+  scoreWrapper.appendChild(scoreInner);
+
+  //Build quit button
+  const quitWrapper = document.createElement("div");
+  quitWrapper.classList.add("quit-wrapper");
+  const quitButton = document.createElement("button");
+  quitButton.type = "button";
+  quitButton.id = "quitButton";
+  quitButton.onclick = "terminateGame()";
+  quitButton.innerText = "Give Up?"
+  quitWrapper.appendChild(quitButton);
+
+  //Build dummy leaderboard to be built later, this can def be optimized to do in one function later one
+  const leaderboardSuperWrapper = document.createElement("div");
+  leaderboardSuperWrapper.classList.add("header-2", "leaderboard-super-wrapper");
+  const leaderboardWrapper = document.createElement("div");
+  leaderboardWrapper.classList.add("subheader", "leaderboard-wrapper");
+  const leaderBoard = document.createElement("div");
+  leaderBoard.id = "leaderboard";
+  leaderBoard.innerHTML = "<h2>Leaderboard</h2> <ul id=\"leaderboardList\"></ul>";
+  leaderboardWrapper.appendChild(leaderBoard);
+  leaderboardSuperWrapper.appendChild(leaderboardWrapper);
+  
+  //Build share button for later insertion
+  const shareButton = document.createElement("button");
+  shareButton.id = "shareButton";
+  shareButton.innerText = "Share My Results";
+
+  //Assemble on page
+  titleContainer.appendChild(scoreWrapper);
+  titleContainer.appendChild(quitWrapper);
+  titleContainer.appendChild(leaderboardSuperWrapper);
+  titleContainer.appendChild(shareButton);
 }
 
 // Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
