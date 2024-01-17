@@ -69,7 +69,7 @@ function loadFooter() {
   scoreWrapper.classList.add("score-wrapper");
   const scoreInner = document.createElement("div");
   scoreInner.classList.add("score-inner");
-  scoreInner.innerHTML = "<span id=\"totalScore\"> 1</span><br><sup>Total Score</sup><br>";
+  scoreInner.innerHTML = "<span id=\"totalScore\" style=\"font-size:18.0pt\"><b>1</b></span><br><sup>Total Score</sup><br>";
   scoreWrapper.appendChild(scoreInner);
 
   //Build quit button
