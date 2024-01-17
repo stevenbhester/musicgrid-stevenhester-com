@@ -1,4 +1,4 @@
-e// You get one point just for being here
+// You get one point just for being here
 let totalScore = 1; 
 
 // Guesses don"t last forever....
