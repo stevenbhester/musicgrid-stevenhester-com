@@ -56,7 +56,6 @@ header {
     transform: scale(0.9);
     opacity: 0;
     position: relative;
-    z-index: 100;
 }
 
 .row {
@@ -196,7 +195,6 @@ input:checked + .slider:before {
 /* Style for the song title to be bold */
 .song-title {
     font-weight: bold;
-    z-index: 301;
 }
 
 .song-cell input[type="text"] {
