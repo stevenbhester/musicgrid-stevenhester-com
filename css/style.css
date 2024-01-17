@@ -157,7 +157,7 @@ input:checked + .slider:before {
     border-radius: 5px;
     position: absolute;
     width: calc(100% - 20px); /* adjust width as needed */
-    z-index: 1000;
+    z-index: 1002;
     top: 100%; /* make sure it starts right after the input field */
     left: 0; /* align to the left edge of the input field */
     margin-top: 1px; /* add a little space below the input field */
