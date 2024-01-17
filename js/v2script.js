@@ -23,12 +23,17 @@ function initializeSite() {
 function loadHeader() {
   console.log("Building header");
   const titleContainer = document.querySelector(".hero-content");
+
+  //Adjust css for hero-content
+  titleContainer["padding-top"]="7%";
   
   //Build Title
   const titleText = document.createElement("div");
-  titleText.classList.add("h1");
-  titleText.textContent = "Millenium Alt Rock"; //TODO: Dynamically load Title
+  titleText.textContent = "<h1>Millenium Alt Rock</h1><br>"; //TODO: Dynamically load Title
 
+  //Build wrapper for headers
+  const headWrapper = document.createElement("div");
+  
   //Build cheat button
   const cheatButton = document.createElement("label");
   cheatButton.classList.add("switch");
@@ -44,8 +49,9 @@ function loadHeader() {
   titleContainer.appendChild(titleText);
   cheatButton.appendChild(checkBox);
   cheatButton.appendChild(sliderRound);
-  titleContainer.appendChild(cheatButton);
-  titleContainer.appendChild(cheatDescriptor);
+  headWrapper.appendChild(cheatButton);
+  headWrapper.appendChild(cheatDescriptor);
+  titleContainer.appendChild(headWrapper);
 }
 
 // Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
