@@ -1,12 +1,13 @@
-body, html {
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #EFEFEF; /* Light Gray Background */
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 80vh;
+    flex-direction: column;
 }
 
-
-/* Header Styles */
 header {
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -14,6 +15,306 @@ header {
     width: 100%;
     top: 0;
     z-index: 100;
+}
+
+.header-2 {
+    background-color: #eee;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+}
+
+.title {
+    font-size: 2.5em;
+    margin: 0;
+}
+
+.subheader {
+    font-size: 1.2em;
+    margin-top: 10px;
+}
+
+.subheader {
+    font-size: 1.2em;
+    margin-top: 4px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 95%;
+    max-width: 800px;
+    margin: 10px auto;
+    padding: 10px;
+}
+
+.row {
+    display: flex;
+    width: 100%;
+    position: relative;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 15px;
+  align-item: center;
+  justify-content: center;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(47px);
+  -ms-transform: translateX(47px);
+  transform: translateX(47px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.cell {
+    flex: 1;
+    padding: 15px 20px;
+    text-align: center;
+    font-size: 1.5em;
+    min-height: 50px;
+    background-color: #e3f2fd;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-break: break-word;
+}
+
+.genre-header, .artist {
+    background-color: #bbdefb;
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+.results-dropdown div:hover {
+    background-color: #f0f0f0;
+}
+.results-dropdown {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    position: absolute;
+    width: calc(100% - 20px); /* adjust width as needed */
+    z-index: 1000;
+    top: 100%; /* make sure it starts right after the input field */
+    left: 0; /* align to the left edge of the input field */
+    margin-top: 1px; /* add a little space below the input field */
+}
+
+#shareButton {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.results-dropdown div {
+    padding: 5px; /* add more padding for spacing between results */
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0; /* add a subtle line between each result */
+}
+
+.results-dropdown div:last-child {
+    border-bottom: none; /* no border for the last item */
+}
+
+/* Style for the song title to be bold */
+.song-title {
+    font-weight: bold;
+}
+
+.song-cell input[type="text"] {
+    display: block;
+    width: 100%;
+    /* Other styling as needed */
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    box-sizing: border-box;
+}
+
+.cheat-btn {
+  margin-top: 10px; /* Adds some space above the button */
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  box-sizing: border-box;
+}
+
+.cheat-btn::after { 
+  content: "\1F3B5"; /* Unicode value for a heart */
+  font-size: 1rem; /* set font size */
+  color: red; /* set color */
+} 
+
+.preview-audio {
+  margin-top: 10px; /* Adds some space above the button */
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  box-sizing: border-box;
+}
+
+.song-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items to the start of the cell */
+    justify-content: center;
+}
+
+@media (max-width: 600px) {
+    .cell, .genre-header, .artist {
+        font-size: 14px; /* Adjust base font size */
+        word-wrap: break-word; /* Ensures words wrap and don't overflow */
+        padding: 1px 1px;
+    }
+
+    .results-dropdown {
+        width: 100%;
+        box-sizing: border-box;
+        top: 100%;
+    }
+
+    .results-dropdown div {
+        padding: 5px;
+    }
+
+    .song-cell {
+        position: relative;
+        font-size: 3.5vw; /* Adjust base font size */
+        word-wrap: break-word; /* Ensures words wrap and don't overflow */
+        padding: 1px 1px;
+        display: flex;
+        flex-direction: columnn;
+        align-items: flex-start; /* Align items to the start of the cell */
+        justify-content: center;
+    }
+
+    .cheat-btn {
+      margin-top: 5px; /* Adds some space above the button */ 
+      width: 100%;
+      padding: 5px;
+      margin: 5px 0;
+      box-sizing: border-box;
+    }
+
+    .preview-audio {
+      margin-top: 1px; /* Adds some space above the button */ 
+      width: 100%;
+      padding: 5px;
+      margin: 3px 0;
+      box-sizing: border-box;
+    }
+    
+    .cheat-btn::after { 
+      content: "\1F3B5"; /* Unicode value for a heart */
+      font-size: 1rem; /* set font size */
+      color: red; /* set color */
+    } 
+
+     .grid-container {
+        grid-template-columns: 1fr;
+    }
+
+    .grid-header {
+        display: none; /* Hide categories on small screens */
+    }
+
+    .navbar .nav-links {
+        display: none; /* Hide the desktop links */
+    }
+
+    .hamburger-menu {
+        display: block; /* Show the hamburger menu */
+    }
+
+    .mobile-nav-links li a {
+        padding: 15px;
+    }
+
+    .nav-links li {
+        width: 50%;
+    }
+    
+    .header-logo {
+        height: 40px;
+    }
+
+    .nav-logo {
+        width: 50%;
+        justify-content: space-between;
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        color: #333;
+        text-align: center;
+        padding-top: 40%;
+        margin-left: 15%;
+        margin-right: 15%
+    }
 }
 
 .nav-logo {
@@ -234,53 +535,5 @@ header {
     background-color: #9EC9F5; /* Light blue to indicate selection */
     color: #333;
     border-color: #4A90E2; /* Darker blue border for selected cell */
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .grid-container {
-        grid-template-columns: 1fr;
-    }
-
-    .grid-header {
-        display: none; /* Hide categories on small screens */
-    }
-
-    .navbar .nav-links {
-        display: none; /* Hide the desktop links */
-    }
-
-    .hamburger-menu {
-        display: block; /* Show the hamburger menu */
-    }
-
-    .mobile-nav-links li a {
-        padding: 15px;
-    }
-
-    .nav-links li {
-        width: 50%;
-    }
-    
-    .header-logo {
-        height: 40px;
-    }
-
-    .nav-logo {
-        width: 50%;
-        justify-content: space-between;
-        font-size: 1.2em;
-        margin-bottom: 10px;
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 2;
-        color: #333;
-        text-align: center;
-        padding-top: 40%;
-        margin-left: 15%;
-        margin-right: 15%
-    }
 }
 
