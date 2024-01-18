@@ -112,6 +112,20 @@ function loadFooter() {
   underGameWrapper.appendChild(shareButton);
 
   
+  document.getElementById("shareButton").addEventListener("click", () => {
+    if (navigator.share) {
+      navigator.share({
+        title: "My MusicGrid Results",
+        text: `I scored ${totalScore} on MusicGrid, you could never. Try at: musicgrid.erincullison.com`,
+        url: document.location.href
+      })
+        .then(() => console.log("Successful share"))
+        .catch((error) => console.error("Error sharing:", error));
+    } else {
+      console.error("Web Share API is not supported in your browser.");
+    }
+  });
+  
   loadLeaderboard();
 }
 
@@ -160,7 +174,7 @@ function buildGrid(data) {
   const artistRow = document.createElement("div");
   artistRow.classList.add("row");
   artistRow.appendChild(createCell("invisible")); // Invisible cell for alignment
-  Object.keys(artists).forEach(key => artistRow.appendChild(createCell("artist", artists[key])));
+  Object.keys(artists).forEach(key => artistRow.appendChild(createCell("artist", artists[key], "artist-")));
   gridContainer.appendChild(artistRow);
 
   // Create rows for each category
@@ -169,32 +183,49 @@ function buildGrid(data) {
     categoryRow.classList.add("row");
 
     // Category cell
-    categoryRow.appendChild(createCell("genre-header", categories[categoryKey]));
+    categoryRow.appendChild(createCell("genre-header", categories[categoryKey], "cat-"));
 
     // Song cells
     Object.keys(artists).forEach(artistKey => {
       const cellKey = `${categoryKey} ${artistKey}`;
-      categoryRow.appendChild(createSongCell(cellKey, artists[artistKey]));
+      categoryRow.appendChild(createSongCell(cellKey, artists[artistKey], categories[categoryKey]));
     });
 
     gridContainer.appendChild(categoryRow);
   });
-
+  
+  // Add event listeners to new song cells
+  var cells = document.querySelectorAll(".cell.song-cell");
+  cells.forEach(function(cell) {
+    // Mouse enter event to highlight category and artist
+    cell.addEventListener("mouseenter", function() {
+      highlightRelated(this.className);
+    });
+    // Mouse leave event to remove highlight
+    cell.addEventListener("mouseleave", function() {
+      removeHighlight(this.className);
+    });
+  });
   // Now build the footer
   loadFooter();
 }
 
-function createCell(className, text = "") {
+function createCell(className = "dummy1", text = "", classPrefix = "dummy2") {
   const cell = document.createElement("div");
-  cell.classList.add("cell", className);
+  const className2 = classPrefix + text.replaceAll(" ","-");
+  cell.classList.add("cell", className, className2);
   cell.textContent = text;
   return cell;
 }
 
-function createSongCell(cellKey, artistName) {
+function createSongCell(cellKey, artistName, catName) {
   const cell = document.createElement("div");
   const btnClass = "cheat-btn";
-  cell.classList.add("cell", "song-cell");
+  const catNameClass = "cat-"+catName.replaceAll(" ","-");
+  console.log("Appended class "+catNameClass+" from catName "+catName);
+  const artistNameClass = "artist-"+artistName.replaceAll(" ","-");
+  console.log("Appended class "+artistNameClass+" from artistName "+artistName);
+  cell.classList.add("cell", "song-cell", catNameClass, artistNameClass);
 
   const button = document.createElement("button");
   button.setAttribute("class", btnClass);
@@ -554,59 +585,6 @@ function startGame() {
       fetchCheatPreviewUrl(gridId, fieldKey, cell);
     }
   });
-  
-  document.getElementById("shareButton").addEventListener("click", () => {
-    if (navigator.share) {
-      navigator.share({
-        title: "My MusicGrid Results",
-        text: `I scored ${totalScore} on MusicGrid, you could never. Try at: musicgrid.erincullison.com`,
-        url: document.location.href
-      })
-        .then(() => console.log("Successful share"))
-        .catch((error) => console.error("Error sharing:", error));
-    } else {
-      console.error("Web Share API is not supported in your browser.");
-    }
-  });
-
-  // Get all grid cells
-  var cells = document.querySelectorAll(".grid-cell");
-  cells.forEach(function(cell) {
-    // Mouse enter event to highlight category and artist
-    cell.addEventListener("mouseenter", function() {
-      highlightRelated(this.dataset.category, this.dataset.artist);
-    });
-    // Mouse leave event to remove highlight
-    cell.addEventListener("mouseleave", function() {
-      removeHighlight(this.dataset.category, this.dataset.artist);
-    });
-  });
-
-  function highlightRelated(category, artist) {
-    // Highlight the related category and artist
-    var categoryElement = document.querySelector(`.grid-category[data-category="${category}"]`);
-    var artistElement = document.querySelector(`.grid-artist[data-artist="${artist}"]`);
-    console.log(categoryElement);
-    console.log(artistElement);
-    if(categoryElement) categoryElement.classList.add("highlight");
-    if(artistElement) artistElement.classList.add("highlight");
-  }
-
-  function removeHighlight(category, artist) {
-    // Remove highlight from the related category and artist
-    var categoryElements = document.querySelectorAll(".grid-category.highlight, .grid-artist.highlight");
-    categoryElements.forEach(function(element) {
-      element.classList.remove("highlight");
-    });
-  }
-  
-  // Add click event to each cell
-  cells.forEach(function(cell) {
-    cell.addEventListener("click", function() {
-      // Toggle a class or perform an action to indicate selection
-      this.classList.toggle("selected");
-    });
-  });
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -633,3 +611,41 @@ document.addEventListener("DOMContentLoaded", function() {
     startGame();
   });
 });
+
+function highlightRelated(className) {
+  // Parse artist and category class
+  const classNames = className.split(" ");
+  console.log("Highlighting cells relevant to: "+className);
+  if(classNames.length == 4) {
+    var artistName = classNames[3];
+    var catName = classNames[2];
+    var artistCellClass = `.cell.artist.${artistName}`;
+    var genreCellClass = `.cell.genre-header.${catName}`;
+    console.log("Highlighting relevancy for artist: '"+artistCellClass+"' and category '"+genreCellClass+"'");
+    var categoryElement = document.querySelector(genreCellClass);
+    var artistElement = document.querySelector(artistCellClass);
+    console.log(categoryElement.innerText);
+    console.log(artistElement.innerText);
+    if(categoryElement) categoryElement.classList.add("highlight");
+    if(artistElement) artistElement.classList.add("highlight");
+  }
+}
+
+function removeHighlight(className) {
+  // Parse artist and category class
+  const classNames = className.split(" ");
+  console.log("Highlighting cells relevant to: "+className);
+  if(classNames.length == 4) {
+    var artistName = classNames[3];
+    var catName = classNames[2];
+    var artistCellClass = `.cell.artist.${artistName}`;
+    var genreCellClass = `.cell.genre-header.${catName}`;
+    console.log("Dehighlighting relevancy for artist: '"+artistCellClass+"' and category '"+genreCellClass+"'");
+    var categoryElement = document.querySelector(genreCellClass);
+    var artistElement = document.querySelector(artistCellClass);
+    console.log(categoryElement.innerText);
+    console.log(artistElement.innerText);
+    if(categoryElement) categoryElement.classList.remove("highlight");
+    if(artistElement) artistElement.classList.remove("highlight");
+  }
+}
