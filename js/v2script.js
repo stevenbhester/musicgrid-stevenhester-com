@@ -193,7 +193,19 @@ function buildGrid(data) {
 
     gridContainer.appendChild(categoryRow);
   });
-
+  
+  // Add event listeners to new song cells
+  var cells = document.querySelectorAll(".cell.song-cell");
+  cells.forEach(function(cell) {
+    // Mouse enter event to highlight category and artist
+    cell.addEventListener("mouseenter", function() {
+      highlightRelated(this.className);
+    });
+    // Mouse leave event to remove highlight
+    cell.addEventListener("mouseleave", function() {
+      removeHighlight(this.className);
+    });
+  });
   // Now build the footer
   loadFooter();
 }
@@ -573,61 +585,6 @@ function startGame() {
       fetchCheatPreviewUrl(gridId, fieldKey, cell);
     }
   });
-
-  // Get all grid cells
-  var cells = document.querySelectorAll(".song-cell");
-  cells.forEach(function(cell) {
-    // Mouse enter event to highlight category and artist
-    cell.addEventListener("mouseenter", function() {
-      highlightRelated(this.className);
-    });
-    // Mouse leave event to remove highlight
-    cell.addEventListener("mouseleave", function() {
-      removeHighlight(this.className);
-    });
-  });
-
-  function highlightRelated(className) {
-    // Parse artist and category class
-    const classNames = className.split(" ");
-    console.log("Highlighting cells relevant to: "+className);
-    if(classNames.length == 3) {
-      var artistName = classNames[2];
-      var catName = classNames[1];
-      console.log("Highlighting relevancy for artist: '"+artistName+"' and category '"+catName+"'");
-      var categoryElement = document.querySelector(`.cell.genreHeader.${catName}`);
-      var artistElement = document.querySelector(`.cell.artistHeader.${artistName}`);
-      console.log(categoryElement);
-      console.log(artistElement);
-      if(categoryElement) categoryElement.classList.add("highlight");
-      if(artistElement) artistElement.classList.add("highlight");
-    }
-  }
-
-  function removeHighlight(className) {
-    // Parse artist and category class
-    const classNames = className.split(" ");
-    console.log("Highlighting cells relevant to: "+className);
-    if(classNames.length == 3) {
-      var artistName = classNames[2];
-      var catName = classNames[1];
-      console.log("Highlighting relevancy for artist: '"+artistName+"' and category '"+catName+"'");
-      var categoryElement = document.querySelector(`.cell.genreHeader.${catName}`);
-      var artistElement = document.querySelector(`.cell.artistHeader.${artistName}`);
-      console.log(categoryElement);
-      console.log(artistElement);
-      if(categoryElement) categoryElement.classList.remove("highlight");
-      if(artistElement) artistElement.classList.remove("highlight");
-    }
-  }
-  
-  // Add click event to each cell
-  cells.forEach(function(cell) {
-    cell.addEventListener("click", function() {
-      // Toggle a class or perform an action to indicate selection
-      this.classList.toggle("selected");
-    });
-  });
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -654,3 +611,37 @@ document.addEventListener("DOMContentLoaded", function() {
     startGame();
   });
 });
+
+function highlightRelated(className) {
+  // Parse artist and category class
+  const classNames = className.split(" ");
+  console.log("Highlighting cells relevant to: "+className);
+  if(classNames.length == 3) {
+    var artistName = classNames[2];
+    var catName = classNames[1];
+    console.log("Highlighting relevancy for artist: '"+artistName+"' and category '"+catName+"'");
+    var categoryElement = document.querySelector(`.cell.genreHeader.${catName}`);
+    var artistElement = document.querySelector(`.cell.artistHeader.${artistName}`);
+    console.log(categoryElement);
+    console.log(artistElement);
+    if(categoryElement) categoryElement.classList.add("highlight");
+    if(artistElement) artistElement.classList.add("highlight");
+    }
+  }
+
+function removeHighlight(className) {
+  // Parse artist and category class
+  const classNames = className.split(" ");
+  console.log("Highlighting cells relevant to: "+className);
+  if(classNames.length == 3) {
+    var artistName = classNames[2];
+    var catName = classNames[1];
+    console.log("Highlighting relevancy for artist: '"+artistName+"' and category '"+catName+"'");
+    var categoryElement = document.querySelector(`.cell.genreHeader.${catName}`);
+    var artistElement = document.querySelector(`.cell.artistHeader.${artistName}`);
+    console.log(categoryElement);
+    console.log(artistElement);
+    if(categoryElement) categoryElement.classList.remove("highlight");
+    if(artistElement) artistElement.classList.remove("highlight");
+  }
+}
