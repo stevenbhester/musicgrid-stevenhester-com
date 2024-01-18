@@ -592,8 +592,8 @@ function startGame() {
     const classNames = className.split(" ");
     console.log("Highlighting cells relevant to: "+className);
     if(classNames.length == 3) {
-      artistName = classNames[2];
-      catName = classNames[1];
+      var artistName = classNames[2];
+      var catName = classNames[1];
       console.log("Highlighting relevancy for artist: '"+artistName+"' and category '"+catName+"'");
       var categoryElement = document.querySelector(`.cell.genreHeader.${catName}`);
       var artistElement = document.querySelector(`.cell.artistHeader.${artistName}`);
@@ -609,8 +609,8 @@ function startGame() {
     const classNames = className.split(" ");
     console.log("Highlighting cells relevant to: "+className);
     if(classNames.length == 3) {
-      artistName = classNames[2];
-      catName = classNames[1];
+      var artistName = classNames[2];
+      var catName = classNames[1];
       console.log("Highlighting relevancy for artist: '"+artistName+"' and category '"+catName+"'");
       var categoryElement = document.querySelector(`.cell.genreHeader.${catName}`);
       var artistElement = document.querySelector(`.cell.artistHeader.${artistName}`);
