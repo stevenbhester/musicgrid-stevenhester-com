@@ -636,11 +636,13 @@ function removeHighlight(className) {
   if(classNames.length == 4) {
     var artistName = classNames[3];
     var catName = classNames[2];
-    console.log("Highlighting relevancy for artist: '"+artistName+"' and category '"+catName+"'");
-    var categoryElement = document.querySelector(`.cell.genreHeader.${catName}`);
-    var artistElement = document.querySelector(`.cell.artistHeader.${artistName}`);
-    console.log(categoryElement);
-    console.log(artistElement);
+    var artistCellClass = `.cell.artistHeader.${artistName}`;
+    var genreCellClass = `.cell.genreHeader.${catName}`;
+    console.log("Highlighting relevancy for artist: '"+artistCellClass+"' and category '"+genreCellClass+"'");
+    var categoryElement = document.querySelector(genreCellClass);
+    var artistElement = document.querySelector(artistCellClass);
+    console.log(categoryElement.innerText);
+    console.log(artistElement.innerText);
     if(categoryElement) categoryElement.classList.remove("highlight");
     if(artistElement) artistElement.classList.remove("highlight");
   }
