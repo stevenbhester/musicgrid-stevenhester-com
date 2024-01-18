@@ -55,7 +55,6 @@ header {
     border-radius: 10px;
     transition: transform 0.5s ease, opacity 0.5s ease;
     transform: scale(0.9);
-    opacity: 0;
     position: relative;
     z-index: 100;
 }
@@ -135,6 +134,7 @@ input:checked + .slider:before {
     align-items: center;
     justify-content: center;
     word-break: break-word;
+    font-family: "Josefin Sans", 'Helvetica Neue';
 }
 
 .cell:not(.invisible) {
@@ -147,7 +147,6 @@ input:checked + .slider:before {
 
 .artist {
     background-color: RGBA(0,0,250,0.05);
-    font-family: "Josefin Sans", 'Helvetica Neue';
 }
 
 .invisible {
