@@ -604,7 +604,7 @@ function startGame() {
     }
   }
 
-  function removeHighlight(category, artist) {
+  function removeHighlight(className) {
     // Parse artist and category class
     const classNames = className.split(" ");
     console.log("Highlighting cells relevant to: "+className);
