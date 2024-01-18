@@ -559,7 +559,7 @@ function startGame() {
     if (navigator.share) {
       navigator.share({
         title: "My MusicGrid Results",
-        text: `I scored ${totalScore} on MusicGrid! Can you beat me?`,
+        text: `I scored ${totalScore} on MusicGrid, you could never. Try at: musicgrid.erincullison.com`,
         url: document.location.href
       })
         .then(() => console.log("Successful share"))
