@@ -160,7 +160,7 @@ function buildGrid(data) {
   const artistRow = document.createElement("div");
   artistRow.classList.add("row");
   artistRow.appendChild(createCell("invisible")); // Invisible cell for alignment
-  Object.keys(artists).forEach(key => artistRow.appendChild(createCell("artist", artists[key])));
+  Object.keys(artists).forEach(key => artistRow.appendChild(createCell("artist", artists[key], "artist-")));
   gridContainer.appendChild(artistRow);
 
   // Create rows for each category
@@ -169,12 +169,12 @@ function buildGrid(data) {
     categoryRow.classList.add("row");
 
     // Category cell
-    categoryRow.appendChild(createCell("genre-header", categories[categoryKey]));
+    categoryRow.appendChild(createCell("genre-header", categories[categoryKey], "cat-"));
 
     // Song cells
     Object.keys(artists).forEach(artistKey => {
       const cellKey = `${categoryKey} ${artistKey}`;
-      categoryRow.appendChild(createSongCell(cellKey, artists[artistKey]));
+      categoryRow.appendChild(createSongCell(cellKey, artists[artistKey], categories[categoryKey]));
     });
 
     gridContainer.appendChild(categoryRow);
@@ -184,17 +184,22 @@ function buildGrid(data) {
   loadFooter();
 }
 
-function createCell(className, text = "") {
+function createCell(className, text = "", classPrefix = "") {
   const cell = document.createElement("div");
-  cell.classList.add("cell", className);
+  const className2 = classPrefix + text.replace(" ","-");
+  cell.classList.add("cell", className, className2);
   cell.textContent = text;
   return cell;
 }
 
-function createSongCell(cellKey, artistName) {
+function createSongCell(cellKey, artistName, catName) {
   const cell = document.createElement("div");
   const btnClass = "cheat-btn";
-  cell.classList.add("cell", "song-cell");
+  const catNameClass = "cat-"+catName.replace(" ","-");
+  console.log("Appended class "+catNameClass+" from catName "+catName);
+  const artistNameClass = "artist-"+artistName.replace(" ","-");
+  console.log("Appended class "+artistNameClass+" from artistName "+artistName);
+  cell.classList.add("cell", "song-cell", catNameClass, artistNameClass);
 
   const button = document.createElement("button");
   button.setAttribute("class", btnClass);
