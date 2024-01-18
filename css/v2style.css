@@ -446,12 +446,16 @@ input[type="text"] {
     background-color: RGBA(250,0,250,0.1);
 }
 
-.genre-header:hover {
+.genre-header.highlight {
     background-color: RGBA(250,0,0,0.1);
 }
 
-.artist:hover {
+.artist.highlight {
     background-color: RGBA(0,0,250,0.1);
+}
+
+.highlight {
+    font-weight: bold;
 }
 
 @media (max-width: 600px) {
