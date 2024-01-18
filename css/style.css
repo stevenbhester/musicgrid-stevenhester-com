@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap');
+
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #EFEFEF; /* Light Gray Background */
@@ -51,10 +53,8 @@ header {
     padding: 10px;
     margin-top: 5%;
     border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     transition: transform 0.5s ease, opacity 0.5s ease;
     transform: scale(0.9);
-    opacity: 0;
     position: relative;
     z-index: 100;
 }
@@ -128,16 +128,25 @@ input:checked + .slider:before {
     text-align: center;
     font-size: 1.5em;
     min-height: 50px;
-    background-color: #e3f2fd;
+    background-color: RGBA(250,0,250,0.05);
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     word-break: break-word;
+    font-family: "Josefin Sans", 'Helvetica Neue';
 }
 
-.genre-header, .artist {
-    background-color: #bbdefb;
+.cell:not(.invisible) {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.genre-header {
+    background-color: RGBA(250,0,0,0.05);
+}
+
+.artist {
+    background-color: RGBA(0,0,250,0.05);
 }
 
 .invisible {
@@ -433,43 +442,20 @@ input[type="text"] {
     padding: 1em 0;
 }
 
-.grid-container.active {
-    transform: scale(1);
-    opacity: 1;
+.song-cell:hover {
+    background-color: RGBA(250,0,250,0.1);
 }
 
-.grid-category {
-    background-color: #2a2d34;
-    color: #00ffea; /* Neon color for a futuristic look */
-    /* Rest of your styles */
+.genre-header.highlight {
+    background-color: RGBA(250,0,0,0.1);
 }
 
-.grid-cell {
-    background-color: #333;
-    color: #fff;
-    /* Rest of your styles */
+.artist.highlight {
+    background-color: RGBA(0,0,250,0.1);
 }
 
-.grid-cell:hover {
-    background-color: #41454d;
-}
-
-/* Hover effects for category and artist */
-.grid-cell:hover .grid-category,
-.grid-cell:hover .grid-artist {
-    background-color: #00ffea; /* Neon accent color */
-    color: #1c1e22;
-}
-
-.grid-header,
-.grid-row {
-    display: contents;
-}
-
-.grid-cell.selected {
-    background-color: #9EC9F5; /* Light blue to indicate selection */
-    color: #333;
-    border-color: #4A90E2; /* Darker blue border for selected cell */
+.highlight {
+    font-weight: bold;
 }
 
 @media (max-width: 600px) {
