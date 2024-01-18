@@ -135,6 +135,7 @@ input:checked + .slider:before {
     justify-content: center;
     word-break: break-word;
     font-family: "Josefin Sans", 'Helvetica Neue';
+    margin: 2.5px;
 }
 
 .cell:not(.invisible) {
@@ -143,11 +144,13 @@ input:checked + .slider:before {
 
 .genre-header {
     background-color: RGBA(250,0,0,0.05);
-    min-height: 100px;
+    min-height: 45px;
+    border-radius: 15px 0px 0px 15px;
 }
 
 .artist {
     background-color: RGBA(0,0,250,0.05);
+    border-radius: 0px 15px 15px 0px;
 }
 
 .invisible {
@@ -465,11 +468,7 @@ input[type="text"] {
         word-wrap: break-word; /* Ensures words wrap and don't overflow */
         padding: 1px 1px;
     }
-    
-    .genre-header {
-        min-height: 45px;
-    }
-    
+
     .results-dropdown {
         width: 100%;
         box-sizing: border-box;
