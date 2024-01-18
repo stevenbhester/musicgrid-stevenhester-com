@@ -184,7 +184,7 @@ function buildGrid(data) {
   loadFooter();
 }
 
-function createCell(className, text = "", classPrefix = "") {
+function createCell(className = "dummy1", text = "", classPrefix = "dummy2") {
   const cell = document.createElement("div");
   const className2 = classPrefix + text.replace(" ","-");
   cell.classList.add("cell", className, className2);
