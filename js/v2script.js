@@ -186,7 +186,7 @@ function buildGrid(data) {
 
 function createCell(className = "dummy1", text = "", classPrefix = "dummy2") {
   const cell = document.createElement("div");
-  const className2 = classPrefix + text.replace(" ","-");
+  const className2 = classPrefix + text.replaceAll(" ","-");
   cell.classList.add("cell", className, className2);
   cell.textContent = text;
   return cell;
@@ -195,9 +195,9 @@ function createCell(className = "dummy1", text = "", classPrefix = "dummy2") {
 function createSongCell(cellKey, artistName, catName) {
   const cell = document.createElement("div");
   const btnClass = "cheat-btn";
-  const catNameClass = "cat-"+catName.replace(" ","-");
+  const catNameClass = "cat-"+catName.replaceAll(" ","-");
   console.log("Appended class "+catNameClass+" from catName "+catName);
-  const artistNameClass = "artist-"+artistName.replace(" ","-");
+  const artistNameClass = "artist-"+artistName.replaceAll(" ","-");
   console.log("Appended class "+artistNameClass+" from artistName "+artistName);
   cell.classList.add("cell", "song-cell", catNameClass, artistNameClass);
 
