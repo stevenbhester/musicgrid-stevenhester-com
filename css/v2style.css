@@ -440,43 +440,16 @@ input[type="text"] {
     padding: 1em 0;
 }
 
-.grid-container.active {
-    transform: scale(1);
-    opacity: 1;
+.song-cell:hover {
+    background-color: RGBA(250,0,250,0.1);
 }
 
-.grid-category {
-    background-color: #2a2d34;
-    color: #00ffea; /* Neon color for a futuristic look */
-    /* Rest of your styles */
+.genre-header:hover {
+    background-color: RGBA(250,0,0,0.1);
 }
 
-.grid-cell {
-    background-color: #333;
-    color: #fff;
-    /* Rest of your styles */
-}
-
-.grid-cell:hover {
-    background-color: #41454d;
-}
-
-/* Hover effects for category and artist */
-.grid-cell:hover .grid-category,
-.grid-cell:hover .grid-artist {
-    background-color: #00ffea; /* Neon accent color */
-    color: #1c1e22;
-}
-
-.grid-header,
-.grid-row {
-    display: contents;
-}
-
-.grid-cell.selected {
-    background-color: #9EC9F5; /* Light blue to indicate selection */
-    color: #333;
-    border-color: #4A90E2; /* Darker blue border for selected cell */
+.artist:hover {
+    background-color: RGBA(0,0,250,0.1);
 }
 
 @media (max-width: 600px) {
