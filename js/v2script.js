@@ -633,9 +633,9 @@ function removeHighlight(className) {
   // Parse artist and category class
   const classNames = className.split(" ");
   console.log("Highlighting cells relevant to: "+className);
-  if(classNames.length == 3) {
-    var artistName = classNames[2];
-    var catName = classNames[1];
+  if(classNames.length == 4) {
+    var artistName = classNames[3];
+    var catName = classNames[2];
     console.log("Highlighting relevancy for artist: '"+artistName+"' and category '"+catName+"'");
     var categoryElement = document.querySelector(`.cell.genreHeader.${catName}`);
     var artistElement = document.querySelector(`.cell.artistHeader.${artistName}`);
