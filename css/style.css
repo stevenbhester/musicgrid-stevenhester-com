@@ -128,7 +128,7 @@ input:checked + .slider:before {
     text-align: center;
     font-size: 1.5em;
     min-height: 50px;
-    background-color: RGBA(250,0,250,0.05);
+    background-color: RGBA(250,0,250,0.15);
     position: relative;
     display: flex;
     align-items: center;
@@ -143,13 +143,13 @@ input:checked + .slider:before {
 }
 
 .genre-header {
-    background-color: RGBA(250,0,0,0.05);
+    background-color: RGBA(250,0,0,0.15);
     min-height: 45px;
     border-radius: 15px 0px 0px 15px;
 }
 
 .artist {
-    background-color: RGBA(0,0,250,0.05);
+    background-color: RGBA(0,0,250,0.15);
     border-radius: 0px 15px 15px 0px;
 }
 
