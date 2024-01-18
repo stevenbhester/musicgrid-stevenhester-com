@@ -620,8 +620,8 @@ function highlightRelated(className) {
     var artistName = classNames[2];
     var catName = classNames[1];
     console.log("Highlighting relevancy for artist: '"+artistName+"' and category '"+catName+"'");
-    var categoryElement = document.querySelector(`.cell.genreHeader.${catName}`);
-    var artistElement = document.querySelector(`.cell.artistHeader.${artistName}`);
+    var categoryElement = document.querySelector(`.cell.genre-header.${catName}`);
+    var artistElement = document.querySelector(`.cell.artist.${artistName}`);
     console.log(categoryElement);
     console.log(artistElement);
     if(categoryElement) categoryElement.classList.add("highlight");
