@@ -575,34 +575,50 @@ function startGame() {
   });
 
   // Get all grid cells
-  var cells = document.querySelectorAll(".grid-cell");
+  var cells = document.querySelectorAll(".song-cell");
   cells.forEach(function(cell) {
     // Mouse enter event to highlight category and artist
     cell.addEventListener("mouseenter", function() {
-      highlightRelated(this.dataset.category, this.dataset.artist);
+      highlightRelated(this.className);
     });
     // Mouse leave event to remove highlight
     cell.addEventListener("mouseleave", function() {
-      removeHighlight(this.dataset.category, this.dataset.artist);
+      removeHighlight(this.className);
     });
   });
 
-  function highlightRelated(category, artist) {
-    // Highlight the related category and artist
-    var categoryElement = document.querySelector(`.grid-category[data-category="${category}"]`);
-    var artistElement = document.querySelector(`.grid-artist[data-artist="${artist}"]`);
-    console.log(categoryElement);
-    console.log(artistElement);
-    if(categoryElement) categoryElement.classList.add("highlight");
-    if(artistElement) artistElement.classList.add("highlight");
+  function highlightRelated(className) {
+    // Parse artist and category class
+    const classNames = className.split(" ");
+    console.log("Highlighting cells relevant to: "+className);
+    if(classNames.length == 3) {
+      artistName = classNames[2];
+      catName = classNames[1];
+      console.log("Highlighting relevancy for artist: '"+artistName+"' and category '"+catName+"'");
+      var categoryElement = document.querySelector(`.cell.genreHeader.${catName}`);
+      var artistElement = document.querySelector(`.cell.artistHeader.${artistName}`);
+      console.log(categoryElement);
+      console.log(artistElement);
+      if(categoryElement) categoryElement.classList.add("highlight");
+      if(artistElement) artistElement.classList.add("highlight");
+    }
   }
 
   function removeHighlight(category, artist) {
-    // Remove highlight from the related category and artist
-    var categoryElements = document.querySelectorAll(".grid-category.highlight, .grid-artist.highlight");
-    categoryElements.forEach(function(element) {
-      element.classList.remove("highlight");
-    });
+    // Parse artist and category class
+    const classNames = className.split(" ");
+    console.log("Highlighting cells relevant to: "+className);
+    if(classNames.length == 3) {
+      artistName = classNames[2];
+      catName = classNames[1];
+      console.log("Highlighting relevancy for artist: '"+artistName+"' and category '"+catName+"'");
+      var categoryElement = document.querySelector(`.cell.genreHeader.${catName}`);
+      var artistElement = document.querySelector(`.cell.artistHeader.${artistName}`);
+      console.log(categoryElement);
+      console.log(artistElement);
+      if(categoryElement) categoryElement.classList.remove("highlight");
+      if(artistElement) artistElement.classList.remove("highlight");
+    }
   }
   
   // Add click event to each cell
