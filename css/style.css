@@ -448,6 +448,7 @@ input[type="text"] {
 
 .genre-header.highlight {
     background-color: RGBA(250,0,0,0.1);
+    min-height: 45px;
 }
 
 .artist.highlight {
