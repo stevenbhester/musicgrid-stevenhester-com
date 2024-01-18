@@ -112,6 +112,20 @@ function loadFooter() {
   underGameWrapper.appendChild(shareButton);
 
   
+  document.getElementById("shareButton").addEventListener("click", () => {
+    if (navigator.share) {
+      navigator.share({
+        title: "My MusicGrid Results",
+        text: `I scored ${totalScore} on MusicGrid, you could never. Try at: musicgrid.erincullison.com`,
+        url: document.location.href
+      })
+        .then(() => console.log("Successful share"))
+        .catch((error) => console.error("Error sharing:", error));
+    } else {
+      console.error("Web Share API is not supported in your browser.");
+    }
+  });
+  
   loadLeaderboard();
 }
 
@@ -557,20 +571,6 @@ function startGame() {
       
       // Here you can call your function to fetch the cheat preview URL and then play it
       fetchCheatPreviewUrl(gridId, fieldKey, cell);
-    }
-  });
-  
-  document.getElementById("shareButton").addEventListener("click", () => {
-    if (navigator.share) {
-      navigator.share({
-        title: "My MusicGrid Results",
-        text: `I scored ${totalScore} on MusicGrid, you could never. Try at: musicgrid.erincullison.com`,
-        url: document.location.href
-      })
-        .then(() => console.log("Successful share"))
-        .catch((error) => console.error("Error sharing:", error));
-    } else {
-      console.error("Web Share API is not supported in your browser.");
     }
   });
 
