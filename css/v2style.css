@@ -1,3 +1,10 @@
+@font-face {
+    font-family: JosefinSans;
+    src: url("../../stevenbhester.github.io/css/JosefinSans-Italic-VariableFont_wght.ttf") format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #EFEFEF; /* Light Gray Background */
@@ -145,6 +152,7 @@ input:checked + .slider:before {
 
 .artist {
     background-color: RGBA(0,0,250,0.05);
+    font-family: JosefinSans;
 }
 
 .invisible {
