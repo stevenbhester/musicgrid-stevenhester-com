@@ -46,10 +46,12 @@
           
             <template id="login">
               <div class="hero-content">
-                <h1>A Grid of Your Own</h1>
-                <p>Authorize Spotify access below to build your custom grid, which will use your top artists and randomly selected categories.</p>
-              <br>
-              <button id="login-button" data-bind-onclick="loginWithSpotifyClick();"> Log in with Spotify </button>
+                  <h1>Build Your Grid</h1>
+                  <p>Authorize Spotify access below to build your custom grid, which will use your top artists and randomly selected categories.</p>
+                  <br>
+                  <button id="login-button" data-bind-onclick="loginWithSpotifyClick();"> Log in with Spotify </button>
+                  <br>
+                  <sh1>Access uses Spotify OAUTH KPIC best practice.<br>Only top artists are shared.</sh1>
               </div>
             </template>
           
@@ -118,13 +120,6 @@
                       <td data-bind="expires">${getExpirationDate(expires_in)}</td>
                     </tr>
                   </table>
-              </div>
-            </template>
-              
-            <template id="addendum">  
-              <div class="hero-content">
-                <br>
-                <sh1>Access uses Spotify OAUTH KPIC best practice.<br>Only top artists are shared.</sh1>
               </div>
             </template>
           </div>
