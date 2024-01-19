@@ -1,46 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap');
-
-body-2 {
-    margin: 1rem;
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-tr:nth-child(even) {
-    background-color: #eee;
-}
-
-td:first-child {
-    font-weight: bold;
-}
-
-td {
-    white-space: nowrap;
-    padding: 10px;
-    margin-right: 1rem;
-}
-
-button {
-    margin: 1rem 1rem 0 0;
-    border: 0;
-    border-radius: 20px;
-    padding: 10px 3rem;
-    font-size: 0.8rem;
-    font-family: Arial, Helvetica, sans-serif;
-    text-transform: uppercase;
-    font-weight: bold;
-    background-color:#1ed760;
-    color: black;
-}
-
-button:hover {
-    background-color: #1fdf64;
-}
-
-#logged-in {
-    display: none;
-}
-
+@import url('https://fonts.google.com/specimen/Cutive+Mono&display=swap');
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #EFEFEF; /* Light Gray Background */
@@ -210,12 +170,12 @@ header {
     text-align: center;
     margin-left: 15%;
     margin-right: 15%;
-    margin-top: 33%;
 }
 
-.spotify-content {
+.artist-content {
     display: flex;
     justify-content: center;
+    flex-direction: column;
     position: relative;
     z-index: 2;
     color: #333;
@@ -224,7 +184,7 @@ header {
     margin-right: 15%;
     margin-top: 25%;
     margin-bottom: 25%;
-    padding-bottom: 25%;
+    padding-bottom: 8%;
     background-color: RGBA(25, 20, 20, 0.5);
     color: RGBA(230, 230, 230, 1);
     border-radius: 30px;
@@ -241,6 +201,12 @@ header {
     font-size: 1.2em;
     color: white; /* Dark Gray Text */
     margin-bottom: 1em;
+}
+
+.hero-content sh1 {
+    font-size: 1em;
+    color: lightGray; /* Dark Gray Text */
+    font-family: "Cutive Mono", 'Helvetica Neue';
 }
 
 .about {
@@ -293,7 +259,7 @@ header {
         margin-right: 15%
     }
 
-    .spotify-content {
+    .artist-content {
         position: relative;
         z-index: 2;
         text-align: center;
