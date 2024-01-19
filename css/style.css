@@ -151,7 +151,7 @@ input:checked + .slider:before {
 
 .artist {
     background-color: RGBA(0,0,250,0.15);
-    border-radius: 0px 15px 15px 0px;
+    border-radius: 15px 15px 0px 0px;
     text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #fff, 0 0 50px #fff, 0 0 60px #fff, 0 0 70px #fff;
 }
 
