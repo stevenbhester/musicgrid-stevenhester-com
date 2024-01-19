@@ -21,7 +21,7 @@ const initSortableList = (e) => {
   e.preventDefault();
   console.log("initSortableList fired");
   const draggingItem = document.querySelector(".dragging");
-  console.log("initSortableList detected on "+draggingItem.textContent);
+  console.log("initSortableList detected on "+draggingItem.textContent.trim());
     
   // Getting all items except currently dragging and making array of them
   let siblings = [...sortableList.querySelectorAll(".item:not(.dragging)")];
