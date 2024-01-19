@@ -40,6 +40,7 @@ button:hover {
 #logged-in {
     display: none;
 }
+
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #EFEFEF; /* Light Gray Background */
@@ -80,232 +81,6 @@ header {
 .subheader {
     font-size: 1.2em;
     margin-top: 4px;
-}
-
-.grid-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 95%;
-    max-width: 800px;
-    margin: 10px auto;
-    padding: 10px;
-    margin-top: 5%;
-    border-radius: 10px;
-    transition: transform 0.5s ease, opacity 0.5s ease;
-    transform: scale(0.9);
-    position: relative;
-    z-index: 100;
-}
-
-.row {
-    display: flex;
-    width: 100%;
-    position: relative;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 15px;
-  align-item: center;
-  justify-content: center;
-}
-
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: black;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 10px;
-  width: 10px;
-  left: 2.5px;
-  bottom: 2.5px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #3f5a36;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(46px);
-  -ms-transform: translateX(46px);
-  transform: translateX(46px);
-}
-
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
-
-.cell {
-    flex: 1;
-    padding: 15px 20px;
-    text-align: center;
-    font-size: 1.5em;
-    min-height: 50px;
-    background-color: RGBA(250,0,250,0.15);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    word-break: break-word;
-    font-family: "Josefin Sans", 'Helvetica Neue';
-    margin: 2.5px;
-}
-
-.cell:not(.invisible) {
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-}
-
-.genre-header {
-    background-color: RGBA(250,0,0,0.15);
-    min-height: 85px;
-    border-radius: 15px 0px 0px 15px;
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #fff, 0 0 50px #fff, 0 0 60px #fff, 0 0 70px #fff;
-}
-
-.artist {
-    background-color: RGBA(0,0,250,0.15);
-    border-radius: 15px 15px 0px 0px;
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #fff, 0 0 50px #fff, 0 0 60px #fff, 0 0 70px #fff;
-}
-
-.invisible {
-    visibility: hidden;
-}
-
-.leaderboard-wrapper {
-    position: relative;
-    z-index: 2;
-    color: #333;
-    text-align: center;
-    margin-left: 15%;
-    margin-right: 15%;
-    margin-top: 2%;
-    padding-bottom: 2%;
-    padding-top: 2%;
-    border-radius: 4px;
-    background-color: rgba(203, 195, 227, 0.5);
-}
-
-.results-dropdown div:hover {
-    background-color: #f0f0f0;
-}
-.results-dropdown {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    max-height: 200px;
-    overflow-y: auto;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    position: absolute;
-    width: calc(100% - 20px); /* adjust width as needed */
-    z-index: 300;
-    top: 100%; /* make sure it starts right after the input field */
-    left: 0; /* align to the left edge of the input field */
-    margin-top: 1px; /* add a little space below the input field */
-}
-
-#shareButton {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-#quitButton {
-    background-color: #6D071A;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.results-dropdown div {
-    padding: 5px; /* add more padding for spacing between results */
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0; /* add a subtle line between each result */
-}
-
-.results-dropdown div:last-child {
-    border-bottom: none; /* no border for the last item */
-}
-
-/* Style for the song title to be bold */
-.song-title {
-    font-weight: bold;
-}
-
-.song-cell input[type="text"] {
-    display: block;
-    width: 100%;
-    /* Other styling as needed */
-}
-
-input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    box-sizing: border-box;
-}
-
-.cheat-btn {
-  margin-top: 10px; /* Adds some space above the button */
-  width: 100%;
-  padding: 10px;
-  margin: 5px 0;
-  box-sizing: border-box;
-}
-
-.cheat-btn::after { 
-  content: "\1F3B5"; /* Unicode value for a heart */
-  font-size: 1rem; /* set font size */
-  color: red; /* set color */
-} 
-
-.preview-audio {
-  margin-top: 10px; /* Adds some space above the button */
-  width: 100%;
-  padding: 10px;
-  margin: 5px 0;
-  box-sizing: border-box;
-}
-
-.song-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Align items to the start of the cell */
-    justify-content: center;
 }
 
 .nav-logo {
@@ -428,15 +203,6 @@ input[type="text"] {
     z-index: 1;
 }
 
- .under-game {
-    position: relative;
-    z-index: 2;
-    color: #333;
-    text-align: center;
-    margin-left: 15%;
-    margin-right: 15%;
-}
-
 .hero-content {
     position: relative;
     z-index: 2;
@@ -477,22 +243,6 @@ input[type="text"] {
     margin-bottom: 1em;
 }
 
-.play-button {
-    padding: 1em 2em;
-    background-color: #5C946E; /* Earthy Green Button */
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    border-radius: 50px; /* More rounded corners for elegance */
-    font-weight: bold;
-    font-size: 1.1em;
-}
-
-.cta-button:hover {
-    background-color: #425B4F; /* Darker Green on Hover */
-}
-
 .about {
     background-color: #f4f4f4;
     color: #333;
@@ -506,85 +256,7 @@ input[type="text"] {
     padding: 1em 0;
 }
 
-.song-cell:hover {
-    background-color: RGBA(250,0,250,0.1);
-}
-
-.genre-header.highlight {
-    background-color: RGBA(250,0,0,0.1);
-}
-
-.artist.highlight {
-    background-color: RGBA(0,0,250,0.1);
-}
-
-.highlight {
-    font-weight: bold;
-}
-
 @media (max-width: 600px) {
-    .cell, .genre-header, .artist {
-        font-size: 14px; /* Adjust base font size */
-        word-wrap: break-word; /* Ensures words wrap and don't overflow */
-        padding: 1px 1px;
-    }
-
-    .genre-header {
-        min-height: 45px;
-    }
-        
-    .results-dropdown {
-        width: 100%;
-        box-sizing: border-box;
-        top: 100%;
-    }
-
-    .results-dropdown div {
-        padding: 5px;
-    }
-
-    .song-cell {
-        position: relative;
-        font-size: 3.5vw; /* Adjust base font size */
-        word-wrap: break-word; /* Ensures words wrap and don't overflow */
-        padding: 1px 1px;
-        display: flex;
-        flex-direction: columnn;
-        align-items: flex-start; /* Align items to the start of the cell */
-        justify-content: center;
-        min-height: 25vw;
-    }
-
-    .cheat-btn {
-      margin-top: 5px; /* Adds some space above the button */ 
-      width: 100%;
-      padding: 5px;
-      margin: 5px 0;
-      box-sizing: border-box;
-    }
-
-    .preview-audio {
-      margin-top: 1px; /* Adds some space above the button */ 
-      width: 100%;
-      padding: 5px;
-      margin: 3px 0;
-      box-sizing: border-box;
-    }
-    
-    .cheat-btn::after { 
-      content: "\1F3B5"; /* Unicode value for a heart */
-      font-size: 1rem; /* set font size */
-      color: red; /* set color */
-    } 
-
-     .grid-container {
-        grid-template-columns: 1fr;
-    }
-
-    .grid-header {
-        display: none; /* Hide categories on small screens */
-    }
-
     .navbar .nav-links {
         display: none; /* Hide the desktop links */
     }
@@ -617,7 +289,6 @@ input[type="text"] {
         z-index: 2;
         color: #333;
         text-align: center;
-        padding-top: 40%;
         margin-left: 15%;
         margin-right: 15%
     }
@@ -630,14 +301,6 @@ input[type="text"] {
         margin-right: 15%;
         margin-top: 25%;
         margin-bottom: 25%;
-    }
-    
-    .under-game {
-        position: relative;
-        z-index: 2;
-        color: #333;
-        text-align: center;
-        margin-left: 15%;
-        margin-right: 15%;
+        padding-bottom: 15%;
     }
 }
