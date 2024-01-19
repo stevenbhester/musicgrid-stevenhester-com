@@ -21,10 +21,10 @@ td {
 }
 
 button {
-    margin: 1rem 1rem 1rem 1rem;
+    margin: 0rem 1rem 1rem 1rem;
     border: 0;
     border-radius: 20px;
-    padding: 10px 3rem;
+    padding: 2px 2rem;
     font-size: 0.8rem;
     font-family: Arial, Helvetica, sans-serif;
     text-transform: uppercase;
