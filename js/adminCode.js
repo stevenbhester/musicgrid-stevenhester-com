@@ -102,8 +102,6 @@ function setLive(gridId) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ grid_id: gridId })
   })
-    .then(response => response.json())
-    .then(data => buildGrid(data))
     .catch(error => console.error("Error setting grid live:", error));
 }
 
