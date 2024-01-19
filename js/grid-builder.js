@@ -8,7 +8,7 @@
  */
 
 const clientId = "1d952129111a45b2b86ea1c08dd9c6ca"; // your clientId
-const redirectUrl = "https://musicgrid.erincullison.com/grid-builder/step2";        // your redirect URL - must be localhost URL and/or HTTPS
+const redirectUrl = "https://musicgrid.erincullison.com/grid-builder/artist-selection";        // your redirect URL - must be localhost URL and/or HTTPS
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
