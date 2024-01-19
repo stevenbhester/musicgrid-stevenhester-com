@@ -29,7 +29,7 @@ const initSortableList = (e) => {
   
   // Finding the sibling after which the dragging item should be placed
   let nextSibling = siblings.find(sibling => {
-    console.log("Comparing drag element at "+e.clientY+" to sibling "+trim(sibling.textContent)+" at "+  (sibling.offsetTop + sibling.offsetHeight / 2) + " (offsetTop: "+ sibling.offsetTop+"; offsetHeight/2: "+(sibling.offsetHeight/2));
+    console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+  (sibling.offsetTop + sibling.offsetHeight / 2) + " (offsetTop: "+ sibling.offsetTop+"; offsetHeight/2: "+(sibling.offsetHeight/2));
     return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
   });
   console.log("Found match sibling "+nextSibling.textContent);
