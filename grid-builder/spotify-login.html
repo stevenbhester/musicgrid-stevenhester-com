@@ -48,9 +48,9 @@
               <div class="hero-content">
                 <h1>A Grid of Your Own</h1>
                 <p>Authorize Spotify access below to build your custom grid, which will use your top artists and randomly selected categories.</p>
-              </div>
               <br>
               <button id="login-button" data-bind-onclick="loginWithSpotifyClick();"> Log in with Spotify </button>
+              </div>
             </template>
           
             <template id="logged-in-template">
@@ -102,27 +102,31 @@
             </template>
           
             <template id="oauth-template">
-              <h2>oAuth info</h2>
-              <table>
-                <tr>
-                  <td>Access token</td>
-                  <td data-bind="access_token"></td>
-                </tr>
-                <tr>
-                  <td>Refresh token</td>
-                  <td data-bind="refresh_token"></td>
-                </tr>
-                <tr>
-                  <td>Expiration at</td>
-                  <td data-bind="expires">${getExpirationDate(expires_in)}</td>
-                </tr>
-              </table>
+              <div class="hero-content">
+                  <h2>oAuth info</h2>
+                  <table>
+                    <tr>
+                      <td>Access token</td>
+                      <td data-bind="access_token"></td>
+                    </tr>
+                    <tr>
+                      <td>Refresh token</td>
+                      <td data-bind="refresh_token"></td>
+                    </tr>
+                    <tr>
+                      <td>Expiration at</td>
+                      <td data-bind="expires">${getExpirationDate(expires_in)}</td>
+                    </tr>
+                  </table>
+              </div>
             </template>
               
-          <div class="hero-content">
-            <br>
-            <sh1>Access tokens are handled with Spotify OAUTH KPIC best practice. Scope of permissions shared will be limited to your top artists in recent weeks/months/years.</sh1>
-          </div>
+            <template id="addendum">  
+              <div class="hero-content">
+                <br>
+                <sh1>Access uses Spotify OAUTH KPIC best practice.<br>Only top artists are shared.</sh1>
+              </div>
+            </template>
           </div>
             
         </section>
