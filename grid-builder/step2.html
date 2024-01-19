@@ -41,70 +41,55 @@
         <section class="hero">
             <div class="overlay"></div>
             <div class="hero-content">
-                <h1>Welcome to MusicGrid</h1>
-                <p>The ultimate music trivia game</p>
-                <button class="play-button">Play Now</button>
+                <h1>Finding Your Top Artists</h1>
+                <p>Prioritize the artists from top to bottom on how much you want them in your grid. We'll find 3 that we can make matching categories from, prioritizing higher-ranked artists.</p>
             </div>
             
-            <div class="grid-container" id="grid-container" style="display:none">
-                <!-- Artists Row -->
-                <div class="row">
-                    <div class="cell invisible"></div>
-                    <div class="cell artist">Adele</div>
-                    <div class="cell artist">Bruno Mars</div>
-                    <div class="cell artist">Ed Sheeran</div>
-                </div>
-            
-                <!-- Category 1: Songs Released in the 2010s -->
-                <div class="row">
-                    <div class="cell genre-header">Songs Released in the 2010s</div>
-                    <div class="cell song-cell">
-                        <button class="cheat-btn" id = 'C1 A1' style="display: none;"></button>
-                        <input type="text" oninput="liveSearch(this, 'C1 A1')" placeholder="Type to search...">
+            <div class="artists-container" id="artists-container">
+               <ul class="sortable-list">
+                  <li class="item" draggable="true">
+                    <div class="details">
+                      <img src="/img/noArtist.png">
+                      <span>Top Artist 1</span>
                     </div>
-                    <div class="cell song-cell">
-                        <button class="cheat-btn" id = 'C1 A2' style="display: none;"></button>
-                        <input type="text" oninput="liveSearch(this, 'C1 A2')" placeholder="Type to search...">
+                    <i class="uil uil-draggabledots"></i>
+                  </li>
+                  <li class="item" draggable="true">
+                    <div class="details">
+                      <img src="/img/noArtist.png">
+                      <span>Top Artist 2</span>
                     </div>
-                    <div class="cell song-cell">
-                        <button class="cheat-btn" id = 'C1 A3' style="display: none;"></button>
-                        <input type="text" oninput="liveSearch(this, 'C1 A3')" placeholder="Type to search...">
+                    <i class="uil uil-draggabledots"></i>
+                  </li>
+                  <li class="item" draggable="true">
+                    <div class="details">
+                      <img src="/img/noArtist.png">
+                      <span>Top Artist 3</span>
                     </div>
-                </div>
-            
-                <!-- Category 1: Charted Above Top 5 in the Billboard 100 -->
-                <div class="row">
-                    <div class="cell genre-header">Charted Above Top 5 in Billboard 100</div>
-                    <div class="cell song-cell">
-                        <button class="cheat-btn" id = 'C2 A1' style="display: none;"></button>
-                        <input type="text" oninput="liveSearch(this, 'C2 A1')" placeholder="Type to search...">
+                    <i class="uil uil-draggabledots"></i>
+                  </li>
+                  <li class="item" draggable="true">
+                    <div class="details">
+                      <img src="/img/noArtist.png">
+                      <span>Top Artist 4</span>
                     </div>
-                    <div class="cell song-cell">
-                        <button class="cheat-btn" id = 'C2 A2' style="display: none;"></button>
-                        <input type="text" oninput="liveSearch(this, 'C2 A2')" placeholder="Type to search...">
+                    <i class="uil uil-draggabledots"></i>
+                  </li>
+                  <li class="item" draggable="true">
+                    <div class="details">
+                      <img src="/img/noArtist.png">
+                      <span>Top Artist 5</span>
                     </div>
-                    <div class="cell song-cell">
-                        <button class="cheat-btn" id = 'C2 A3' style="display: none;"></button>
-                        <input type="text" oninput="liveSearch(this, 'C2 A3')" placeholder="Type to search...">
+                    <i class="uil uil-draggabledots"></i>
+                  </li>
+                  <li class="item" draggable="true">
+                    <div class="details">
+                      <img src="/img/noArtist.png">
+                      <span>Top Artist 6</span>
                     </div>
-                </div>
-            
-                <!-- Category 1: Songs That Won Song of the Year at the Grammy Awards -->
-                <div class="row">
-                    <div class="cell genre-header">Songs That Won Song of the Year at the Grammy Awards</div>
-                    <div class="cell song-cell">
-                        <button class="cheat-btn" id = 'C3 A1' style="display: none;"></button>
-                        <input type="text" oninput="liveSearch(this, 'C3 A1')" placeholder="Type to search...">
-                    </div>
-                    <div class="cell song-cell">
-                        <button class="cheat-btn" id = 'C3 A2' style="display: none;"></button>
-                        <input type="text" oninput="liveSearch(this, 'C3 A2')" placeholder="Type to search...">
-                    </div>
-                    <div class="cell song-cell">
-                        <button class="cheat-btn" id = 'C3 A3 style="display: none;"'></button>
-                        <input type="text" oninput="liveSearch(this, 'C3 A3')" placeholder="Type to search...">
-                    </div>
-                </div>
+                    <i class="uil uil-draggabledots"></i>
+                  </li>
+                </ul>
             </div>
             <div class = "under-game"></div>
             <br>
