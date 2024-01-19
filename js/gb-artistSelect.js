@@ -32,7 +32,7 @@ const initSortableList = (e) => {
     console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+  (sibling.offsetTop + sibling.offsetHeight / 2) + " (offsetTop: "+ sibling.offsetTop+"; offsetHeight/2: "+(sibling.offsetHeight/2));
     return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
   });
-  console.log("Found match sibling "+nextSibling.textContent);
+  console.log("Found match sibling "+nextSibling.textContent.trim());
   // Inserting the dragging item before the found sibling
   sortableList.insertBefore(draggingItem, nextSibling);
   console.log("Inserted drag element before found match");
