@@ -223,9 +223,8 @@ header {
 }
 
 .sortable-list {
-  margin-left: 10%;
-  margin-right: 10%;
-  padding: 25px;
+  margin-left: 25px;
+  margin-right: 25px;
   background: RBGA(25,20,20,1);
   border-radius: 7px;
   padding: 30px 25px 20px;
