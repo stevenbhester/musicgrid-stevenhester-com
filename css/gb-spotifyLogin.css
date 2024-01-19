@@ -1,6 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap');
-
+@import url('https://fonts.google.com/specimen/Cutive+Mono&display=swap');
 body-2 {
     margin: 1rem;
     font-family: Arial, Helvetica, sans-serif;
@@ -241,6 +241,16 @@ header {
     font-size: 1.2em;
     color: white; /* Dark Gray Text */
     margin-bottom: 1em;
+}
+
+.hero-content sh1 {
+    font-size: 1em;
+    color: lightGray; /* Dark Gray Text */
+    margin-bottom: 1em;
+    margin-top: 5em;
+    font-family: "Cutive Mono", 'Helvetica Neue';
+    margin-left: 20%;
+    margin-right: 20%;
 }
 
 .about {
