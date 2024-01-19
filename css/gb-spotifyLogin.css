@@ -21,7 +21,7 @@ td {
 }
 
 button {
-    margin: 1rem 1rem 0 0;
+    margin: 1rem 1rem 1rem 1rem;
     border: 0;
     border-radius: 20px;
     padding: 10px 3rem;
@@ -225,7 +225,7 @@ header {
     margin-right: 15%;
     margin-top: 25%;
     margin-bottom: 25%;
-    padding-bottom: 25%;
+    padding-bottom: 8%;
     background-color: RGBA(25, 20, 20, 0.5);
     color: RGBA(230, 230, 230, 1);
     border-radius: 30px;
@@ -247,11 +247,7 @@ header {
 .hero-content sh1 {
     font-size: 1em;
     color: lightGray; /* Dark Gray Text */
-    margin-bottom: 1em;
-    margin-top: 5em;
     font-family: "Cutive Mono", 'Helvetica Neue';
-    margin-left: 20%;
-    margin-right: 20%;
 }
 
 .about {
