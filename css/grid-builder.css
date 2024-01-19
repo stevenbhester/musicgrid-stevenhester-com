@@ -456,9 +456,11 @@ input[type="text"] {
     text-align: center;
     margin-left: 15%;
     margin-right: 15%;
-    margin-top: 33%;
+    margin-top: 25%;
+    margin-bottom: 25%;
     background-color: RGBA(25, 20, 20, 0.5);
-    color: white;
+    color: RGBA(230, 230, 230, 1);
+    border-radius: 30px;
 }
 
 
@@ -617,6 +619,16 @@ input[type="text"] {
         padding-top: 40%;
         margin-left: 15%;
         margin-right: 15%
+    }
+
+    .spotify-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        margin-left: 15%;
+        margin-right: 15%;
+        margin-top: 25%;
+        margin-bottom: 25%;
     }
     
     .under-game {
