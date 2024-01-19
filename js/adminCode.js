@@ -39,6 +39,7 @@ function displayGridsSumm(data) {
   summRow.appendChild(createCell("cellheader","Num Field W Encoded Answer"));
   summRow.appendChild(createCell("cellheader","Load Grid"));
   summRow.appendChild(createCell("cellheader","Encode Answers"));
+  summRow.appendChild(createCell("cellheader","Set Live"));
   gridContainer.appendChild(summRow);
   
   data.forEach(item => {
@@ -57,6 +58,7 @@ function displayGridsSumm(data) {
     summRow.appendChild(createCell("summCell",item.num_fields_w_encoded_answers));
     summRow.appendChild(createLoadCell("loadCell","fetchGridData","Load grid id "+item.grid_id,item.grid_id));
     summRow.appendChild(createLoadCell("loadCell","encodeAnswers","Encode grid id "+item.grid_id,item.grid_id));
+    summRow.appendChild(createLoadCell("loadCell","setLive","Set grid id "+item.grid_id+" live",item.grid_id));
     gridContainer.appendChild(summRow);
   });
 }
@@ -91,6 +93,18 @@ function fetchGridData(gridId) {
     .then(response => response.json())
     .then(data => buildGrid(data))
     .catch(error => console.error("Error fetching grid data:", error));
+}
+
+// Get data to populate a selected MusicGrid
+function setLive(gridId) {
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/set-grid-live", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ grid_id: gridId })
+  })
+    .then(response => response.json())
+    .then(data => buildGrid(data))
+    .catch(error => console.error("Error setting grid live:", error));
 }
 
 function buildGrid(data) {
