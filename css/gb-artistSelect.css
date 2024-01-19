@@ -223,9 +223,10 @@ header {
 }
 
 .sortable-list {
-  width: 425px;
+  margin-left: 10%;
+  margin-right: 10%;
   padding: 25px;
-  background: #fff;
+  background: RBGA(25,20,20,1);
   border-radius: 7px;
   padding: 30px 25px 20px;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
@@ -242,7 +243,8 @@ header {
   /* box-shadow: 0 2px 4px rgba(0,0,0,0.06); */
   border: 1px solid #ccc;
   font-family: 'Poppins', sans-serif;
-  color: RGBA(230, 230, 230, 1); 
+  background: RGBA(30, 215, 96, 1); 
+  color: RBGA(25,20,20,1);
   justify-content: space-between;
 }
 .item .details {
@@ -317,5 +319,14 @@ header {
         margin-top: 25%;
         margin-bottom: 25%;
         padding-bottom: 15%;
+    }
+    .hero-content h1 {
+        font-size: 2em;
+        margin-bottom: 0.3em;
+    }
+    
+    .hero-content p {
+        font-size: 0.9em;
+        margin-bottom: 0.7em;
     }
 }
