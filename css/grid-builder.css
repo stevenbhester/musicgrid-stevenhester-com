@@ -447,6 +447,19 @@ input[type="text"] {
     margin-top: 33%;
 }
 
+.spotify-content {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    color: #333;
+    text-align: center;
+    margin-left: 15%;
+    margin-right: 15%;
+    margin-top: 33%;
+}
+
+
 .hero-content h1 {
     font-size: 3em;
     margin-bottom: 0.5em;
