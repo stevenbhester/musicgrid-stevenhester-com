@@ -33,5 +33,3 @@ const initSortableList = (e) => {
 
 sortableList.addEventListener("dragover", initSortableList);
 sortableList.addEventListener("dragenter", e => e.preventDefault());
-sortableList.addEventListener("dragover", initSortableList);
-sortableList.addEventListener("dragenter", e => e.preventDefault());
