@@ -457,18 +457,20 @@ input[type="text"] {
     margin-left: 15%;
     margin-right: 15%;
     margin-top: 33%;
+    background-color: RGBA(25, 20, 20, 0.5);
+    color: white;
 }
 
 
 .hero-content h1 {
     font-size: 3em;
     margin-bottom: 0.5em;
-    color: #4A4A4A; /* Dark Gray Text */
+    color: white; /* Dark Gray Text */
 }
 
 .hero-content p {
     font-size: 1.2em;
-    color: #4A4A4A; /* Dark Gray Text */
+    color: white; /* Dark Gray Text */
     margin-bottom: 1em;
 }
 
