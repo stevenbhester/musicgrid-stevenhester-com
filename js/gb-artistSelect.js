@@ -20,7 +20,8 @@ items.forEach(item => {
 const initSortableList = (e) => {
   e.preventDefault();
   console.log("initSortableList fired");
-  const draggingItem = document.querySelector(".dragging");
+  
+  const draggingItem = document.querySelector(".dragging"); 
   console.log("initSortableList detected on "+draggingItem.textContent.trim()" at "+(draggingItem.offsetTop + draggingItem.offsetHeight / 2)+" (offsetTop: "+ draggingItem.offsetTop+"; offsetHeight/2: "+(draggingItem.offsetHeight/2));
     
   // Getting all items except currently dragging and making array of them
@@ -29,8 +30,10 @@ const initSortableList = (e) => {
   
   // Finding the sibling after which the dragging item should be placed
   let nextSibling = siblings.find(sibling => {
-    console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+  (sibling.offsetTop + sibling.offsetHeight / 2) + " (offsetTop: "+ sibling.offsetTop+"; offsetHeight/2: "+(sibling.offsetHeight/2));
-    return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
+    let rect = sibling.getBoundingClientRect();
+    let yCoord = rect.top + window.scrollY + sibling.offsetHeight/2;
+    console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+ yCoord + " (rect: "+rect.top+"; scrollY: "+window.scrollY+"; offsetHeight/2: "+(sibling.offsetHeight/2));
+    return e.clientY <= yCoord;
   });
   console.log("Found match sibling "+nextSibling.textContent.trim());
   // Inserting the dragging item before the found sibling
