@@ -203,7 +203,7 @@ function buildCustomGrid() {
   //Transpose the artist preference to an array
   const artistRankings = document.getElementsByClassName("details");
   let artistsRankedArr = [];
-  artistsRankings.forEach(artistRankElem => {
+  artistRankings.forEach(artistRankElem => {
     artistsRankedArr.push({artistName: artistRankElem.querySelector('.details').textContent, artistId: artistRankElem.getAttribute("data-artist-id")});
   });
 
