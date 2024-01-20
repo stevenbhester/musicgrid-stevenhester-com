@@ -42,7 +42,7 @@ const initSortableList = (e) => {
     }
   });
   if(priorSibling) {console.log("Found prior sibling "+priorSibling.textContent.trim());} else {console.log("No prior sibling found");}
-  if(nextSibling) {console.log("Found next sibling "+nextSibling.textContent.trim())};} else {console.log("No next sibling found");}
+  if(nextSibling) {console.log("Found next sibling "+nextSibling.textContent.trim());} else {console.log("No next sibling found");}
   
   // Inserting the dragging item before the found sibling
   if(nextSibling) {
