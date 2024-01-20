@@ -14,6 +14,7 @@ function initializeSite() {
     get expires_in() { return localStorage.getItem("refresh_in") || null; },
     get expires() { return localStorage.getItem("expires") || null; },
   };
+  console.log("Token read as: "+currentToken.accessToken);
   fetchTopArtists(currentToken.accessToken);
 }
 
