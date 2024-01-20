@@ -60,6 +60,8 @@ function createArtistItem(id, name, img) {
   
   outerItem.appendChild(innerDetails);
   outerItem.appendChild(dragDots);
+
+  return outerItem;
 }
 
 
