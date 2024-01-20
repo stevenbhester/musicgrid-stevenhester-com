@@ -12,7 +12,16 @@ function initializeSite() {
 
 //Get user data code (cool!)
 async function fetchTopArtists() {
-  let aToken = await handleOauth();
+  let aToken = null;
+  let tokenResponseObj = await handleOauth();
+  if (tokenResponseObj.err) {
+    const listContainer = document.getElementsByClassName("sortable-list");
+    listContainer[0].innerHTML = '';
+    const errorMessage = document.createElement("div");
+    artistName.textContent = "Encountered error while fetching artists: "+tokenResponseObj.err;
+  } else {
+    aToken = tokenResponseObj.accessToken;
+  }
   try {
     const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/fetch-top-artists", {
       method: "POST",
