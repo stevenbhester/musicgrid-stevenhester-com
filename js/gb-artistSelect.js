@@ -102,7 +102,7 @@ function createArtistItem(id, name, img) {
   const outerItem = document.createElement("li");
   outerItem.classList.add("item");
   outerItem.setAttribute("draggable", "true");
-  // outerItem.setAttribute("data-artist-id", id);
+  outerItem.setAttribute("data-artist-id", id);
   
   const artistImage = document.createElement("img");
   artistImage.src = img;
@@ -124,13 +124,6 @@ function createArtistItem(id, name, img) {
 
   return outerItem;
 }
-
-function buildCustomGrid() {
-  const listContainer = document.getElementsByClassName("sortable-list");
-  listContainer[0].innerHTML = "";
-  listContainer[0].innerText = "I haven't coded this part yet";
-}
-
 
 function addEventListeners() {
   //Draggable code (blah)
@@ -199,4 +192,16 @@ function addEventListeners() {
   };
   sortableList.addEventListener("dragover", initSortableList);
   sortableList.addEventListener("dragenter", e => e.preventDefault());
+}
+
+// Once artists are selected, let's build a fkn grid...
+function buildCustomGrid() {
+  //Hide the artist list but keep it preserved for our lookup
+  const listContainer = document.getElementsByClassName("sortable-list");
+  listContainer[0].style.display = "none";
+  
+  //Transpose the artist preference to an array
+  const artistRankings = document.getElementsByClassName("details");
+  let artistsRankedArr = [];
+  listContainer[0].innerText = "I haven't coded this part yet";
 }
