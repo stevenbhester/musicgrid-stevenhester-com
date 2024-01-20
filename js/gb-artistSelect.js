@@ -125,11 +125,26 @@ function createArtistItem(id, name, img) {
   return outerItem;
 }
 
+function buildCustomGrid() {
+  const listContainer = document.getElementsByClassName("sortable-list");
+  listContainer[0].innerHTML = "";
+  listContainer[0].innerText = "I haven't coded this part yet";
+}
+
 
 function addEventListeners() {
   //Draggable code (blah)
   const sortableList = document.querySelector(".sortable-list");
   const items = sortableList.querySelectorAll(".item");
+  var proceedButton = document.querySelector(".play-button");
+  
+  // Play button event listener
+  playButton.addEventListener("click", function() {
+    // generatorContainer.classList.add("active");
+    // generatorContainer.style.removeProperty("display");
+    // generatorContainer.innerHTML = "";
+    buildCustomGrid();
+  });
   
   items.forEach(item => {
     item.addEventListener("dragstart", () => {
