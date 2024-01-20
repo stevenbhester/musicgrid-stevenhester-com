@@ -7,14 +7,12 @@ window.onload = function() {
 function initializeSite() {
   console.log("Initializing Site");
   console.log("Fetching Spotify OAUTH");
-  // Data structure that manages the current active token, caching it in localStorage
-  const currentToken = localStorage.getItem("access_token") || null; 
-  console.log("Token read as: "+currentToken);
-  fetchTopArtists(currentToken);
+  fetchTopArtists();
 }
 
 //Get user data code (cool!)
-async function fetchTopArtists(aToken) {
+async function fetchTopArtists() {
+  let aToken = await handleOauth();
   try {
     const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/fetch-top-artists", {
       method: "POST",
@@ -27,6 +25,57 @@ async function fetchTopArtists(aToken) {
   } catch (error) {
     console.error("Error encoding answers for grid:", error);
   }
+}
+
+async function handleOauth() {
+  const currentToken = {
+    get access_token() { return localStorage.getItem("access_token") || null; },
+    get refresh_token() { return localStorage.getItem("refresh_token") || null; },
+    get expires_in() { return localStorage.getItem("expires_in") || null; },
+    get expires() { return localStorage.getItem("expires") || null; },
+  
+    save: function (response) {
+      const { access_token, refresh_token, expires_in } = response;
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("refresh_token", refresh_token);
+      localStorage.setItem("expires_in", expires_in);
+  
+      const now = new Date();
+      const expiry = new Date(now.getTime() + (expires_in * 1000));
+      localStorage.setItem("expires", expiry);
+    }
+  };
+
+  const currentTime = new Date();
+  
+  if (!currentToken.access_token || !currentToken.expires) {
+    console.log("No access token or no expiry date found");
+    return {err: "No access token found for Spotify, please go back to step 1", accessToken: "000"};
+  } else if (currentTime.getTime() - currentToken.expires.getTime() < 300000) {
+    console.log("Time to expire read as "+(currentTime.getTime() - currentToken.expires.getTime())+", found under threshold. Refreshing token.");
+    const token = await refreshToken(currentToken.refresh_token);
+    currentToken.save(token);
+    return {err: null, accessToken: currentToken.access_token};
+  } else {
+    console.log("Token health a-okay, proceeding");
+    return {err: null, accessToken: currentToken.access_token};
+  }
+}
+
+async function refreshToken(refresh_token) {
+  const response = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({
+      client_id: "1d952129111a45b2b86ea1c08dd9c6ca",
+      grant_type: "refresh_token",
+      refresh_token: refresh_token
+    }),
+  });
+
+  return await response.json();
 }
 
 function buildArtistList(topArtistsData) {
