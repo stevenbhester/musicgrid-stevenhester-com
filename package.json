@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Idk whats going on",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "lint": "eslint '**/*.{js,jsx,html}'"
   },
