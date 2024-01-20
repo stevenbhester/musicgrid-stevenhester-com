@@ -18,7 +18,8 @@ async function fetchTopArtists() {
     const listContainer = document.getElementsByClassName("sortable-list");
     listContainer[0].innerHTML = '';
     const errorMessage = document.createElement("div");
-    artistName.textContent = "Encountered error while fetching artists: "+tokenResponseObj.err;
+    errorMessage.textContent = "Encountered error while fetching artists: "+tokenResponseObj.err;
+    listContainer[0].appendChild(errorMessage);
   } else {
     aToken = tokenResponseObj.accessToken;
   }
