@@ -222,8 +222,8 @@ header {
     text-align: center;
     margin-left: 15%;
     margin-right: 15%;
-    margin-top: 25%;
-    margin-bottom: 25%;
+    margin-top: 10vh;
+    margin-bottom: 10vh;
     padding-bottom: 8%;
     background-color: RGBA(25, 20, 20, 0.5);
     color: RGBA(230, 230, 230, 1);
@@ -305,8 +305,8 @@ header {
         text-align: center;
         margin-left: 15%;
         margin-right: 15%;
-        margin-top: 25%;
-        margin-bottom: 25%;
-        padding-bottom: 15%;
+        margin-top: 10vh;
+        margin-bottom: 10vh;
+        padding-bottom: 10vh;
     }
 }
