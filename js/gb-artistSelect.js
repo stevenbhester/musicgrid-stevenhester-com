@@ -202,11 +202,13 @@ function buildCustomGrid() {
   listContainer[0].style.display = "none";
   
   //Transpose the artist preference to an array
-  const artistRankings = document.getElementsByClassName("details");
+  const artistRankings = document.getElementsByClassName("item");
   let artistsRankedArr = [];
-  artistRankings.forEach(artistRankElem => {
-    artistsRankedArr.push({artistName: artistRankElem.querySelector('.details').textContent, artistId: artistRankElem.getAttribute("data-artist-id")});
-  });
+  
+  for (let i = 0; i < artistRankings.length; i++) {
+    artistRankElem = artistRankings[i];
+    artistsRankedArr.push({artistName: artistRankElem.querySelector(".details").textContent, artistId: artistRankElem.getAttribute("data-artist-id")});
+  })
 
   buildProgressReport(artistsRankedArr);
   
