@@ -37,7 +37,7 @@ function buildArtistList(topArtistsData) {
   const listContainer = document.getElementByClassName("sortable-list");
   topArtistsData.forEach(artist => {
     listContainer.appendChild(createArtistItem(artist.id,artist.name,artist.img));
-  }
+  });
 }
 
 function createArtistItem(id, name, img) {
