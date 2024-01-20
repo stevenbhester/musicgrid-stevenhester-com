@@ -208,7 +208,7 @@ function buildCustomGrid() {
   for (let i = 0; i < artistRankings.length; i++) {
     artistRankElem = artistRankings[i];
     artistsRankedArr.push({artistName: artistRankElem.querySelector(".details").textContent, artistId: artistRankElem.getAttribute("data-artist-id")});
-  })
+  }
 
   buildProgressReport(artistsRankedArr);
   
