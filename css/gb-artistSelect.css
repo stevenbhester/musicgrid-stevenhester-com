@@ -308,6 +308,24 @@ header {
     position: relative;
 }
 
+
+.cell {
+    flex: 1;
+    padding: 15px 20px;
+    text-align: center;
+    font-size: 1.5em;
+    min-height: 50px;
+    background-color: RGBA(250,0,250,0.15);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-break: break-word;
+    font-family: "Josefin Sans", 'Helvetica Neue';
+    margin: 2.5px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
 .artist-header {
     background-color: RGBA(0,0,250,0.15);
     border-radius: 15px 15px 0px 0px;
@@ -326,23 +344,6 @@ header {
     background-color: RGBA(250,0,0,0.15);
     border-radius: 15px 0px 0px 15px;
     text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #fff, 0 0 50px #fff, 0 0 60px #fff, 0 0 70px #fff;
-}
-
-.cell {
-    flex: 1;
-    padding: 15px 20px;
-    text-align: center;
-    font-size: 1.5em;
-    min-height: 50px;
-    background-color: RGBA(250,0,250,0.15);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    word-break: break-word;
-    font-family: "Josefin Sans", 'Helvetica Neue';
-    margin: 2.5px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 
 .progress-cell.unstarted::before {
