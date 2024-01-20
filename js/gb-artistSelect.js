@@ -124,8 +124,6 @@ function addEventListeners() {
       console.log("Inserted drag element after prior sibling");
     } else { console.log("No prior or next sibling found for insertion"); }
   };
+  sortableList.addEventListener("dragover", initSortableList);
+  sortableList.addEventListener("dragenter", e => e.preventDefault());
 }
-
-
-sortableList.addEventListener("dragover", initSortableList);
-sortableList.addEventListener("dragenter", e => e.preventDefault());
