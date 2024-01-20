@@ -35,10 +35,10 @@ const initSortableList = (e) => {
     let rect = sibling.getBoundingClientRect();
     let yCoord = rect.top + sibling.offsetHeight/2;
     console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+ yCoord + " (rect: " + rect.top + "; offsetHeight/2: "+(sibling.offsetHeight/2));
-    if (e.clientY >= yCoord && (!priorSibling || yCoord < priorSibling.getBoundClientRect().top + priorSibling.offsetHeight/2)) {
-        priorSibling = sibling;
-    } else if (e.clientY < yCoord && (!nextSibling || yCoord < nextSibling.getBoundClientRect().top + nextSibling.offsetHeight/2)) {
-        nextSibling = sibling;
+    if (e.clientY >= yCoord && (!priorSibling || yCoord < priorSibling.getBoundingClientRect().top + priorSibling.offsetHeight/2)) {
+      priorSibling = sibling;
+    } else if (e.clientY < yCoord && (!nextSibling || yCoord < nextSibling.getBoundingClientRect().top + nextSibling.offsetHeight/2)) {
+      nextSibling = sibling;
     }
   });
   console.log("Found prior sibling "+priorSibling.textContent.trim()+" and next sibling "+nextSibling.textContent.trim());
