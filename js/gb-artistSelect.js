@@ -116,7 +116,7 @@ const initSortableList = (e) => {
   
   // Inserting the dragging item before the found sibling
   if(nextSibling) {
-    sortableList.insertBefore(draggingItem.get(0), nextSibling.get(0));
+    sortableList.insertBefore(draggingItem, nextSibling);
     console.log("Inserted drag element before next sibling");
   } else if (priorSibling) {
     sortableList.appendChild(draggingItem);
