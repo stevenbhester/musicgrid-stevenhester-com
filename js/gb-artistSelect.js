@@ -203,5 +203,91 @@ function buildCustomGrid() {
   //Transpose the artist preference to an array
   const artistRankings = document.getElementsByClassName("details");
   let artistsRankedArr = [];
+  artistsRankings.forEach(artistRankElem => {
+    artistsRankedArr.push({artistName: artistRankElem.querySelector('.details').textContent, artistId: artistRankElem.getAttribute("data-artist-id")});
+  });
+
+  buildProgressReport(artistsRankedArr);
+  
   listContainer[0].innerText = "I haven't coded this part yet";
 }
+
+// Tell the users how we're doing building their grid
+function buildProgressReport(artists) {
+  // Delete the frontend artist list now that we're done with it
+  const listContainer = document.getElementsByClassName("sortable-list");
+  listContainer[0].innerHTML = "";
+
+  // Build our progress reporter container
+  const progressContainer = document.getElementById("gridProgressContainer");
+  progressContainer.innerHTML = "";
+
+  // Fetch the current list of automated categories
+  const categoriesArr = fetchValidCategories();
+  
+  // Build our progress headers
+  const headerRow = document.createElement("div");
+  headerRow.classList.add("row");
+  headerRow.appendChild(createHeader("artist","Artists"));
+  categoriesArr.forEach( category => {
+    headerRow.appendChild(createHeader("category",category.head));
+  });
+  progressContainer.appendChild(headerRow);
+
+  // Build our artist rows
+  artists.forEach(artist => {
+    let artistRow = document.createElement("div");
+    artistRow.classList.add("row");
+    artistRow.appendChild(createProgressCell("artist",artist.artistName));
+    categoriesArr.forEach( category => {
+      artistRow.appendChild(createProgressCell("progress",category.className));
+    });
+    progressContainer.appendChild(artistRow);
+  });
+}
+
+function createHeader(headerType, headerText) {
+  const headerCell = document.createElement("div");
+  const cellClass = headerType+"-header";
+  headerCell.classList.add("progress-header", cellClass);
+  headerCell.textContent = headerText;
+  return headerCell;
+}
+
+function createProgressCell(cellType, cellContent) {
+  const progressCell = document.createElement("div");
+  let cellClass = cellType+"-cell";
+  let cellDataEmbed = cellContent+"-cell";
+  let cellStatus = "unstarted";
+  if ( cellType == 'artist' ){
+    progressCell.textContent = cellContent;
+    cellStatus = "noStatus";
+  } 
+  progressCell.classList.add("cell", cellClass, cellDataEmbed, cellStatus);
+  return progressCell;
+}
+
+function fetchValidCategories() {
+  let validCategories = [];
+  validCategories.push({head: "Check Song Release Dates", endpoint: "/list-songs-by-dates", className: "release-date"});
+  validCategories.push({head: "Check Song Lengths", endpoint: "/list-songs-by-duration", className: "song-length"});
+  validCategories.push({head: "Check Song Title Lengths", endpoint: "/list-songs-by-wordcount", className: "title-length"});
+  validCategories.push({head: "Checking Data Availability", endpoint: "/get-cheat-preview-url", className: "data-available"});
+  validCategories.push({head: "Looking for Group", endpoint: "fakeEndpoint", className: "group-compare"});
+  return(validCategories);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
