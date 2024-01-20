@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "lint": "eslint '**/*.{js,jsx,html}'"
-  },  
+  },
   "devDependencies": {
     "eslint": "^8.56.0"
   },
@@ -23,6 +23,7 @@
     "axios": "^1.6.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "interactjs": "^1.10.26",
     "pg": "^8.11.3"
   }
 }
