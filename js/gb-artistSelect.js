@@ -29,12 +29,18 @@ const initSortableList = (e) => {
   console.log("siblings pulled");
   
   // Finding the sibling after which the dragging item should be placed
-  let adjacentSiblings = siblings.find(sibling => {
+  let priorSibling = siblings.find(sibling => {
     let rect = sibling.getBoundingClientRect();
     let yCoord = rect.top + sibling.offsetHeight/2;
     console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+ yCoord + " (rect: " + rect.top + "; offsetHeight/2: "+(sibling.offsetHeight/2));
-    return { nextSibling: .clientY <= yCoord, priorSibling: .clientY >= yCoord};
+    return .clientY >= yCoord;
   });
+  let nextSibling = siblings.reverse().find(sibling => {
+    let rect = sibling.getBoundingClientRect();
+    let yCoord = rect.top + sibling.offsetHeight/2;
+    console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+ yCoord + " (rect: " + rect.top + "; offsetHeight/2: "+(sibling.offsetHeight/2));
+    return .clientY <= yCoord: 
+  }); 
   console.log("Found prior sibling "+adjacentSiblings.priorSibling.textContent.trim()+" and next sibling "+adjacentSiblings.nextSibling.textContent.trim());
   
   // Inserting the dragging item before the found sibling
