@@ -1,6 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap');
-@import url('https://fonts.google.com/specimen/Cutive+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap');
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #EFEFEF; /* Light Gray Background */
@@ -182,8 +182,8 @@ header {
     text-align: center;
     margin-left: 15%;
     margin-right: 15%;
-    margin-top: 25%;
-    margin-bottom: 25%;
+    margin-top: 10vh;
+    margin-bottom: 10vh;
     padding-bottom: 8%;
     background-color: RGBA(25, 20, 20, 0.5);
     color: RGBA(230, 230, 230, 1);
@@ -245,6 +245,7 @@ header {
   background: RGBA(30, 215, 96, 1); 
   color: RBGA(25,20,20,1);
   justify-content: space-between;
+  text-align: left;
 }
 .item .details {
   display: flex;
@@ -315,9 +316,9 @@ header {
         text-align: center;
         margin-left: 15%;
         margin-right: 15%;
-        margin-top: 25%;
-        margin-bottom: 25%;
-        padding-bottom: 15%;
+        margin-top: 10vh;
+        margin-bottom: 10vh;
+        padding-bottom: 10vh;
     }
     .hero-content h1 {
         font-size: 2em;
@@ -327,5 +328,14 @@ header {
     .hero-content p {
         font-size: 0.9em;
         margin-bottom: 0.7em;
+    }
+
+    .sortable-list {
+      margin-left: 0px;
+      margin-right: 0px;
+      background: RBGA(25,20,20,1);
+      border-radius: 7px;
+      padding: 30px 25px 20px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
     }
 }
