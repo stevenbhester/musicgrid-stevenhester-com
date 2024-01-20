@@ -31,9 +31,9 @@ async function fetchTopArtists(aToken) {
 
 function buildArtistList(topArtistsData) {
   const listContainer = document.getElementsByClassName("sortable-list");
-  listContainer.innerHTML = '';
+  listContainer[0].innerHTML = '';
   topArtistsData.forEach(artist => {
-    listContainer.appendChild(createArtistItem(artist.id,artist.name,artist.img));
+    listContainer[0].appendChild(createArtistItem(artist.id,artist.name,artist.img));
   });
 }
 
