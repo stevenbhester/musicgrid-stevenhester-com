@@ -40,7 +40,7 @@ const initSortableList = (e) => {
     } else if (e.clientY < yCoord && (!nextSibling || yCoord < nextSibling.getBoundClientRect().top + nextSibling.offsetHeight/2)) {
         nextSibling = sibling;
     }
-  } 
+  });
   console.log("Found prior sibling "+priorSibling.textContent.trim()+" and next sibling "+nextSibling.textContent.trim());
   
   // Inserting the dragging item before the found sibling
