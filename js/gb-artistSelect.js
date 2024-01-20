@@ -30,7 +30,7 @@ async function fetchTopArtists(aToken) {
 }
 
 function buildArtistList(topArtistsData) {
-  const listContainer = document.getElementByClassName("sortable-list");
+  const listContainer = document.getElementsByClassName("sortable-list");
   listContainer.innerHTML = '';
   topArtistsData.forEach(artist => {
     listContainer.appendChild(createArtistItem(artist.id,artist.name,artist.img));
