@@ -285,6 +285,73 @@ header {
   opacity: 0;
 }
 
+.gridProgressContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 95%;
+    max-width: 800px;
+    margin: 10px auto;
+    padding: 10px;
+    margin-top: 5%;
+    border-radius: 10px;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+    transform: scale(0.9);
+    position: relative;
+    z-index: 100;
+}
+
+.row {
+    display: flex;
+    width: 100%;
+    position: relative;
+}
+
+.artist-header {
+    background-color: RGBA(0,0,250,0.15);
+    border-radius: 15px 15px 0px 0px;
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #fff, 0 0 50px #fff, 0 0 60px #fff, 0 0 70px #fff;
+}
+
+.category-header {
+    background-color: RGBA(250,0,0,0.15);
+    min-height: 85px;
+    border-radius: 15px 0px 0px 15px;
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #fff, 0 0 50px #fff, 0 0 60px #fff, 0 0 70px #fff;
+}
+
+.cell {
+    flex: 1;
+    padding: 15px 20px;
+    text-align: center;
+    font-size: 1.5em;
+    min-height: 50px;
+    background-color: RGBA(250,0,250,0.15);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-break: break-word;
+    font-family: "Josefin Sans", 'Helvetica Neue';
+    margin: 2.5px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.progress-cell.unstarted::before {
+    content: "\231B";
+    font-size: 1.5em;
+}
+
+.progress-cell.in-progress {
+    background-color: RGBA(250,0,250,0.1);
+}
+
+.progress-cell.finished::before {
+    content: "\2713";
+    font-size: 1.5em;
+}
+
 @media (max-width: 600px) {
     .navbar .nav-links {
         display: none; /* Hide the desktop links */
@@ -343,11 +410,25 @@ header {
     }
 
     .sortable-list {
-      margin-left: 0px;
-      margin-right: 0px;
-      background: RBGA(25,20,20,1);
-      border-radius: 7px;
-      padding: 30px 25px 20px;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        margin-left: 0px;
+        margin-right: 0px;
+        background: RBGA(25,20,20,1);
+        border-radius: 7px;
+        padding: 30px 25px 20px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .grid-progress-container {
+        grid-template-columns: 1fr;
+    }
+
+    .cell, .artist-header, .category-header {
+        font-size: 14px; /* Adjust base font size */
+        word-wrap: break-word; /* Ensures words wrap and don't overflow */
+        padding: 1px 1px;
+    }
+
+    .artist-header {
+        min-height: 45px;
     }
 }
