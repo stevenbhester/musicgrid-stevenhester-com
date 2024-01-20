@@ -29,26 +29,26 @@ const initSortableList = (e) => {
   console.log("siblings pulled");
   
   // Finding the sibling after which the dragging item should be placed
-  let priorSibling = siblings.find(sibling => {
+  let nextSibling = null;
+  let priorSibling = null;
+  siblings.forEach(sibling => {
     let rect = sibling.getBoundingClientRect();
     let yCoord = rect.top + sibling.offsetHeight/2;
     console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+ yCoord + " (rect: " + rect.top + "; offsetHeight/2: "+(sibling.offsetHeight/2));
-    return .clientY >= yCoord;
-  });
-  let nextSibling = siblings.reverse().find(sibling => {
-    let rect = sibling.getBoundingClientRect();
-    let yCoord = rect.top + sibling.offsetHeight/2;
-    console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+ yCoord + " (rect: " + rect.top + "; offsetHeight/2: "+(sibling.offsetHeight/2));
-    return .clientY <= yCoord: 
-  }); 
-  console.log("Found prior sibling "+adjacentSiblings.priorSibling.textContent.trim()+" and next sibling "+adjacentSiblings.nextSibling.textContent.trim());
+    if (e.clientY >= yCoord && (!priorSibling || yCoord < priorSibling.getBoundClientRect().top + priorSibling.offsetHeight/2)) {
+        priorSibling = sibling;
+    } else if (e.clientY < yCoord && (!nextSibling || yCoord < nextSibling.getBoundClientRect().top + nextSibling.offsetHeight/2)) {
+        nextSibling = sibling;
+    }
+  } 
+  console.log("Found prior sibling "+priorSibling.textContent.trim()+" and next sibling "+nextSibling.textContent.trim());
   
   // Inserting the dragging item before the found sibling
-  if(adjacentSiblings.nextSibling) {
-    sortableList.insertBefore(draggingItem, adjacentSiblings.nextSibling);
+  if(nextSibling) {
+    sortableList.insertBefore(draggingItem, nextSibling);
     console.log("Inserted drag element before next sibling");
-  } else if (adjacentSiblings.priorSibling) {
-    sortableList.insertAfter(draggingItem, adjacentSiblings.priorSibling);
+  } else if (priorSibling) {
+    sortableList.insertAfter(draggingItem, priorSibling);
     console.log("Inserted drag element after prior sibling");
   } else { console.log("No prior or next sibling found for insertion"); }
 };
