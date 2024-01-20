@@ -41,7 +41,7 @@ function createArtistItem(id, name, img) {
   const outerItem = document.createElement("li");
   outerItem.classList.add("item");
   outerItem.setAttribute("draggable", "true");
-  outerItem.setAttribute("data-artist-id", id);
+  // outerItem.setAttribute("data-artist-id", id);
   
   const artistImage = document.createElement("img");
   artistImage.src = img;
