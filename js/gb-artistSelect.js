@@ -8,14 +8,9 @@ function initializeSite() {
   console.log("Initializing Site");
   console.log("Fetching Spotify OAUTH");
   // Data structure that manages the current active token, caching it in localStorage
-  const currentToken = {
-    get access_token() { return localStorage.getItem("access_token") || null; },
-    get refresh_token() { return localStorage.getItem("refresh_token") || null; },
-    get expires_in() { return localStorage.getItem("refresh_in") || null; },
-    get expires() { return localStorage.getItem("expires") || null; },
-  };
-  console.log("Token read as: "+currentToken.accessToken);
-  fetchTopArtists(currentToken.accessToken);
+  const currentToken = localStorage.getItem("access_token") || null; 
+  console.log("Token read as: "+currentToken);
+  fetchTopArtists(currentToken);
 }
 
 //Get user data code (cool!)
