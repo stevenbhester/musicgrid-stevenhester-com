@@ -29,16 +29,22 @@ const initSortableList = (e) => {
   console.log("siblings pulled");
   
   // Finding the sibling after which the dragging item should be placed
-  let nextSibling = siblings.find(sibling => {
+  let adjacentSiblings = siblings.find(sibling => {
     let rect = sibling.getBoundingClientRect();
-    let yCoord = rect.top + window.scrollY + sibling.offsetHeight/2;
-    console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+ yCoord + " (rect: " + rect.top + "; scrollY: "+window.scrollY+"/ offsetHeight/2: "+(sibling.offsetHeight/2));
-    return e.clientY <= yCoord;
+    let yCoord = rect.top + sibling.offsetHeight/2;
+    console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+ yCoord + " (rect: " + rect.top + "; offsetHeight/2: "+(sibling.offsetHeight/2));
+    return { nextSibling: .clientY <= yCoord, priorSibling: .clientY >= yCoord};
   });
-  console.log("Found match sibling "+nextSibling.textContent.trim());
+  console.log("Found prior sibling "+adjacentSiblings.priorSibling.textContent.trim()+" and next sibling "+adjacentSiblings.nextSibling.textContent.trim());
+  
   // Inserting the dragging item before the found sibling
-  sortableList.insertBefore(draggingItem, nextSibling);
-  console.log("Inserted drag element before found match");
+  if(adjacentSiblings.nextSibling) {
+    sortableList.insertBefore(draggingItem, adjacentSiblings.nextSibling);
+    console.log("Inserted drag element before next sibling");
+  } else if (adjacentSiblings.priorSibling) {
+    sortableList.insertAfter(draggingItem, adjacentSiblings.priorSibling);
+    console.log("Inserted drag element after prior sibling");
+  } else { console.log("No prior or next sibling found for insertion"); }
 };
 
 
