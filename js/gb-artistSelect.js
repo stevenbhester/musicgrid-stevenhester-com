@@ -252,7 +252,7 @@ function buildProgressReport(artists) {
 function createHeader(headerType, headerText) {
   const headerCell = document.createElement("div");
   const cellClass = headerType+"-header";
-  headerCell.classList.add("progress-header", cellClass);
+  headerCell.classList.add("cell", "progress-header", cellClass);
   headerCell.textContent = headerText;
   return headerCell;
 }
