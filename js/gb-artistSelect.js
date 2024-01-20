@@ -49,7 +49,7 @@ const initSortableList = (e) => {
     sortableList.insertBefore(draggingItem, nextSibling);
     console.log("Inserted drag element before next sibling");
   } else if (priorSibling) {
-    sortableList.insertAfter(draggingItem, priorSibling);
+    sortableList.appendChild(draggingItem);
     console.log("Inserted drag element after prior sibling");
   } else { console.log("No prior or next sibling found for insertion"); }
 };
