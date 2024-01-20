@@ -285,7 +285,7 @@ header {
   opacity: 0;
 }
 
-.gridProgressContainer {
+.progressContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
