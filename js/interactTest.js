@@ -1,4 +1,4 @@
-import interact from 'interactjs'
+import interact from '/node_modules/interactjs'
 // target elements with the "draggable" class
 interact('.draggable')
   .draggable({
