@@ -3,12 +3,12 @@ const items = sortableList.querySelectorAll(".item");
 
 items.forEach(item => {
   item.addEventListener("dragstart", () => {
-    console.log("Dragging element "+item.textContent);
+    console.log("Dragging element "+item.textContent.trim());
     // Adding dragging class to item after a delay
     setTimeout(() => item.classList.add("dragging"), 0);
   });
   item.addEventListener("touchmove", () => {
-    console.log("Dragging element "+item.textContent);
+    console.log("Dragging element "+item.textContent.trim());
     // Adding dragging class to item after a delay
     setTimeout(() => item.classList.add("dragging"), 0);
   });
