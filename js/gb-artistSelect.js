@@ -238,6 +238,7 @@ function buildProgressReport(artists) {
   progressContainer.appendChild(headerRow);
 
   // Build our artist rows
+  //TODO: Only generate rows for further artists if no match found in artists already returned
   artists.forEach(artist => {
     let artistRow = document.createElement("div");
     artistRow.classList.add("row");
@@ -284,6 +285,8 @@ function fetchValidCategories() {
 
 
 
+//Next steps: Go through valid artist rows, check each cell, change class based on status, get good gif for loading, add missing-artist gif, add warning if no cheat button, build custom grid data structure and handle
+//Long term: Add more categories with further APIs then let users select the categories they want.
 
 
 
