@@ -136,10 +136,10 @@ function addEventListeners() {
   //Draggable code (blah)
   const sortableList = document.querySelector(".sortable-list");
   const items = sortableList.querySelectorAll(".item");
-  var proceedButton = document.querySelector(".play-button");
+  var proceedButton = document.querySelector(".proceed-button");
   
   // Play button event listener
-  playButton.addEventListener("click", function() {
+  proceedButton.addEventListener("click", function() {
     // generatorContainer.classList.add("active");
     // generatorContainer.style.removeProperty("display");
     // generatorContainer.innerHTML = "";
