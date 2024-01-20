@@ -47,12 +47,12 @@ async function handleOauth() {
   };
 
   const currentTime = new Date();
-  
+  const expireTime = new Date(currentToken.expires);
   if (!currentToken.access_token || !currentToken.expires) {
     console.log("No access token or no expiry date found");
     return {err: "No access token found for Spotify, please go back to step 1", accessToken: "000"};
-  } else if (currentTime.getTime() - currentToken.expires.getTime() < 300000) {
-    console.log("Time to expire read as "+(currentTime.getTime() - currentToken.expires.getTime())+", found under threshold. Refreshing token.");
+  } else if (currentTime.getTime() - expireTime.getTime() < 300000) {
+    console.log("Time to expire read as "+(currentTime.getTime() - expireTime.getTime())+", found under threshold. Refreshing token.");
     const token = await refreshToken(currentToken.refresh_token);
     currentToken.save(token);
     return {err: null, accessToken: currentToken.access_token};
