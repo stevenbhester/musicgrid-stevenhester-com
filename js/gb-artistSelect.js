@@ -260,12 +260,14 @@ function createHeader(headerType, headerText) {
 function createProgressCell(cellType, cellContent) {
   const progressCell = document.createElement("div");
   let cellClass = cellType+"-cell";
-  let cellDataEmbed = cellContent+"-cell";
+  let cellDataEmbed = "no-data";
   let cellStatus = "unstarted";
   if ( cellType == 'artist' ){
     progressCell.textContent = cellContent;
     cellStatus = "noStatus";
-  } 
+  } else {
+    cellDataEmbed = cellContent+"-cell";
+  }
   progressCell.classList.add("cell", cellClass, cellDataEmbed, cellStatus);
   return progressCell;
 }
