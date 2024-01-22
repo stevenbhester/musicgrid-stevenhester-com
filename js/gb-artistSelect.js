@@ -290,15 +290,15 @@ function fetchValidCategories() {
 
 let masterArtistData = {};
 
-async function parseArtists(progressContainer) {
+async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
   let progressRowsHTMLObj = progressContainer.getElementsByClassName("row");
   let progressRowsArr = [];
   for (let j = 1; j < progressRowsHTMLObj.length; j++) { //We start at 1 to ignore header row
     let progressRowElem = progressRowsHTMLObj[j];
     progressRowsArr.push(progressRowElem);
   }
-  
-  progressRowsArr.forEach(row => { 
+  progressRowsSlice = progressRowsArr.slice(startIndex, endIndex);
+  progressRowsSlice.forEach(row => { 
     let artistSummObj = {};
     let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
     let artistId = row.getElementsByClassName("artist-cell")[0].getAttribute("data-artist-id");
