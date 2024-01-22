@@ -297,7 +297,7 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
     let progressRowElem = progressRowsHTMLObj[j];
     progressRowsArr.push(progressRowElem);
   }
-  progressRowsSlice = progressRowsArr.slice(startIndex, endIndex);
+  let progressRowsSlice = progressRowsArr.slice(startIndex, endIndex);
   progressRowsSlice.forEach(row => { 
     let artistSummObj = {};
     let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
@@ -384,7 +384,7 @@ async function countReleasesByWordCount(artistName) {
             songsByWordCountObj[wordCount] += songs.split("\",\"").length;
           } else {songsByWordCountObj[wordCount] = songs.split("\",\"").length;}
         });
-      return songsByWordCountObj;
+        return songsByWordCountObj;
       });
   });
 }
@@ -406,7 +406,7 @@ async function countReleasesByDuration(artistName) {
             songsByDurationObj[duration] += songs.split("\",\"").length;
           } else {songsByDurationObj[duration] = songs.split("\",\"").length;}
         });  
-      return songsByDurationObj;
+        return songsByDurationObj;
       });
   });
 }
