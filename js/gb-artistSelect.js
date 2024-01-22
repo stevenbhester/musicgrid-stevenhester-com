@@ -291,12 +291,16 @@ function fetchValidCategories() {
 let masterArtistData = {};
 
 async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
+  let debug = true;
+  if(debug) { console.log("parsing Artist progress");}
   let progressRowsHTMLObj = progressContainer.getElementsByClassName("row");
   let progressRowsArr = [];
+  if(debug) { console.log("Setting progressRowArr:");}
   for (let j = 1; j < progressRowsHTMLObj.length; j++) { //We start at 1 to ignore header row
     let progressRowElem = progressRowsHTMLObj[j];
     progressRowsArr.push(progressRowElem);
   }
+  if(debug) { console.dir(progressRowArr);}
   let progressRowsSlice = progressRowsArr.slice(startIndex, endIndex);
   progressRowsSlice.forEach(row => { 
     let artistSummObj = {};
@@ -304,8 +308,11 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
     let artistId = row.getElementsByClassName("artist-cell")[0].getAttribute("data-artist-id");
     let categoryCellsHTMLObj = row.getElementsByClassName("progress-cell");
     let categoryCellsObj = [];
+    if(debug) { console.log(`Observing artist name: "${artistName}", id: "${artistId}"`);}
   
     for (let i = 0; i < categoryCellsHTMLObj.length; i++) {
+      let keyValue = categoryCellsElem.getAttribute("data-progress-type");
+      if(debug) { console.log(`Setting categoryCellsObj[${keyValue}]:${categoryCellsElem}`);}
       let categoryCellsElem = categoryCellsHTMLObj[i];
       categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
     }
