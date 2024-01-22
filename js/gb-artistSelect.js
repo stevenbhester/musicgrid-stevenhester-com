@@ -301,6 +301,7 @@ async function parseArtists(progressContainer) {
   progressRowsArr.forEach(row => { 
     let artistSummObj = {};
     let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
+    let artistId = row.getElementsByClassName("artist-cell")[0].getAttribute("data-artist-id");
     let categoryCellsHTMLObj = row.getElementsByClassName("progress-cell");
     let categoryCellsArr = [];
   
@@ -331,11 +332,11 @@ async function parseArtists(progressContainer) {
 }
 
 
-async function countReleasesByYear(artistName) { 
+async function countReleasesByYear(artistId) { 
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ artistName })
+    body: JSON.stringify({ artistId })
   });
   console.log("Received response: "+response);
   if (!response.ok) throw new Error("Failed to fetch");
