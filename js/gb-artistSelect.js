@@ -290,7 +290,7 @@ function fetchValidCategories() {
 
 let masterArtistData = {};
 
-function parseArtists(progressContainer) {
+async function parseArtists(progressContainer) {
   let progressRowsHTMLObj = progressContainer.getElementsByClassName("row");
   let progressRowsArr = [];
   for (let j = 1; j < progressRowsHTMLObj.length; j++) { //We start at 1 to ignore header row
@@ -314,13 +314,14 @@ function parseArtists(progressContainer) {
         category.classList.remove("finished");
         category.classList.remove("unstarted");
         category.classList.add("in-progress");
-        let songYearsObj = countReleasesByYear(artistName);
-        if (songYearsObj) {
-          category.classList.remove("unstarted");
-          category.classList.remove("in-progress");
-          category.classList.add("finished");
-          artistSummObj.release_date = songYearsObj;
-        }
+        countReleasesByYear(artistName).then((songYearsObj) => {
+          if (songYearsObj) {
+            category.classList.remove("unstarted");
+            category.classList.remove("in-progress");
+            category.classList.add("finished");
+            artistSummObj.release_date = songYearsObj;
+          }
+        });
       }
       
     });
