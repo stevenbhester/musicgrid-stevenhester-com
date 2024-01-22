@@ -318,42 +318,39 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
 }
 
 async function checkReleaseDates(artistId, releaseDateCell) {
-{   
-      releaseDateCell.classList.remove("finished");
+  releaseDateCell.classList.remove("finished");
+  releaseDateCell.classList.remove("unstarted");
+  releaseDateCell.classList.add("in-progress");
+  let songYearsObj = {};
+  countReleasesByYear(artistId).then((songYearsObj) => {
+    if (songYearsObj) {
       releaseDateCell.classList.remove("unstarted");
-      releaseDateCell.classList.add("in-progress");
-      let songYearsObj = {};
-      countReleasesByYear(artistId).then((songYearsObj) => {
-        if (songYearsObj) {
-          releaseDateCell.classList.remove("unstarted");
-          releaseDateCell.classList.remove("in-progress");
-          releaseDateCell.classList.add("finished");
-        }
-        return songYearsObj;
-      });
+      releaseDateCell.classList.remove("in-progress");
+      releaseDateCell.classList.add("finished");
     }
+    return songYearsObj;
+  });
 }
 
 async function checkWordCountsAndDuration(artistName, wordCountCell, durationCell) {
-{   
-    wordCountCell.classList.remove("finished");
-    wordCountCell.classList.remove("unstarted");
-    wordCountCell.classList.add("in-progress");
-    durationCell.classList.remove("finished");
-    durationCell.classList.remove("unstarted");
-    durationCell.classList.add("in-progress");
-    let wordCountDurObj = {};
-    
-    checkWordCountsAndDuration(artistName).then((songWordcountDurObj) => {
-      if (songWordcountDurObj) {
-        wordCountCell.classList.remove("unstarted");
-        wordCountCell.classList.remove("in-progress");
-        wordCountCell.classList.add("finished");
-        durationCell.classList.remove("unstarted");
-        durationCell.classList.remove("in-progress");
-        durationCell.classList.add("finished");
-      }
-      return songWordcountDurObj;
+  wordCountCell.classList.remove("finished");
+  wordCountCell.classList.remove("unstarted");
+  wordCountCell.classList.add("in-progress");
+  durationCell.classList.remove("finished");
+  durationCell.classList.remove("unstarted");
+  durationCell.classList.add("in-progress");
+  let wordCountDurObj = {};
+  
+  checkWordCountsAndDuration(artistName).then((songWordcountDurObj) => {
+    if (songWordcountDurObj) {
+      wordCountCell.classList.remove("unstarted");
+      wordCountCell.classList.remove("in-progress");
+      wordCountCell.classList.add("finished");
+      durationCell.classList.remove("unstarted");
+      durationCell.classList.remove("in-progress");
+      durationCell.classList.add("finished");
+    }
+    return songWordcountDurObj;
   });
 }
 
