@@ -310,51 +310,51 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
       categoryCellsObj[category.getAttribute("data-progress-type")] = categoryCellsElem;
     }
 
-    artistSummObj[releaseDate] = checkReleaseDates(categoryCellsObj["release-date"]);
-    artistSummObj[wordCountDur] = checkWordCountsAndDuration(categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
+    artistSummObj[releaseDate] = checkReleaseDates(artistId, categoryCellsObj["release-date"]);
+    artistSummObj[wordCountDur] = checkWordCountsAndDuration(artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
     masterArtistData[artistName] = artistSummObj;
   });
   console.dir(masterArtistData);
 }
 
-async function checkReleaseDates(releaseDateCell) {
+async function checkReleaseDates(artistId, releaseDateCell) {
 {   
-        releaseDateCell.classList.remove("finished");
-        releaseDateCell.classList.remove("unstarted");
-        releaseDateCell.classList.add("in-progress");
-        let songYearsObj = {};
-        countReleasesByYear(artistId).then((songYearsObj) => {
-          if (songYearsObj) {
-            releaseDateCell.classList.remove("unstarted");
-            releaseDateCell.classList.remove("in-progress");
-            releaseDateCell.classList.add("finished");
-          }
-          return songYearsObj;
-        });
-      }
+      releaseDateCell.classList.remove("finished");
+      releaseDateCell.classList.remove("unstarted");
+      releaseDateCell.classList.add("in-progress");
+      let songYearsObj = {};
+      countReleasesByYear(artistId).then((songYearsObj) => {
+        if (songYearsObj) {
+          releaseDateCell.classList.remove("unstarted");
+          releaseDateCell.classList.remove("in-progress");
+          releaseDateCell.classList.add("finished");
+        }
+        return songYearsObj;
+      });
+    }
 }
 
-async function checkWordCountsAndDuration(wordCountCell, durationCell) {
+async function checkWordCountsAndDuration(artistName, wordCountCell, durationCell) {
 {   
-        wordCountCell.classList.remove("finished");
+    wordCountCell.classList.remove("finished");
+    wordCountCell.classList.remove("unstarted");
+    wordCountCell.classList.add("in-progress");
+    durationCell.classList.remove("finished");
+    durationCell.classList.remove("unstarted");
+    durationCell.classList.add("in-progress");
+    let wordCountDurObj = {};
+    
+    checkWordCountsAndDuration(artistName).then((songWordcountDurObj) => {
+      if (songWordcountDurObj) {
         wordCountCell.classList.remove("unstarted");
-        wordCountCell.classList.add("in-progress");
-        durationCell.classList.remove("finished");
+        wordCountCell.classList.remove("in-progress");
+        wordCountCell.classList.add("finished");
         durationCell.classList.remove("unstarted");
-        durationCell.classList.add("in-progress");
-        let wordCountDurObj = {};
-        
-        checkWordCountsAndDuration(artistId).then((songWordcountDurObj) => {
-          if (songWordcountDurObj) {
-            wordCountCell.classList.remove("unstarted");
-            wordCountCell.classList.remove("in-progress");
-            wordCountCell.classList.add("finished");
-            durationCell.classList.remove("unstarted");
-            durationCell.classList.remove("in-progress");
-            durationCell.classList.add("finished");
-          }
-          return songWordcountDurObj;
-      });
+        durationCell.classList.remove("in-progress");
+        durationCell.classList.add("finished");
+      }
+      return songWordcountDurObj;
+  });
 }
 
 async function countReleasesByYear(artistId) { 
@@ -374,7 +374,7 @@ async function countReleasesByWordCountDuration(artistName) {
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ artistId, durations, wordCounts })
+    body: JSON.stringify({ artistName, durations, wordCounts })
   });
   console.log("Received response: "+response);
   if (!response.ok) throw new Error("Failed to fetch");
