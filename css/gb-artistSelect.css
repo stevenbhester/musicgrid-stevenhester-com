@@ -437,11 +437,11 @@ header {
     }
     
     .artist-cell {
-        max-width: 100px;
+        min-width: 100px;
     }
 
     .artist-header {
         min-height: 45px;
-        max-width: 100px;
+        min-width: 100px;
     }
 }
