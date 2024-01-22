@@ -299,7 +299,7 @@ function parseArtists(progressContainer) {
     categoryCells.forEach(category => { 
       let categoryType = category.getAttribute("data-progress-type");
       if (categoryType == "release-date") {   
-        let songsByYear = countReleasesByYear(artistName);
+        let songsByYear = await countReleasesByYear(artistName);
         artistSummObj.release_date = songYearsObj;
       }
       
@@ -310,7 +310,7 @@ function parseArtists(progressContainer) {
 }
 
 
-function countReleasesByYear(artistName) { 
+async function countReleasesByYear(artistName) { 
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year'", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
