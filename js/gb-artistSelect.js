@@ -315,7 +315,7 @@ async function parseArtists(progressContainer) {
         category.classList.remove("finished");
         category.classList.remove("unstarted");
         category.classList.add("in-progress");
-        countReleasesByYear(artistName).then((songYearsObj) => {
+        countReleasesByYear(artistId).then((songYearsObj) => {
           if (songYearsObj) {
             category.classList.remove("unstarted");
             category.classList.remove("in-progress");
