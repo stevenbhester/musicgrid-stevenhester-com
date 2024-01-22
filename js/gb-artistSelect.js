@@ -369,7 +369,7 @@ async function countReleasesByYear(artistId) {
 
 async function countReleasesByWordCount(artistName) { 
   let wordCounts = [1, 2, 3, 4, 5];
-  songsByWordCountObj = {};
+  let songsByWordCountObj = {};
   wordCounts.forEach(wordCount => {
     fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-wordcount", {
       method: "POST",
@@ -379,34 +379,34 @@ async function countReleasesByWordCount(artistName) {
       .then(response => response.json())
       .then(songsByWordCount => {
         songsByWordCount.forEach( song => {
-          let currKeys = Object.keys(songsByWordCountObj)
+          let currKeys = Object.keys(songsByWordCountObj);
           if(currKeys.includes(wordCount)) {
             songsByWordCountObj[wordCount] += 1;
           } else {songsByWordCountObj[wordCount] = 1;}
         });
-      })
+      });
   });
   return songsByWordCountObj;
 }
 
 async function countReleasesByDuration(artistName) { 
   let durations = [60000, 120000, 180000, 240000, 300000];
-  songsByDurationObj = {};
+  let songsByDurationObj = {};
   durations.forEach(duration => {
-    fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year", {
+    fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-duration", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ artistName, wordCount })
+      body: JSON.stringify({ artistName, duration })
     })
       .then(response => response.json())
       .then(songsByDuration => {
         songsByDuration.forEach( song => {
-          let currKeys = Object.keys(songsByDurationObj)
+          let currKeys = Object.keys(songsByDurationObj);
           if(currKeys.includes(duration)) {
             songsByDurationObj[duration] += 1;
           } else {songsByDurationObj[duration] = 1;}
         });
-      })
+      });
   });
   return songsByDurationObj;
 }
