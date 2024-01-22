@@ -430,8 +430,14 @@ header {
         grid-template-columns: 1fr;
     }
 
-    .cell, .artist-header, .category-header {
+    .cell, .artist-header {
         font-size: 14px; /* Adjust base font size */
+        word-wrap: break-word; /* Ensures words wrap and don't overflow */
+        padding: 1px 1px;
+    }
+
+    .category-header {
+        font-size: 11px; /* Adjust base font size */
         word-wrap: break-word; /* Ensures words wrap and don't overflow */
         padding: 1px 1px;
     }
