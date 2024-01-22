@@ -331,7 +331,7 @@ function parseArtists(progressContainer) {
 
 
 async function countReleasesByYear(artistName) { 
-  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year'", {
+  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ artistName })
