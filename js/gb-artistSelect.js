@@ -16,7 +16,7 @@ async function fetchTopArtists() {
   let tokenResponseObj = await handleOauth();
   if (tokenResponseObj.err) {
     const listContainer = document.getElementsByClassName("sortable-list");
-    listContainer[0].innerHTML = '';
+    listContainer[0].innerHTML = "";
     const errorMessage = document.createElement("div");
     errorMessage.textContent = "Encountered error while fetching artists: "+tokenResponseObj.err;
     listContainer[0].appendChild(errorMessage);
@@ -90,7 +90,7 @@ async function refreshToken(refresh_token) {
 
 async function buildArtistList(topArtistsData) {
   const listContainer = document.getElementsByClassName("sortable-list");
-  listContainer[0].innerHTML = '';
+  listContainer[0].innerHTML = "";
   topArtistsData.forEach(artist => {
     listContainer[0].appendChild(createArtistItem(artist.id,artist.name,artist.img));
   });
@@ -264,7 +264,7 @@ function createProgressCell(cellType, cellContent, idEmbed) {
   let cellClass = cellType+"-cell";
   let cellDataEmbed = idEmbed||"no-data";
   let cellStatus = "unstarted";
-  if ( cellType == 'artist' ){
+  if ( cellType == "artist" ){
     progressCell.textContent = cellContent;
     cellStatus = "noStatus";
     progressCell.setAttribute("data-artist-id",cellDataEmbed);
@@ -323,6 +323,30 @@ async function parseArtists(progressContainer) {
             artistSummObj.release_date = songYearsObj;
           }
         });
+      } else if (category.getAttribute("data-progress-type") == "song-length") {   
+        category.classList.remove("finished");
+        category.classList.remove("unstarted");
+        category.classList.add("in-progress");
+        countReleasesByDuration(artistName).then((songDurObj) => {
+          if (songDurObj) {
+            category.classList.remove("unstarted");
+            category.classList.remove("in-progress");
+            category.classList.add("finished");
+            artistSummObj.song_duration = songDurObj;
+          }
+        });
+      } else if (category.getAttribute("data-progress-type") == "title-length") {   
+        category.classList.remove("finished");
+        category.classList.remove("unstarted");
+        category.classList.add("in-progress");
+        countReleasesByWordCount(artistName).then((songWordObj) => {
+          if (songWordObj) {
+            category.classList.remove("unstarted");
+            category.classList.remove("in-progress");
+            category.classList.add("finished");
+            artistSummObj.song_wordcount = songWordObj;
+          }
+        });
       }
       
     });
@@ -343,12 +367,47 @@ async function countReleasesByYear(artistId) {
   return response.json();
 }
 
+async function countReleasesByWordCount(artistName) { 
+  let wordCounts = [1, 2, 3, 4, 5];
+  songsByWordCountObj = {};
+  wordCounts.forEach(wordCount => {
+    fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-wordcount", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ artistName, wordCount })
+    })
+      .then(response => response.json())
+      .then(songsByWordCount => {
+        songsByWordCount.forEach( song => {
+          let currKeys = Object.keys(songsByWordCountObj)
+          if(currKeys.includes(wordCount) {
+            songsByWordCountObj[wordCount] += 1;
+          } else {songsByWordCountObj[wordCount] = 1;}
+        });
+      })
+  });
+  return songsByWordCountObj;
+}
 
-
-
-
-
-
-
-
+async function countReleasesByDuration(artistName) { 
+  let durations = [60000, 120000, 180000, 240000, 300000];
+  songsByDurationObj = {};
+  durations.forEach(duration => {
+    fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ artistName, wordCount })
+    })
+      .then(response => response.json())
+      .then(songsByDuration => {
+        songsByDuration.forEach( song => {
+          let currKeys = Object.keys(songsByDurationObj)
+          if(currKeys.includes(duration) {
+            songsByDurationObj[duration] += 1;
+          } else {songsByDurationObj[duration] = 1;}
+        });
+      })
+  });
+  return songsByDurationObj;
+}
 
