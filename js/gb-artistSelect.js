@@ -380,7 +380,7 @@ async function countReleasesByWordCount(artistName) {
       .then(songsByWordCount => {
         songsByWordCount.forEach( song => {
           let currKeys = Object.keys(songsByWordCountObj)
-          if(currKeys.includes(wordCount) {
+          if(currKeys.includes(wordCount)) {
             songsByWordCountObj[wordCount] += 1;
           } else {songsByWordCountObj[wordCount] = 1;}
         });
@@ -402,7 +402,7 @@ async function countReleasesByDuration(artistName) {
       .then(songsByDuration => {
         songsByDuration.forEach( song => {
           let currKeys = Object.keys(songsByDurationObj)
-          if(currKeys.includes(duration) {
+          if(currKeys.includes(duration)) {
             songsByDurationObj[duration] += 1;
           } else {songsByDurationObj[duration] = 1;}
         });
