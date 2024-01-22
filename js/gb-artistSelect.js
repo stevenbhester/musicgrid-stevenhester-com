@@ -303,58 +303,60 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
     let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
     let artistId = row.getElementsByClassName("artist-cell")[0].getAttribute("data-artist-id");
     let categoryCellsHTMLObj = row.getElementsByClassName("progress-cell");
-    let categoryCellsArr = [];
+    let categoryCellsObj = [];
   
     for (let i = 0; i < categoryCellsHTMLObj.length; i++) {
       let categoryCellsElem = categoryCellsHTMLObj[i];
-      categoryCellsArr.push(categoryCellsElem);
+      categoryCellsObj[category.getAttribute("data-progress-type")] = categoryCellsElem;
     }
 
-    categoryCellsArr.forEach(category => { 
-      if (category.getAttribute("data-progress-type") == "release-date") {   
-        category.classList.remove("finished");
-        category.classList.remove("unstarted");
-        category.classList.add("in-progress");
-        countReleasesByYear(artistId).then((songYearsObj) => {
-          if (songYearsObj) {
-            category.classList.remove("unstarted");
-            category.classList.remove("in-progress");
-            category.classList.add("finished");
-            artistSummObj.release_date = songYearsObj;
-          }
-        });
-      } else if (category.getAttribute("data-progress-type") == "song-length") {   
-        category.classList.remove("finished");
-        category.classList.remove("unstarted");
-        category.classList.add("in-progress");
-        countReleasesByDuration(artistName).then((songDurObj) => {
-          if (songDurObj) {
-            category.classList.remove("unstarted");
-            category.classList.remove("in-progress");
-            category.classList.add("finished");
-            artistSummObj.song_duration = songDurObj;
-          }
-        });
-      } else if (category.getAttribute("data-progress-type") == "title-length") {   
-        category.classList.remove("finished");
-        category.classList.remove("unstarted");
-        category.classList.add("in-progress");
-        countReleasesByWordCount(artistName).then((songWordObj) => {
-          if (songWordObj) {
-            category.classList.remove("unstarted");
-            category.classList.remove("in-progress");
-            category.classList.add("finished");
-            artistSummObj.song_wordcount = songWordObj;
-          }
-        });
-      }
-      
+    artistSummObj[releaseDate] = checkReleaseDates(categoryCellsObj["release-date"]);
+    artistSummObj[wordCountDur] = checkWordCountsAndDuration(categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
     });
     masterArtistData[artistName] = artistSummObj;
   });
   console.dir(masterArtistData);
 }
 
+async function checkReleaseDates(releaseDateCell) {
+{   
+        releaseDateCell.classList.remove("finished");
+        releaseDateCell.classList.remove("unstarted");
+        releaseDateCell.classList.add("in-progress");
+        let songYearsObj = {};
+        countReleasesByYear(artistId).then((songYearsObj) => {
+          if (songYearsObj) {
+            releaseDateCell.classList.remove("unstarted");
+            releaseDateCell.classList.remove("in-progress");
+            releaseDateCell.classList.add("finished");
+          }
+          return songYearsObj;
+        });
+      }
+}
+
+async function checkWordCountsAndDuration(wordCountCell, durationCell) {
+{   
+        wordCountCell.classList.remove("finished");
+        wordCountCell.classList.remove("unstarted");
+        wordCountCell.classList.add("in-progress");
+        durationCell.classList.remove("finished");
+        durationCell.classList.remove("unstarted");
+        durationCell.classList.add("in-progress");
+        let wordCountDurObj = {};
+        
+        checkWordCountsAndDuration(artistId).then((songWordcountDurObj) => {
+          if (songWordcountDurObj) {
+            wordCountCell.classList.remove("unstarted");
+            wordCountCell.classList.remove("in-progress");
+            wordCountCell.classList.add("finished");
+            durationCell.classList.remove("unstarted");
+            durationCell.classList.remove("in-progress");
+            durationCell.classList.add("finished");
+          }
+          return songWordcountDurObj;
+      });
+}
 
 async function countReleasesByYear(artistId) { 
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year", {
@@ -367,47 +369,15 @@ async function countReleasesByYear(artistId) {
   return response.json();
 }
 
-async function countReleasesByWordCount(artistName) { 
-  let wordCounts = [1, 2, 3, 4, 5];
-  let songsByWordCountObj = {1:0,2:0,3:0,4:0,5:0};
-  wordCounts.forEach(wordCount => {
-    fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-wordcount", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ artistName, wordCount })
-    })
-      .then(response => response.json())
-      .then(songsByWordCount => {
-        songsByWordCount.forEach( songs => {
-          let currKeys = Object.keys(songsByWordCountObj);
-          if(currKeys.includes(wordCount)) {
-            songsByWordCountObj[wordCount] += songs.split("\",\"").length;
-          } else {songsByWordCountObj[wordCount] = songs.split("\",\"").length;}
-        });
-      });
-  });
-  return songsByWordCountObj;
-}
-
-async function countReleasesByDuration(artistName) { 
+async function countReleasesByWordCountDuration(artistName) { 
   let durations = [60000, 120000, 180000, 240000, 300000];
-  let songsByDurationObj = {60000:0, 120000:0, 180000:0, 240000:0, 300000:0};
-  durations.forEach(duration => {
-    fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-duration", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ artistName, duration })
-    })
-      .then(response => response.json())
-      .then(songsByDuration => {
-        songsByDuration.forEach( songs => {
-          let currKeys = Object.keys(songsByDurationObj);
-          if(currKeys.includes(duration)) {
-            songsByDurationObj[duration] += songs.split("\",\"").length;
-          } else {songsByDurationObj[duration] = songs.split("\",\"").length;}
-        });
-      });
+  let wordCounts = [1, 2, 3, 4, 5];
+  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ artistId, durations, wordCounts })
   });
-  return songsByDurationObj;
+  console.log("Received response: "+response);
+  if (!response.ok) throw new Error("Failed to fetch");
+  return response.json();
 }
-
