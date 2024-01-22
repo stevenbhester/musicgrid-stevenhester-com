@@ -384,9 +384,9 @@ async function countReleasesByWordCount(artistName) {
             songsByWordCountObj[wordCount] += songs.split("\", \"").length;
           } else {songsByWordCountObj[wordCount] = songs.split("\", \"").length;}
         });
+      return songsByWordCountObj;
       });
   });
-  return songsByWordCountObj;
 }
 
 async function countReleasesByDuration(artistName) { 
@@ -405,9 +405,9 @@ async function countReleasesByDuration(artistName) {
           if(currKeys.includes(duration)) {
             songsByDurationObj[duration] += songs.split("\", \"").length;
           } else {songsByDurationObj[duration] = songs.split("\", \"").length;}
-        });
+        });  
+      return songsByDurationObj;
       });
   });
-  return songsByDurationObj;
 }
 
