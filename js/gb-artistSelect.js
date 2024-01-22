@@ -126,7 +126,7 @@ function createArtistItem(id, name, img) {
   return outerItem;
 }
 
-async function addEventListeners() {
+function addEventListeners() {
   //Draggable code (blah)
   const sortableList = document.querySelector(".sortable-list");
   const items = sortableList.querySelectorAll(".item");
@@ -196,7 +196,7 @@ async function addEventListeners() {
 }
 
 // Once artists are selected, let's build a fkn grid...
-async function buildCustomGrid() {
+function buildCustomGrid() {
   //Hide the artist list but keep it preserved for our lookup
   const listContainer = document.getElementsByClassName("sortable-list");
   listContainer[0].style.display = "none";
@@ -214,7 +214,7 @@ async function buildCustomGrid() {
 }
 
 // Tell the users how we're doing building their grid
-async function buildProgressReport(artists) {
+function buildProgressReport(artists) {
   // Delete the frontend artist list now that we're done with it
   const listContainer = document.getElementsByClassName("sortable-list");
   listContainer[0].innerHTML = "";
@@ -290,7 +290,7 @@ function fetchValidCategories() {
 
 let masterArtistData = {}
 
-async function parseArtists(progressContainer) {
+function parseArtists(progressContainer) {
   let progressRows = progressContainer.getElementsByClassName("row");
   progressRows.forEach(row => { 
     let artistSummObj = {};
@@ -299,7 +299,7 @@ async function parseArtists(progressContainer) {
     categoryCells.forEach(category => { 
       let categoryType = category.getAttribute("data-progress-type");
       if (categoryType == "release-date") {   
-        let songsByYear = await countReleasesByYear(artistName);
+        let songsByYear = countReleasesByYear(artistName);
         artistSummObj.release_date = songYearsObj;
       }
       
