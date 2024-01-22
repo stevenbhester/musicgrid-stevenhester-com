@@ -291,14 +291,26 @@ function fetchValidCategories() {
 let masterArtistData = {};
 
 function parseArtists(progressContainer) {
-  let progressRows = progressContainer.getElementsByClassName("row");
-  progressRows.forEach(row => { 
+  let progressRowsHTMLObj = progressContainer.getElementsByClassName("row");
+  let progressRowsArr = [];
+  for (let j = 0; j < progressRowsHTMLObj.length; j++) {
+    let progressRowElem = categoryCellsHTMLObj[i];
+    progressRowsArr.push(progressRowElem);
+  }
+  
+  progressRowsArr.forEach(row => { 
     let artistSummObj = {};
     let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
-    let categoryCells = row.getElementsByClassName("progress-cell");
-    categoryCells.forEach(category => { 
-      let categoryType = category.getAttribute("data-progress-type");
-      if (categoryType == "release-date") {   
+    let categoryCellsHTMLObj = row.getElementsByClassName("progress-cell");
+    let categoryCellsArr = [];
+  
+    for (let i = 0; i < categoryCellsHTMLObj.length; i++) {
+      let categoryCellsElem = categoryCellsHTMLObj[i];
+      categoryCellsArr.push({categoryType: categoryCellsElem.getAttribute("data-progress-type")});
+    }
+
+    categoryCellsArr.forEach(category => { 
+      if (category.categoryType == "release-date") {   
         let songYearsObj = countReleasesByYear(artistName);
         artistSummObj.release_date = songYearsObj;
       }
