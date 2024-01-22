@@ -307,7 +307,7 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
   
     for (let i = 0; i < categoryCellsHTMLObj.length; i++) {
       let categoryCellsElem = categoryCellsHTMLObj[i];
-      categoryCellsObj[category.getAttribute("data-progress-type")] = categoryCellsElem;
+      categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
     }
 
     artistSummObj["releaseDate"] = checkReleaseDates(artistId, categoryCellsObj["release-date"]);
