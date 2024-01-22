@@ -312,7 +312,6 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
 
     artistSummObj[releaseDate] = checkReleaseDates(categoryCellsObj["release-date"]);
     artistSummObj[wordCountDur] = checkWordCountsAndDuration(categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
-    });
     masterArtistData[artistName] = artistSummObj;
   });
   console.dir(masterArtistData);
