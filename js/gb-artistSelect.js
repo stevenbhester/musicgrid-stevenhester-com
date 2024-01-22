@@ -300,7 +300,7 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
     let progressRowElem = progressRowsHTMLObj[j];
     progressRowsArr.push(progressRowElem);
   }
-  if(debug) { console.dir(progressRowArr);}
+  if(debug) { console.dir(progressRowsArr);}
   let progressRowsSlice = progressRowsArr.slice(startIndex, endIndex);
   progressRowsSlice.forEach(row => { 
     let artistSummObj = {};
