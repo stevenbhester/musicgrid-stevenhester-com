@@ -381,8 +381,8 @@ async function countReleasesByWordCount(artistName) {
         songsByWordCount.forEach( songs => {
           let currKeys = Object.keys(songsByWordCountObj);
           if(currKeys.includes(wordCount)) {
-            songsByWordCountObj[wordCount] += songs.split("\", \"").length;
-          } else {songsByWordCountObj[wordCount] = songs.split("\", \"").length;}
+            songsByWordCountObj[wordCount] += songs.split("\",\"").length;
+          } else {songsByWordCountObj[wordCount] = songs.split("\",\"").length;}
         });
       return songsByWordCountObj;
       });
@@ -403,8 +403,8 @@ async function countReleasesByDuration(artistName) {
         songsByDuration.forEach( songs => {
           let currKeys = Object.keys(songsByDurationObj);
           if(currKeys.includes(duration)) {
-            songsByDurationObj[duration] += songs.split("\", \"").length;
-          } else {songsByDurationObj[duration] = songs.split("\", \"").length;}
+            songsByDurationObj[duration] += songs.split("\",\"").length;
+          } else {songsByDurationObj[duration] = songs.split("\",\"").length;}
         });  
       return songsByDurationObj;
       });
