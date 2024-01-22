@@ -266,11 +266,11 @@ function createProgressCell(cellType, cellContent, idEmbed) {
   if ( cellType == 'artist' ){
     progressCell.textContent = cellContent;
     cellStatus = "noStatus";
+    progressCell.setAttribute("data-artist-id",cellDataEmbed);
   } else {
-    cellDataEmbed = cellContent;
+    progressCell.setAttribute("data-progress-type",cellContent);
   }
-  progressCell.classList.add("cell", cellClass, cellDataEmbed, cellStatus);
-  progressCell.setAttribute("data-artist-id",cellDataEmbed);
+  progressCell.classList.add("cell", cellClass, cellStatus);
   return progressCell;
 }
 
