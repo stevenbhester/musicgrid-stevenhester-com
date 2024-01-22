@@ -293,7 +293,7 @@ let masterArtistData = {};
 function parseArtists(progressContainer) {
   let progressRowsHTMLObj = progressContainer.getElementsByClassName("row");
   let progressRowsArr = [];
-  for (let j = 0; j < progressRowsHTMLObj.length; j++) {
+  for (let j = 1; j < progressRowsHTMLObj.length; j++) { //We start at 1 to ignore header row
     let progressRowElem = progressRowsHTMLObj[j];
     progressRowsArr.push(progressRowElem);
   }
