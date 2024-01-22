@@ -270,7 +270,7 @@ function createProgressCell(cellType, cellContent, idEmbed) {
     cellDataEmbed = cellContent;
   }
   progressCell.classList.add("cell", cellClass, cellDataEmbed, cellStatus);
-  progressCell.setAttribute("data-artist-id","cellDataEmbed");
+  progressCell.setAttribute("data-artist-id",cellDataEmbed);
   return progressCell;
 }
 
