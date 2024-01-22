@@ -88,7 +88,7 @@ async function refreshToken(refresh_token) {
   return await response.json();
 }
 
-function buildArtistList(topArtistsData) {
+async function buildArtistList(topArtistsData) {
   const listContainer = document.getElementsByClassName("sortable-list");
   listContainer[0].innerHTML = '';
   topArtistsData.forEach(artist => {
@@ -126,7 +126,7 @@ function createArtistItem(id, name, img) {
   return outerItem;
 }
 
-function addEventListeners() {
+async function addEventListeners() {
   //Draggable code (blah)
   const sortableList = document.querySelector(".sortable-list");
   const items = sortableList.querySelectorAll(".item");
@@ -196,7 +196,7 @@ function addEventListeners() {
 }
 
 // Once artists are selected, let's build a fkn grid...
-function buildCustomGrid() {
+async function buildCustomGrid() {
   //Hide the artist list but keep it preserved for our lookup
   const listContainer = document.getElementsByClassName("sortable-list");
   listContainer[0].style.display = "none";
@@ -214,7 +214,7 @@ function buildCustomGrid() {
 }
 
 // Tell the users how we're doing building their grid
-function buildProgressReport(artists) {
+async function buildProgressReport(artists) {
   // Delete the frontend artist list now that we're done with it
   const listContainer = document.getElementsByClassName("sortable-list");
   listContainer[0].innerHTML = "";
