@@ -306,13 +306,21 @@ function parseArtists(progressContainer) {
   
     for (let i = 0; i < categoryCellsHTMLObj.length; i++) {
       let categoryCellsElem = categoryCellsHTMLObj[i];
-      categoryCellsArr.push({categoryType: categoryCellsElem.getAttribute("data-progress-type")});
+      categoryCellsArr.push(categoryCellsElem);
     }
 
     categoryCellsArr.forEach(category => { 
-      if (category.categoryType == "release-date") {   
+      if (category.getAttribute("data-progress-type") == "release-date") {   
+        category.classList.remove("finished");
+        category.classList.remove("unstarted");
+        category.classList.add("in-progress");
         let songYearsObj = countReleasesByYear(artistName);
-        artistSummObj.release_date = songYearsObj;
+        if (songYearsObj) {
+          category.classList.remove("unstarted");
+          category.classList.remove("in-progress");
+          category.classList.add("finished");
+          artistSummObj.release_date = songYearsObj;
+        }
       }
       
     });
