@@ -290,7 +290,7 @@ function fetchValidCategories() {
 
 let masterArtistData = {}
 
-function parseArtists(progressContainer) {
+async function parseArtists(progressContainer) {
   let progressRows = progressContainer.getElementsByClassName("row");
   progressRows.forEach(row => { 
     let artistSummObj = {};
