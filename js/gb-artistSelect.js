@@ -211,8 +211,6 @@ function buildCustomGrid() {
   }
 
   buildProgressReport(artistsRankedArr);
-  
-  listContainer[0].innerText = "I haven't coded this part yet";
 }
 
 // Tell the users how we're doing building their grid
@@ -248,6 +246,9 @@ function buildProgressReport(artists) {
     });
     progressContainer.appendChild(artistRow);
   });
+  
+  //Once we're done with building progress, move to parsing
+  parseArtists(progressContainer);
 }
 
 function createHeader(headerType, headerText) {
@@ -277,9 +278,9 @@ function createProgressCell(cellType, cellContent, idEmbed) {
 function fetchValidCategories() {
   let validCategories = [];
   validCategories.push({head: "Check Release Dates", endpoint: "/list-songs-by-dates", className: "release-date"});
-  validCategories.push({head: "Check Lengths", endpoint: "/list-songs-by-duration", className: "song-length"});
+  validCategories.push({head: "Check Song Lengths", endpoint: "/list-songs-by-duration", className: "song-length"});
   validCategories.push({head: "Check Title Lengths", endpoint: "/list-songs-by-wordcount", className: "title-length"});
-  validCategories.push({head: "Checking Cheats", endpoint: "/get-cheat-preview-url", className: "cheats-available"});
+  validCategories.push({head: "Check Cheats Access", endpoint: "/get-cheat-preview-url", className: "cheats-available"});
   validCategories.push({head: "Looking for Group", endpoint: "fakeEndpoint", className: "group-compare"});
   return(validCategories);
 }
@@ -287,8 +288,37 @@ function fetchValidCategories() {
 //Next steps: Go through valid artist rows, check each cell, change class based on status, get good gif for loading, add missing-artist gif, add warning if no cheat button, build custom grid data structure and handle
 //Long term: Add more categories with further APIs then let users select the categories they want.
 
-function pullReleasesYearly(artistElement) { 
+let masterArtistData = {}
 
+function parseArtists(progressContainer) {
+  let progressRows = progressContainer.getElementsByClassName("row");
+  progressRows.forEach(row => { 
+    let artistSummObj = {};
+    let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
+    let categoryCells = row.getElementsByClassName("progress-cell");
+    categoryCells.forEach(category => { 
+      let categoryType = category.getAttribute("data-progress-type");
+      if (categoryType == "release-date") {   
+        let songsByYear = countReleasesByYear(artistName);
+        artistSummObj.release_date = songYearsObj;
+      }
+      
+    });
+    masterArtistData[artistName] = artistSummObj;
+  });
+  console.dir(masterArtistData);
+}
+
+
+function countReleasesByYear(artistName) { 
+  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year'", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ artistName })
+  });
+  console.log("Received response: "+response);
+  if (!response.ok) throw new Error("Failed to fetch");
+  return response.json();
 }
 
 
