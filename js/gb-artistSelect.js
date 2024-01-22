@@ -311,9 +311,9 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
     if(debug) { console.log(`Observing artist name: "${artistName}", id: "${artistId}"`);}
   
     for (let i = 0; i < categoryCellsHTMLObj.length; i++) {
+      let categoryCellsElem = categoryCellsHTMLObj[i];
       let keyValue = categoryCellsElem.getAttribute("data-progress-type");
       if(debug) { console.log(`Setting categoryCellsObj[${keyValue}]:${categoryCellsElem}`);}
-      let categoryCellsElem = categoryCellsHTMLObj[i];
       categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
     }
 
