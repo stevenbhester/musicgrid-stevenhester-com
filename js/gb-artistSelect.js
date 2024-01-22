@@ -276,10 +276,10 @@ function createProgressCell(cellType, cellContent, idEmbed) {
 
 function fetchValidCategories() {
   let validCategories = [];
-  validCategories.push({head: "Check Song Release Dates", endpoint: "/list-songs-by-dates", className: "release-date"});
-  validCategories.push({head: "Check Song Lengths", endpoint: "/list-songs-by-duration", className: "song-length"});
-  validCategories.push({head: "Check Song Title Lengths", endpoint: "/list-songs-by-wordcount", className: "title-length"});
-  validCategories.push({head: "Checking Data Availability", endpoint: "/get-cheat-preview-url", className: "data-available"});
+  validCategories.push({head: "Check Release Dates", endpoint: "/list-songs-by-dates", className: "release-date"});
+  validCategories.push({head: "Check Lengths", endpoint: "/list-songs-by-duration", className: "song-length"});
+  validCategories.push({head: "Check Title Lengths", endpoint: "/list-songs-by-wordcount", className: "title-length"});
+  validCategories.push({head: "Checking Cheats", endpoint: "/get-cheat-preview-url", className: "cheats-available"});
   validCategories.push({head: "Looking for Group", endpoint: "fakeEndpoint", className: "group-compare"});
   return(validCategories);
 }
