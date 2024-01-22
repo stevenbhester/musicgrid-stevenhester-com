@@ -242,9 +242,9 @@ function buildProgressReport(artists) {
   artists.forEach(artist => {
     let artistRow = document.createElement("div");
     artistRow.classList.add("row");
-    artistRow.appendChild(createProgressCell("artist",artist.artistName));
+    artistRow.appendChild(createProgressCell("artist",artist.artistName,artist.artistId));
     categoriesArr.forEach( category => {
-      artistRow.appendChild(createProgressCell("progress",category.className));
+      artistRow.appendChild(createProgressCell("progress",category.className,null));
     });
     progressContainer.appendChild(artistRow);
   });
@@ -258,18 +258,19 @@ function createHeader(headerType, headerText) {
   return headerCell;
 }
 
-function createProgressCell(cellType, cellContent) {
+function createProgressCell(cellType, cellContent, idEmbed) {
   const progressCell = document.createElement("div");
   let cellClass = cellType+"-cell";
-  let cellDataEmbed = "no-data";
+  let cellDataEmbed = idEmbed||"no-data";
   let cellStatus = "unstarted";
   if ( cellType == 'artist' ){
     progressCell.textContent = cellContent;
     cellStatus = "noStatus";
   } else {
-    cellDataEmbed = cellContent+"-cell";
+    cellDataEmbed = cellContent;
   }
   progressCell.classList.add("cell", cellClass, cellDataEmbed, cellStatus);
+  progressCell.setAttribute("data-artist-id",cellDataEmbed");
   return progressCell;
 }
 
@@ -283,12 +284,12 @@ function fetchValidCategories() {
   return(validCategories);
 }
 
-
-
 //Next steps: Go through valid artist rows, check each cell, change class based on status, get good gif for loading, add missing-artist gif, add warning if no cheat button, build custom grid data structure and handle
 //Long term: Add more categories with further APIs then let users select the categories they want.
 
+function pullReleasesYearly(artistElement) { 
 
+}
 
 
 
