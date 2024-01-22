@@ -294,7 +294,7 @@ function parseArtists(progressContainer) {
   let progressRowsHTMLObj = progressContainer.getElementsByClassName("row");
   let progressRowsArr = [];
   for (let j = 0; j < progressRowsHTMLObj.length; j++) {
-    let progressRowElem = categoryCellsHTMLObj[i];
+    let progressRowElem = progressRowsHTMLObj[i];
     progressRowsArr.push(progressRowElem);
   }
   
