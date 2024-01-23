@@ -43,6 +43,10 @@ if (code) {
 
 // If we have a token, we're logged in, so fetch user data and render logged in template
 if (currentToken.access_token) {
+  accessTokenHandler(currentToken);
+}
+
+async function accessTokenHandler(currentToken) {
   const userData = await getUserData();
   renderTemplate("main", "logged-in-template", userData);
   renderTemplate("oauth", "oauth-template", currentToken);
