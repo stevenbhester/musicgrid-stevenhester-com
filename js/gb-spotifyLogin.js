@@ -93,7 +93,7 @@ async function tokenHandler(code) {
   url.searchParams.delete("code");
 
   const updatedUrl = url.search ? url.href : url.href.replace('?', '');
-  window.history.replaceState({}, document.title, updatedUrl);}
+  window.history.replaceState({}, document.title, updatedUrl);
 }
 
 // Soptify API Calls
