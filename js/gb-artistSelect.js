@@ -318,7 +318,7 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
     }
 
     checkReleaseDates(artistId, artistName, categoryCellsObj["release-date"]);
-    checkWordCountsAndDuration(artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
+    checkWordCountsAndDuration(artistId, artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
     // checkReleaseDates(artistId, categoryCellsObj["release-date"])
     //   .then((releaseDates) => {artistSummObj["releaseDate"]=releaseDates;} )
     // checkWordCountsAndDuration(artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"])
@@ -335,14 +335,14 @@ async function checkReleaseDates(artistId, artistName, releaseDateCell) {
   countReleasesByYear(artistId,artistName, releaseDateCell);
 }
 
-async function checkWordCountsAndDuration(artistName, wordCountCell, durationCell) {
+async function checkWordCountsAndDuration(artistId,artistName, wordCountCell, durationCell) {
   wordCountCell.classList.remove("finished");
   wordCountCell.classList.remove("unstarted");
   wordCountCell.classList.add("in-progress");
   durationCell.classList.remove("finished");
   durationCell.classList.remove("unstarted");
   durationCell.classList.add("in-progress");
-  countReleasesByWordCountDuration(artistName,wordCountCell,durationCell);
+  countReleasesByWordCountDuration(artistId,artistName,wordCountCell,durationCell);
 }
 
 async function countReleasesByYear(artistId, artistName, releaseDateCell) { 
@@ -356,13 +356,13 @@ async function countReleasesByYear(artistId, artistName, releaseDateCell) {
     .catch(error => console.error("Error fetching grid data:", error));
 }
 
-async function countReleasesByWordCountDuration(artistName, wordCountCell, durationCell) { 
+async function countReleasesByWordCountDuration(artistId, artistName, wordCountCell, durationCell) { 
   let durations = [60000, 120000, 180000, 240000, 300000];
   let wordCounts = [1, 2, 3, 4, 5];
-  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-duration-wordcount", {
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-duration-wordcount-v2", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ artistName, durations, wordCounts })
+    body: JSON.stringify({ artistId, durations, wordCounts })
   })
     .then(response => response.json())
     .then(data => updateWordCountDurs(data, artistName, wordCountCell, durationCell))
