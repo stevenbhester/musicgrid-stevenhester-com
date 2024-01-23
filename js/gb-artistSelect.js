@@ -288,7 +288,8 @@ function fetchValidCategories() {
 //Next steps: Go through valid artist rows, check each cell, change class based on status, get good gif for loading, add missing-artist gif, add warning if no cheat button, build custom grid data structure and handle
 //Long term: Add more categories with further APIs then let users select the categories they want.
 
-let masterArtistData = {};
+let masterArtistDataSumm = {};
+let masterArtistDataDetails = {};
 
 async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
   let debug = true;
@@ -319,13 +320,8 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
 
     checkReleaseDates(artistId, artistName, categoryCellsObj["release-date"]);
     checkWordCountsAndDuration(artistId, artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
-    // checkReleaseDates(artistId, categoryCellsObj["release-date"])
-    //   .then((releaseDates) => {artistSummObj["releaseDate"]=releaseDates;} )
-    // checkWordCountsAndDuration(artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"])
-    //   .then((wordCountDurs) => {artistSummObj["wordCountDur"]=wordCountDurs;} ) 
-    masterArtistData[artistName] = artistSummObj;
   });
-  console.dir(masterArtistData);
+  console.dir(masterArtistDataSumm);
 }
 
 async function checkReleaseDates(artistId, artistName, releaseDateCell) {
@@ -352,7 +348,7 @@ async function countReleasesByYear(artistId, artistName, releaseDateCell) {
     body: JSON.stringify({ artistId })
   })
     .then(response => response.json())
-    .then(data => updateReleaseYears(data, artistName, releaseDateCell))
+    .then(data => updateReleaseYears(data.summary, data.details, artistName, releaseDateCell))
     .catch(error => console.error("Error fetching grid data:", error));
 }
 
@@ -365,20 +361,21 @@ async function countReleasesByWordCountDuration(artistId, artistName, wordCountC
     body: JSON.stringify({ artistId, durations, wordCounts })
   })
     .then(response => response.json())
-    .then(data => updateWordCountDurs(data, artistName, wordCountCell, durationCell))
+    .then(data => updateWordCountDurs(data.summary, data.details, artistName, wordCountCell, durationCell))
     .catch(error => console.error("Error fetching grid data:", error));
 }
 
-function updateReleaseYears(releaseYearsData, artistName, releaseDateCell) {
+function updateReleaseYears(releaseYearsData, releaseYearsDetails, artistName, releaseDateCell) {
   if (releaseYearsData) {
     releaseDateCell.classList.remove("unstarted");
     releaseDateCell.classList.remove("in-progress");
     releaseDateCell.classList.add("finished");
-    masterArtistData[artistName].releaseDate = releaseYearsData;
+    masterArtistDataSumm[artistName].releaseDate = releaseYearsData;
+    masterArtistDataDetails[artistName] = releaseYearsDetails;
   }
 }
 
-function updateWordCountDurs(wordCountDursData, artistName, wordCountCell, durationCell) {
+function updateWordCountDurs(wordCountDursData, wordCountDursDetails, artistName, wordCountCell, durationCell) {
   if (wordCountDursData) {
     wordCountCell.classList.remove("unstarted");
     wordCountCell.classList.remove("in-progress");
@@ -386,7 +383,9 @@ function updateWordCountDurs(wordCountDursData, artistName, wordCountCell, durat
     durationCell.classList.remove("unstarted");
     durationCell.classList.remove("in-progress");
     durationCell.classList.add("finished");
-    masterArtistData[artistName].wordCount = wordCountDursData.wordcount;
-    masterArtistData[artistName].duration = wordCountDursData.duration;
+    masterArtistDataSumm[artistName].wordCount = wordCountDursData.wordcount;
+    masterArtistDataSumm[artistName].duration = wordCountDursData.duration;
+    masterArtistDataDetails[artistName].wordCount = wordCountDursDetails.details;
+    masterArtistDataDetails[artistName].duration = wordCountDursDetails.details;
   }
 }
