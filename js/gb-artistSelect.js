@@ -375,7 +375,7 @@ async function countReleasesByYear(artistId) {
 async function countReleasesByWordCountDuration(artistName) { 
   let durations = [60000, 120000, 180000, 240000, 300000];
   let wordCounts = [1, 2, 3, 4, 5];
-  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year", {
+  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-duration-wordcount", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ artistName, durations, wordCounts })
