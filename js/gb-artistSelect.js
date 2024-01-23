@@ -303,7 +303,6 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
   }
   if(debug) { console.dir(progressRowsArr);}
   let progressRowsSlice = progressRowsArr.slice(startIndex, endIndex);
-  let promises = [];
   progressRowsSlice.forEach(row => { 
     let artistSummObj = {};
     let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
@@ -318,82 +317,58 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
       if(debug) { console.log(`Setting categoryCellsObj[${keyValue}]:`); console.dir(categoryCellsElem);}
       categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
     }
-    promises.push(checkReleaseDates(artistId, artistName, categoryCellsObj["release-date"]));
-    promises.push(checkWordCountsAndDuration(artistId, artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]));
-    promises.all(promises).then(groupValidation());
-  });
-  let myPromise = new Promise(function(validateGroups, myReject) {
-    validateGroups(progressContainer, startIndex, endIndex); 
-    progressFailure();
+    checkArtistData(artistId, artistName, categoryCellsObj["release-date"], categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
   });
 }
 
-async function checkReleaseDates(artistId, artistName, releaseDateCell) {
+async function checkArtistData(artistId, artistName, releaseDateCell, wordCountCell, durationCell) {
   releaseDateCell.classList.remove("finished");
   releaseDateCell.classList.remove("unstarted");
   releaseDateCell.classList.add("in-progress");
-  await countReleasesByYear(artistId,artistName, releaseDateCell);
-  return Promise.resolve({"promise: ", artistName});
-}
-
-async function checkWordCountsAndDuration(artistId,artistName, wordCountCell, durationCell) {
   wordCountCell.classList.remove("finished");
   wordCountCell.classList.remove("unstarted");
   wordCountCell.classList.add("in-progress");
   durationCell.classList.remove("finished");
   durationCell.classList.remove("unstarted");
   durationCell.classList.add("in-progress");
-  await countReleasesByWordCountDuration(artistId,artistName,wordCountCell,durationCell);
-  return Promise.resolve({"promise: ", artistName});
+  
+  countReleasesByCat(artistId,artistName,releaseDateCell,wordCountCell,durationCell);
 }
 
-async function countReleasesByYear(artistId, artistName, releaseDateCell) { 
-  await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ artistId })
-  })
-    .then(response => response.json())
-    .then(data => updateReleaseYears(data.summary, data.details, artistName, releaseDateCell))
-    .catch(error => console.error("Error fetching grid data:", error));
-}
-
-async function countReleasesByWordCountDuration(artistId, artistName, wordCountCell, durationCell) { 
+async function countReleasesByCat(artistId, artistName, releaseDateCell, wordCountcell, durationCell) { 
+  let masterArtistDataSumm = {};
+  let masterArtistDataDetails = {};
   let durations = [60000, 120000, 180000, 240000, 300000, 360000];
   let wordCounts = [1, 2, 3, 4, 5];
-  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-duration-wordcount-v2", {
+
+  await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/rich-artist-lookup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ artistId, durations, wordCounts })
   })
     .then(response => response.json())
-    .then(data => updateWordCountDurs(data.summary, data.details, artistName, wordCountCell, durationCell))
+    .then(data => {
+      leaf(masterArtistDataSumm,[artistName,"releaseDate"], data.summary.releasedate);
+      leaf(masterArtistDataDetails,[artistName,"releaseDate"], data.details.releasedate);
+      releaseDateCell.classList.remove("unstarted");
+      releaseDateCell.classList.remove("in-progress");
+      releaseDateCell.classList.add("finished");
+      
+      leaf(masterArtistDataSumm,[artistName,"wordCount"], data.summary.wordcount);
+      leaf(masterArtistDataDetails,[artistName,"wordCount"], data.details.wordcount);
+      wordCountcell.classList.remove("unstarted");
+      wordCountcell.classList.remove("in-progress");
+      wordCountcell.classList.add("finished");
+      
+      leaf(masterArtistDataSumm,[artistName,"duration"], data.summary.duration);
+      leaf(masterArtistDataDetails,[artistName,"duration"], data.details.duration);
+      durationCell.classList.remove("unstarted");
+      durationCell.classList.remove("in-progress");
+      durationCell.classList.add("finished");
+      
+      validateGroups();
+    })
     .catch(error => console.error("Error fetching grid data:", error));
-}
-
-function updateReleaseYears(releaseYearsData, releaseYearsDetails, artistName, releaseDateCell) {
-  if (releaseYearsData) {
-    releaseDateCell.classList.remove("unstarted");
-    releaseDateCell.classList.remove("in-progress");
-    releaseDateCell.classList.add("finished");
-    leaf(masterArtistDataSumm,[artistName,"releaseDate"], releaseYearsData);
-    leaf(masterArtistDataDetails,[artistName,"releaseDate"], releaseYearsDetails);
-  }
-}
-
-function updateWordCountDurs(wordCountDursData, wordCountDursDetails, artistName, wordCountCell, durationCell) {
-  if (wordCountDursData) {
-    wordCountCell.classList.remove("unstarted");
-    wordCountCell.classList.remove("in-progress");
-    wordCountCell.classList.add("finished");
-    durationCell.classList.remove("unstarted");
-    durationCell.classList.remove("in-progress");
-    durationCell.classList.add("finished");
-    leaf(masterArtistDataSumm,[artistName,"wordCount"], wordCountDursData.wordcount);
-    leaf(masterArtistDataSumm,[artistName,"duration"], wordCountDursData.duration);
-    leaf(masterArtistDataDetails,[artistName,"wordCount"], wordCountDursDetails.wordcount);
-    leaf(masterArtistDataDetails,[artistName,"duration"], wordCountDursDetails.duration);
-  }
 }
 
 function leaf(obj, keyPath, value) {
@@ -408,11 +383,13 @@ function leaf(obj, keyPath, value) {
   obj[keyPath[lastKeyIndex]] = value;
 }
 
-async function validateGroups(progressContainer, startIndex, endIndex) {
+async function validateGroups() {
   let debug = true;
   let artists = Object.keys(masterArtistDataSumm);
-  if(debug) {console.log("Groups to compare registered as:");console.dir(artists);}
+  if(debug) {console.log("Groups to compare registered as:");console.log(artists);}
   //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
+  console.dir(masterArtistDataSumm);
+  console.dir(masterArtistDataDetails);
 }
 
 
