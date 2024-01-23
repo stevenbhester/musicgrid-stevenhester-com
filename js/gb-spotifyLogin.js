@@ -87,12 +87,13 @@ async function redirectToSpotifyAuthorize() {
 }
 
 async function tokenHandler(code) {
+  const token = await getToken(code);
   currentToken.save(token);
   // Remove code from URL so we can refresh correctly.
   const url = new URL(window.location.href);
   url.searchParams.delete("code");
 
-  const updatedUrl = url.search ? url.href : url.href.replace('?', '');
+  const updatedUrl = url.search ? url.href : url.href.replace("?", "");
   window.history.replaceState({}, document.title, updatedUrl);
 }
 
