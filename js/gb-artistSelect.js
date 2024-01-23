@@ -320,8 +320,8 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
     }
     promises.push(checkReleaseDates(artistId, artistName, categoryCellsObj["release-date"]));
     promises.push(checkWordCountsAndDuration(artistId, artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]));
-    Promise.all(promises).then(validateGroups());
   });
+  Promise.all(promises).then(validateGroups());
 }
 
 async function checkReleaseDates(artistId, artistName, releaseDateCell) {
@@ -407,7 +407,7 @@ function leaf(obj, keyPath, value) {
 async function validateGroups(progressContainer, startIndex, endIndex) {
   let debug = true;
   let artists = Object.keys(masterArtistDataSumm);
-  if(debug) {console.log("Groups to compare registered as:");console.dir(artists);}
+  if(debug) {console.log("Groups to compare registered as:");console.log(artists);}
   //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
   console.dir(masterArtistDataSumm);
   console.dir(masterArtistDataDetails);
