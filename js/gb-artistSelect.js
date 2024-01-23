@@ -371,7 +371,7 @@ function updateReleaseYears(releaseYearsData, releaseYearsDetails, artistName, r
     releaseDateCell.classList.remove("in-progress");
     releaseDateCell.classList.add("finished");
     masterArtistDataSumm[artistName].releaseDate = releaseYearsData;
-    masterArtistDataDetails[artistName] = releaseYearsDetails;
+    masterArtistDataDetails[artistName].releaseDate = releaseYearsDetails;
   }
 }
 
