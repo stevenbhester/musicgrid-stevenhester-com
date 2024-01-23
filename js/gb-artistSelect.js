@@ -386,6 +386,7 @@ function updateWordCountDurs(wordCountDursData, artistName, wordCountCell, durat
     durationCell.classList.remove("unstarted");
     durationCell.classList.remove("in-progress");
     durationCell.classList.add("finished");
-    masterArtistData[artistName].wordCountDur = wordCountDursData;
+    masterArtistData[artistName].wordCount = wordCountDursData.wordcount;
+    masterArtistData[artistName].duration = wordCountDursData.duration;
   }
 }
