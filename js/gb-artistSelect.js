@@ -348,7 +348,7 @@ async function checkWordCountsAndDuration(artistName, wordCountCell, durationCel
   durationCell.classList.add("in-progress");
   let wordCountDurObj = {};
   
-  checkWordCountsAndDuration(artistName).then((songWordcountDurObj) => {
+  countReleasesByWordCountDuration(artistName).then((songWordcountDurObj) => {
     if (songWordcountDurObj) {
       wordCountCell.classList.remove("unstarted");
       wordCountCell.classList.remove("in-progress");
