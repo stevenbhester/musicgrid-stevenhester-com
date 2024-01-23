@@ -317,8 +317,8 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
       categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
     }
 
-    artistSummObj["releaseDate"] = checkReleaseDates(artistId, categoryCellsObj["release-date"]);
-    artistSummObj["wordCountDur"] = checkWordCountsAndDuration(artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
+    checkReleaseDates(artistId, artistName, categoryCellsObj["release-date"]);
+    checkWordCountsAndDuration(artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
     // checkReleaseDates(artistId, categoryCellsObj["release-date"])
     //   .then((releaseDates) => {artistSummObj["releaseDate"]=releaseDates;} )
     // checkWordCountsAndDuration(artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"])
@@ -328,19 +328,11 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
   console.dir(masterArtistData);
 }
 
-async function checkReleaseDates(artistId, releaseDateCell) {
+async function checkReleaseDates(artistId, artistName, releaseDateCell) {
   releaseDateCell.classList.remove("finished");
   releaseDateCell.classList.remove("unstarted");
   releaseDateCell.classList.add("in-progress");
-  let songYearsObj = {};
-  countReleasesByYear(artistId).then((songYearsObj) => {
-    if (songYearsObj) {
-      releaseDateCell.classList.remove("unstarted");
-      releaseDateCell.classList.remove("in-progress");
-      releaseDateCell.classList.add("finished");
-    }
-    return songYearsObj;
-  });
+  countReleasesByYear(artistId,artistName);
 }
 
 async function checkWordCountsAndDuration(artistName, wordCountCell, durationCell) {
@@ -350,32 +342,21 @@ async function checkWordCountsAndDuration(artistName, wordCountCell, durationCel
   durationCell.classList.remove("finished");
   durationCell.classList.remove("unstarted");
   durationCell.classList.add("in-progress");
-  let wordCountDurObj = {};
-  
-  countReleasesByWordCountDuration(artistName).then((songWordcountDurObj) => {
-    if (songWordcountDurObj) {
-      wordCountCell.classList.remove("unstarted");
-      wordCountCell.classList.remove("in-progress");
-      wordCountCell.classList.add("finished");
-      durationCell.classList.remove("unstarted");
-      durationCell.classList.remove("in-progress");
-      durationCell.classList.add("finished");
-    }
-    return songWordcountDurObj;
-  });
+  countReleasesByWordCountDuration(artistName,wordCountCell,durationCell);
 }
 
-async function countReleasesByYear(artistId) { 
+async function countReleasesByYear(artistId, artistName, releaseDateCell) { 
   await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-year", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ artistId })
   })
-    .then(response => return response.json())
+    .then(response => response.json())
+    .then(data => updateReleaseYears(data, artistName, releaseDateCell))
     .catch(error => console.error("Error fetching grid data:", error));
 }
 
-async function countReleasesByWordCountDuration(artistName) { 
+async function countReleasesByWordCountDuration(artistName, wordCountCell, durationCell) { 
   let durations = [60000, 120000, 180000, 240000, 300000];
   let wordCounts = [1, 2, 3, 4, 5];
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-duration-wordcount", {
@@ -383,6 +364,28 @@ async function countReleasesByWordCountDuration(artistName) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ artistName, durations, wordCounts })
   })
-    .then(response => return response.json())
+    .then(response => response.json())
+    .then(data => updateWordCountDur(data, artistName, wordCountCell, durationCell))
     .catch(error => console.error("Error fetching grid data:", error));
+}
+
+function updateReleaseYears(releaseYearsData, artistName, releaseDateCell) {
+  if (releaseYearsData) {
+      releaseDateCell.classList.remove("unstarted");
+      releaseDateCell.classList.remove("in-progress");
+      releaseDateCell.classList.add("finished");
+      masterArtistData[artistName].releaseDate = releaseYearsData;
+  }
+}
+
+function updateWordCountDurs(wordCountDursData, artistName, wordCountCell, durationCell) {
+  if (wordCountDursData) {
+      wordCountCell.classList.remove("unstarted");
+      wordCountCell.classList.remove("in-progress");
+      wordCountCell.classList.add("finished");
+      durationCell.classList.remove("unstarted");
+      durationCell.classList.remove("in-progress");
+      durationCell.classList.add("finished");
+      masterArtistData[artistName].wordCountDur = wordCountDursData;
+    }
 }
