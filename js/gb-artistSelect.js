@@ -371,21 +371,21 @@ async function countReleasesByWordCountDuration(artistName, wordCountCell, durat
 
 function updateReleaseYears(releaseYearsData, artistName, releaseDateCell) {
   if (releaseYearsData) {
-      releaseDateCell.classList.remove("unstarted");
-      releaseDateCell.classList.remove("in-progress");
-      releaseDateCell.classList.add("finished");
-      masterArtistData[artistName].releaseDate = releaseYearsData;
+    releaseDateCell.classList.remove("unstarted");
+    releaseDateCell.classList.remove("in-progress");
+    releaseDateCell.classList.add("finished");
+    masterArtistData[artistName].releaseDate = releaseYearsData;
   }
 }
 
 function updateWordCountDurs(wordCountDursData, artistName, wordCountCell, durationCell) {
   if (wordCountDursData) {
-      wordCountCell.classList.remove("unstarted");
-      wordCountCell.classList.remove("in-progress");
-      wordCountCell.classList.add("finished");
-      durationCell.classList.remove("unstarted");
-      durationCell.classList.remove("in-progress");
-      durationCell.classList.add("finished");
-      masterArtistData[artistName].wordCountDur = wordCountDursData;
-    }
+    wordCountCell.classList.remove("unstarted");
+    wordCountCell.classList.remove("in-progress");
+    wordCountCell.classList.add("finished");
+    durationCell.classList.remove("unstarted");
+    durationCell.classList.remove("in-progress");
+    durationCell.classList.add("finished");
+    masterArtistData[artistName].wordCountDur = wordCountDursData;
+  }
 }
