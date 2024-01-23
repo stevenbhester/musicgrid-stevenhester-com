@@ -34,7 +34,7 @@ const currentToken = {
 };
 
 const args = new URLSearchParams(window.location.search);
-const code = args.get('code');
+const code = args.get("code");
 
 // If we find a code, we're in a callback, do a token exchange
 if (code) {
