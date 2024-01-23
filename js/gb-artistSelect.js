@@ -341,7 +341,7 @@ async function countReleasesByCat(artistId, artistName, releaseDateCell, wordCou
   let durations = [60000, 120000, 180000, 240000, 300000, 360000];
   let wordCounts = [1, 2, 3, 4, 5];
 
-  await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/rich-artist-lookup", {
+  await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/rich-artist-lookup-v2", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ artistId, durations, wordCounts })
