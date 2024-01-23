@@ -354,7 +354,7 @@ async function countReleasesByYear(artistId, artistName, releaseDateCell) {
 }
 
 async function countReleasesByWordCountDuration(artistId, artistName, wordCountCell, durationCell) { 
-  let durations = [60000, 120000, 180000, 240000, 300000];
+  let durations = [60000, 120000, 180000, 240000, 300000, 360000];
   let wordCounts = [1, 2, 3, 4, 5];
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/list-songs-by-duration-wordcount-v2", {
     method: "POST",
@@ -392,13 +392,13 @@ function updateWordCountDurs(wordCountDursData, wordCountDursDetails, artistName
 }
 
 function leaf(obj, keyPath, value) {
-   lastKeyIndex = keyPath.length-1;
-   for (var i = 0; i < lastKeyIndex; ++ i) {
-     key = keyPath[i];
-     if (!(key in obj)){
-       obj[key] = {}
-     }
-     obj = obj[key];
-   }
-   obj[keyPath[lastKeyIndex]] = value;
+  let lastKeyIndex = keyPath.length-1;
+  for (var i = 0; i < lastKeyIndex; ++ i) {
+    let key = keyPath[i];
+    if (!(key in obj)){
+      obj[key] = {}
+    }
+    obj = obj[key];
+  }
+  obj[keyPath[lastKeyIndex]] = value;
 }
