@@ -214,7 +214,7 @@ function buildCustomGrid() {
 }
 
 // Tell the users how we're doing building their grid
-function buildProgressReport(artists) {
+async function buildProgressReport(artists) {
   // Delete the frontend artist list now that we're done with it
   const listContainer = document.getElementsByClassName("sortable-list");
   listContainer[0].innerHTML = "";
@@ -248,7 +248,8 @@ function buildProgressReport(artists) {
   });
   
   //Once we're done with building progress, move to parsing
-  parseArtists(progressContainer);
+  xa = await parseArtists(progressContainer).then(() =>  validateGroups());
+  
 }
 
 function createHeader(headerType, headerText) {
@@ -317,9 +318,8 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
       if(debug) { console.log(`Setting categoryCellsObj[${keyValue}]:`); console.dir(categoryCellsElem);}
       categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
     }
-    checkArtistData(artistId, artistName, categoryCellsObj["release-date"], categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
+    let xa = await checkArtistData(artistId, artistName, categoryCellsObj["release-date"], categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
   });
-  validateGroups();
 }
 
 async function checkArtistData(artistId, artistName, releaseDateCell, wordCountCell, durationCell) {
@@ -333,7 +333,8 @@ async function checkArtistData(artistId, artistName, releaseDateCell, wordCountC
   durationCell.classList.remove("unstarted");
   durationCell.classList.add("in-progress");
   
-  countReleasesByCat(artistId,artistName,releaseDateCell,wordCountCell,durationCell);
+  let xo = await countReleasesByCat(artistId,artistName,releaseDateCell,wordCountCell,durationCell);
+  return true;
 }
 
 async function countReleasesByCat(artistId, artistName, releaseDateCell, wordCountcell, durationCell) { 
@@ -366,6 +367,7 @@ async function countReleasesByCat(artistId, artistName, releaseDateCell, wordCou
       durationCell.classList.remove("unstarted");
       durationCell.classList.remove("in-progress");
       durationCell.classList.add("finished");
+      return true;
     })
     .catch(error => console.error("Error fetching grid data:", error));
 }
