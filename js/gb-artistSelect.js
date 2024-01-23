@@ -332,7 +332,7 @@ async function checkReleaseDates(artistId, artistName, releaseDateCell) {
   releaseDateCell.classList.remove("finished");
   releaseDateCell.classList.remove("unstarted");
   releaseDateCell.classList.add("in-progress");
-  countReleasesByYear(artistId,artistName);
+  countReleasesByYear(artistId,artistName, releaseDateCell);
 }
 
 async function checkWordCountsAndDuration(artistName, wordCountCell, durationCell) {
