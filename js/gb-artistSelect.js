@@ -370,8 +370,8 @@ function updateReleaseYears(releaseYearsData, releaseYearsDetails, artistName, r
     releaseDateCell.classList.remove("unstarted");
     releaseDateCell.classList.remove("in-progress");
     releaseDateCell.classList.add("finished");
-    masterArtistDataSumm[artistName].releaseDate = releaseYearsData;
-    masterArtistDataDetails[artistName].releaseDate = releaseYearsDetails;
+    masterArtistDataSumm[artistName] = {releaseDate : releaseYearsData}
+    masterArtistDataDetails[artistName] = {releaseDate : releaseYearsDetails};
   }
 }
 
@@ -383,9 +383,7 @@ function updateWordCountDurs(wordCountDursData, wordCountDursDetails, artistName
     durationCell.classList.remove("unstarted");
     durationCell.classList.remove("in-progress");
     durationCell.classList.add("finished");
-    masterArtistDataSumm[artistName].wordCount = wordCountDursData.wordcount;
-    masterArtistDataSumm[artistName].duration = wordCountDursData.duration;
-    masterArtistDataDetails[artistName].wordCount = wordCountDursDetails.wordcount;
-    masterArtistDataDetails[artistName].duration = wordCountDursDetails.duration;
+    masterArtistDataSumm[artistName] = {wordCount:wordCountDursData.wordcount, duration:wordCountDursData.duration};
+    masterArtistDataDetails[artistName] = {wordCount:wordCountDursDetails.wordcount, duration:wordCountDursDetails.duration};
   }
 }
