@@ -319,6 +319,7 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
     }
     checkArtistData(artistId, artistName, categoryCellsObj["release-date"], categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
   });
+  validateGroups();
 }
 
 async function checkArtistData(artistId, artistName, releaseDateCell, wordCountCell, durationCell) {
@@ -365,8 +366,6 @@ async function countReleasesByCat(artistId, artistName, releaseDateCell, wordCou
       durationCell.classList.remove("unstarted");
       durationCell.classList.remove("in-progress");
       durationCell.classList.add("finished");
-      
-      validateGroups();
     })
     .catch(error => console.error("Error fetching grid data:", error));
 }
