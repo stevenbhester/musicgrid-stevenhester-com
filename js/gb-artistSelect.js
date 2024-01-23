@@ -303,6 +303,7 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
   }
   if(debug) { console.dir(progressRowsArr);}
   let progressRowsSlice = progressRowsArr.slice(startIndex, endIndex);
+  let promises = [];
   progressRowsSlice.forEach(row => { 
     let artistSummObj = {};
     let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
@@ -317,21 +318,22 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
       if(debug) { console.log(`Setting categoryCellsObj[${keyValue}]:`); console.dir(categoryCellsElem);}
       categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
     }
-
-    await checkReleaseDates(artistId, artistName, categoryCellsObj["release-date"]);
-    await checkWordCountsAndDuration(artistId, artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
-
-    validateGroups(progressContainer, startIndex, endIndex);
+    promises.push(checkReleaseDates(artistId, artistName, categoryCellsObj["release-date"]));
+    promises.push(checkWordCountsAndDuration(artistId, artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]));
+    promises.all(promises).then(groupValidation());
   });
-  console.dir(masterArtistDataSumm);
-  console.dir(masterArtistDataDetails);
+  let myPromise = new Promise(function(validateGroups, myReject) {
+    validateGroups(progressContainer, startIndex, endIndex); 
+    progressFailure();
+  });
 }
 
 async function checkReleaseDates(artistId, artistName, releaseDateCell) {
   releaseDateCell.classList.remove("finished");
   releaseDateCell.classList.remove("unstarted");
   releaseDateCell.classList.add("in-progress");
-  countReleasesByYear(artistId,artistName, releaseDateCell);
+  await countReleasesByYear(artistId,artistName, releaseDateCell);
+  return Promise.resolve({"promise: ", artistName});
 }
 
 async function checkWordCountsAndDuration(artistId,artistName, wordCountCell, durationCell) {
@@ -341,7 +343,8 @@ async function checkWordCountsAndDuration(artistId,artistName, wordCountCell, du
   durationCell.classList.remove("finished");
   durationCell.classList.remove("unstarted");
   durationCell.classList.add("in-progress");
-  countReleasesByWordCountDuration(artistId,artistName,wordCountCell,durationCell);
+  await countReleasesByWordCountDuration(artistId,artistName,wordCountCell,durationCell);
+  return Promise.resolve({"promise: ", artistName});
 }
 
 async function countReleasesByYear(artistId, artistName, releaseDateCell) { 
@@ -409,5 +412,12 @@ async function validateGroups(progressContainer, startIndex, endIndex) {
   let debug = true;
   let artists = Object.keys(masterArtistDataSumm);
   if(debug) {console.log("Groups to compare registered as:");console.dir(artists);}
+  //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
+}
+
+
+async function progressFailure() {
+  let debug = true;
+  if(debug) {console.log("Groups failed to update");}
   //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
 }
