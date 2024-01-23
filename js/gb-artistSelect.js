@@ -333,7 +333,7 @@ async function checkReleaseDates(artistId, artistName, releaseDateCell) {
   releaseDateCell.classList.remove("unstarted");
   releaseDateCell.classList.add("in-progress");
   await countReleasesByYear(artistId,artistName, releaseDateCell);
-  return Promise.resolve({"promise: "+ artistName});
+  return Promise.resolve({"promise: ": artistName, artistId});
 }
 
 async function checkWordCountsAndDuration(artistId,artistName, wordCountCell, durationCell) {
@@ -344,7 +344,7 @@ async function checkWordCountsAndDuration(artistId,artistName, wordCountCell, du
   durationCell.classList.remove("unstarted");
   durationCell.classList.add("in-progress");
   await countReleasesByWordCountDuration(artistId,artistName,wordCountCell,durationCell);
-  return Promise.resolve({"promise: "+ artistName});
+  return Promise.resolve({"promise: ": artistName, artistId});
 }
 
 async function countReleasesByYear(artistId, artistName, releaseDateCell) { 
