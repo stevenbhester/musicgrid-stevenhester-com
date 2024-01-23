@@ -365,7 +365,7 @@ async function countReleasesByWordCountDuration(artistName, wordCountCell, durat
     body: JSON.stringify({ artistName, durations, wordCounts })
   })
     .then(response => response.json())
-    .then(data => updateWordCountDur(data, artistName, wordCountCell, durationCell))
+    .then(data => updateWordCountDurs(data, artistName, wordCountCell, durationCell))
     .catch(error => console.error("Error fetching grid data:", error));
 }
 
