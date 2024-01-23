@@ -318,8 +318,10 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
       categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
     }
 
-    checkReleaseDates(artistId, artistName, categoryCellsObj["release-date"]);
-    checkWordCountsAndDuration(artistId, artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
+    await checkReleaseDates(artistId, artistName, categoryCellsObj["release-date"]);
+    await checkWordCountsAndDuration(artistId, artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
+
+    validateGroups(progressContainer, startIndex, endIndex);
   });
   console.dir(masterArtistDataSumm);
   console.dir(masterArtistDataDetails);
@@ -401,4 +403,11 @@ function leaf(obj, keyPath, value) {
     obj = obj[key];
   }
   obj[keyPath[lastKeyIndex]] = value;
+}
+
+async function validateGroups(progressContainer, startIndex, endIndex) {
+  let debug = true;
+  let artists = Object.keys(masterArtistDataSumm);
+  if(debug) {console.log("Groups to compare registered as:");console.dir(artists);}
+  //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
 }
