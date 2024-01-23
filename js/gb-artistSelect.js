@@ -261,28 +261,25 @@ function createHeader(headerType, headerText) {
 
 function createProgressCell(cellType, cellContent, idEmbed) {
   const progressCell = document.createElement("div");
-  let cellClass = cellType+"-cell";
-  let cellDataEmbed = idEmbed||"no-data";
-  let cellStatus = "unstarted";
-  if ( cellType == "artist" ){
+  progressCell.classList.add("cell", `${cellType}-cell`);
+  if (cellType === "artist") {
     progressCell.textContent = cellContent;
-    cellStatus = "noStatus";
-    progressCell.setAttribute("data-artist-id",cellDataEmbed);
+    progressCell.dataset.artistId = idEmbed || "no-data";
   } else {
-    progressCell.setAttribute("data-progress-type",cellContent);
+    progressCell.dataset.progressType = cellContent;
+    progressCell.classList.add("unstarted");
   }
-  progressCell.classList.add("cell", cellClass, cellStatus);
   return progressCell;
 }
 
 function fetchValidCategories() {
-  let validCategories = [];
-  validCategories.push({head: "Check Release Dates", endpoint: "/list-songs-by-dates", className: "release-date"});
-  validCategories.push({head: "Check Song Lengths", endpoint: "/list-songs-by-duration", className: "song-length"});
-  validCategories.push({head: "Check Title Lengths", endpoint: "/list-songs-by-wordcount", className: "title-length"});
-  validCategories.push({head: "Check Cheats Access", endpoint: "/get-cheat-preview-url", className: "cheats-available"});
-  validCategories.push({head: "Looking for Group", endpoint: "fakeEndpoint", className: "group-compare"});
-  return(validCategories);
+  return [
+    { head: "Check Release Dates", endpoint: "/list-songs-by-dates", className: "release-date" },
+    { head: "Check Song Lengths", endpoint: "/list-songs-by-duration", className: "song-length" },
+    { head: "Check Title Lengths", endpoint: "/list-songs-by-wordcount", className: "title-length" },
+    { head: "Check Cheats Access", endpoint: "/get-cheat-preview-url", className: "cheats-available" },
+    { head: "Looking for Group", endpoint: "fakeEndpoint", className: "group-compare" }
+  ];
 }
 
 //Next steps: Go through valid artist rows, check each cell, change class based on status, get good gif for loading, add missing-artist gif, add warning if no cheat button, build custom grid data structure and handle
@@ -292,55 +289,41 @@ let masterArtistDataSumm = {};
 let masterArtistDataDetails = {};
 
 async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
-  let debug = true;
-  if(debug) { console.log("parsing Artist progress");}
-  let progressRowsHTMLObj = progressContainer.getElementsByClassName("row");
-  let progressRowsArr = [];
-  if(debug) { console.log("Setting progressRowArr:");}
-  for (let j = 1; j < progressRowsHTMLObj.length; j++) { //We start at 1 to ignore header row
-    let progressRowElem = progressRowsHTMLObj[j];
-    progressRowsArr.push(progressRowElem);
-  }
-  if(debug) { console.dir(progressRowsArr);}
-  let progressRowsSlice = progressRowsArr.slice(startIndex, endIndex);
-  let promises = [];
-  progressRowsSlice.forEach(row => { 
-    let artistSummObj = {};
-    let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
-    let artistId = row.getElementsByClassName("artist-cell")[0].getAttribute("data-artist-id");
-    let categoryCellsHTMLObj = row.getElementsByClassName("progress-cell");
-    let categoryCellsObj = [];
-    if(debug) { console.log(`Observing artist name: "${artistName}", id: "${artistId}"`);}
-  
-    for (let i = 0; i < categoryCellsHTMLObj.length; i++) {
-      let categoryCellsElem = categoryCellsHTMLObj[i];
-      let keyValue = categoryCellsElem.getAttribute("data-progress-type");
-      if(debug) { console.log(`Setting categoryCellsObj[${keyValue}]:`); console.dir(categoryCellsElem);}
-      categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
-    }
-    promises.push(checkReleaseDates(artistId, artistName, categoryCellsObj["release-date"]));
-    promises.push(checkWordCountsAndDuration(artistId, artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]));
-    Promise.all(promises).then(validateGroups());
+  const progressRows = Array.from(progressContainer.getElementsByClassName("row")).slice(1);
+  const promises = [];
+
+  progressRows.slice(startIndex, endIndex).forEach(row => {
+    const artistName = row.querySelector(".artist-cell").textContent;
+    const artistId = row.querySelector(".artist-cell").dataset.artistId;
+    const cells = row.querySelectorAll(".progress-cell");
+
+    cells.forEach(cell => {
+      const categoryType = cell.dataset.progressType;
+      if (categoryType === "release-date") {
+        promises.push(checkReleaseDates(artistId, artistName, cell));
+      } else if (categoryType === "title-length" || categoryType === "song-length") {
+        promises.push(checkWordCountsAndDuration(artistId, artistName, cells));
+      }
+    });
   });
+
+  await Promise.all(promises).then(validateGroups);
 }
 
 async function checkReleaseDates(artistId, artistName, releaseDateCell) {
-  releaseDateCell.classList.remove("finished");
-  releaseDateCell.classList.remove("unstarted");
-  releaseDateCell.classList.add("in-progress");
-  await countReleasesByYear(artistId,artistName, releaseDateCell);
-  return Promise.resolve({"promise: ": artistName, artistId});
+  releaseDateCell.classList.replace("unstarted", "in-progress");
+  await countReleasesByYear(artistId, artistName, releaseDateCell);
+  return { artistName, artistId };
 }
 
-async function checkWordCountsAndDuration(artistId,artistName, wordCountCell, durationCell) {
-  wordCountCell.classList.remove("finished");
-  wordCountCell.classList.remove("unstarted");
-  wordCountCell.classList.add("in-progress");
-  durationCell.classList.remove("finished");
-  durationCell.classList.remove("unstarted");
-  durationCell.classList.add("in-progress");
-  await countReleasesByWordCountDuration(artistId,artistName,wordCountCell,durationCell);
-  return Promise.resolve({"promise: ": artistName, artistId});
+async function checkWordCountsAndDuration(artistId, artistName, cells) {
+  const wordCountCell = cells[0];
+  const durationCell = cells[1];
+
+  wordCountCell.classList.replace("unstarted", "in-progress");
+  durationCell.classList.replace("unstarted", "in-progress");
+  await countReleasesByWordCountDuration(artistId, artistName, wordCountCell, durationCell);
+  return { artistName, artistId };
 }
 
 async function countReleasesByYear(artistId, artistName, releaseDateCell) { 
