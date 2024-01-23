@@ -317,8 +317,10 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
       categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
     }
 
-    artistSummObj["releaseDate"] = checkReleaseDates(artistId, categoryCellsObj["release-date"]);
-    artistSummObj["wordCountDur"] = checkWordCountsAndDuration(artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
+    // artistSummObj["releaseDate"] = checkReleaseDates(artistId, categoryCellsObj["release-date"]);
+    // artistSummObj["wordCountDur"] = checkWordCountsAndDuration(artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
+    checkReleaseDates(artistId, categoryCellsObj["release-date"]).then((releaseDates) => {artistSummObj["releaseDate"]=releaseDates;} )
+    checkWordCountsAndDuration(artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]).then((wordCountDurs) => {artistSummObj["wordCountDur"]=wordCountDurs;} ) 
     masterArtistData[artistName] = artistSummObj;
   });
   console.dir(masterArtistData);
