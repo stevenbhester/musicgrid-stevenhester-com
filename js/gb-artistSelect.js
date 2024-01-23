@@ -396,7 +396,7 @@ function leaf(obj, keyPath, value) {
   for (var i = 0; i < lastKeyIndex; ++ i) {
     let key = keyPath[i];
     if (!(key in obj)){
-      obj[key] = {}
+      obj[key] = {};
     }
     obj = obj[key];
   }
