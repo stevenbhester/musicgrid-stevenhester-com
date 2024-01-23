@@ -387,6 +387,8 @@ async function validateGroups() {
   let debug = true;
   let artists = Object.keys(masterArtistDataSumm);
   if(debug) {console.log("Groups to compare registered as:");console.log(artists);}
+  if(debug) {console.dir(masterArtistDataSumm);}
+  if(debug) {console.dir(masterArtistDataDetails);}
   //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
   console.dir(masterArtistDataSumm);
   console.dir(masterArtistDataDetails);
