@@ -320,7 +320,7 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
     }
     promises.push(checkReleaseDates(artistId, artistName, categoryCellsObj["release-date"]));
     promises.push(checkWordCountsAndDuration(artistId, artistName, categoryCellsObj["title-length"], categoryCellsObj["song-length"]));
-    promises.all(promises).then(validateGroups());
+    Promise.all(promises).then(validateGroups());
   });
 }
 
