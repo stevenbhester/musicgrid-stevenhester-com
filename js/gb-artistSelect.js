@@ -371,8 +371,8 @@ function updateReleaseYears(releaseYearsData, releaseYearsDetails, artistName, r
     releaseDateCell.classList.remove("unstarted");
     releaseDateCell.classList.remove("in-progress");
     releaseDateCell.classList.add("finished");
-    leaf(masterArtistDataSumm,`${artistName}.releaseDate`) = releaseYearsData;
-    leaf(masterArtistDataDetails,`${artistName}.releaseDate`) = releaseYearsDetails;
+    leaf(masterArtistDataSumm,[artistName,"releaseDate"], releaseYearsData);
+    leaf(masterArtistDataDetails,[artistName,"releaseDate"], releaseYearsDetails);
   }
 }
 
@@ -384,14 +384,21 @@ function updateWordCountDurs(wordCountDursData, wordCountDursDetails, artistName
     durationCell.classList.remove("unstarted");
     durationCell.classList.remove("in-progress");
     durationCell.classList.add("finished");
-    leaf(masterArtistDataSumm,`${artistName}.wordCount`) = wordCountDursData.wordcount;
-    leaf(masterArtistDataSumm,`${artistName}.duration`) = wordCountDursData.duration;
-    leaf(masterArtistDataDetails,`${artistName}.wordCount`) = wordCountDursDetails.wordcount;
-    leaf(masterArtistDataDetails,`${artistName}.duration`) = wordCountDursDetails.duration;
+    leaf(masterArtistDataSumm,[artistName,"wordCount"], wordCountDursData.wordcount);
+    leaf(masterArtistDataSumm,[artistName,"duration"], wordCountDursData.duration);
+    leaf(masterArtistDataDetails,[artistName,"wordCount"], wordCountDursDetails.wordcount);
+    leaf(masterArtistDataDetails,[artistName,"duration"], wordCountDursDetails.duration);
   }
 }
 
-function leaf(obj,path) {
-  const leaf = (obj, path) => (path.split('.').reduce((value,el) => value[el], obj));
-  return leaf;
+function leaf(obj, keyPath, value) {
+   lastKeyIndex = keyPath.length-1;
+   for (var i = 0; i < lastKeyIndex; ++ i) {
+     key = keyPath[i];
+     if (!(key in obj)){
+       obj[key] = {}
+     }
+     obj = obj[key];
+   }
+   obj[keyPath[lastKeyIndex]] = value;
 }
