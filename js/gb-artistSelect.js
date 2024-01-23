@@ -371,8 +371,8 @@ function updateReleaseYears(releaseYearsData, releaseYearsDetails, artistName, r
     releaseDateCell.classList.remove("unstarted");
     releaseDateCell.classList.remove("in-progress");
     releaseDateCell.classList.add("finished");
-    masterArtistDataSumm.artistName["releaseDate"] = releaseYearsData;
-    masterArtistDataDetails.artistName["releaseDate"] = releaseYearsDetails;
+    leaf(masterArtistDataSumm,`${artistName}.releaseDate`) = releaseYearsData;
+    leaf(masterArtistDataDetails,`${artistName}.releaseDate`) = releaseYearsDetails;
   }
 }
 
@@ -384,9 +384,14 @@ function updateWordCountDurs(wordCountDursData, wordCountDursDetails, artistName
     durationCell.classList.remove("unstarted");
     durationCell.classList.remove("in-progress");
     durationCell.classList.add("finished");
-    masterArtistDataSumm.artistName["wordCount"] = wordCountDursData.wordcount;
-    masterArtistDataSumm.artistName["duration"] = wordCountDursData.duration;
-    masterArtistDataDetails.artistName["wordCount"] = wordCountDursDetails.wordcount;
-    masterArtistDataDetails.artistName["duration"] = wordCountDursDetails.duration; 
+    leaf(masterArtistDataSumm,`${artistName}.wordCount`) = wordCountDursData.wordcount;
+    leaf(masterArtistDataSumm,`${artistName}.duration`) = wordCountDursData.duration;
+    leaf(masterArtistDataDetails,`${artistName}.wordCount`) = wordCountDursDetails.wordcount;
+    leaf(masterArtistDataDetails,`${artistName}.duration`) = wordCountDursDetails.duration;
   }
+}
+
+function leaf(obj,path) {
+  const leaf = (obj, path) => (path.split('.').reduce((value,el) => value[el], obj));
+  return leaf;
 }
