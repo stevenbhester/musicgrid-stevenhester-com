@@ -391,6 +391,7 @@ async function validateGroups() {
   //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
   console.dir(masterArtistDataSumm);
   console.dir(masterArtistDataDetails);
+  selectDateRange();
 }
 
 
