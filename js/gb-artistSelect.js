@@ -406,7 +406,7 @@ function selectDateRange() {
   let a1 = artists[0];
   let masterYears = {};
   for (var artist in artists) {
-    
+    console.log(artist);
   }
   let masterYearsA1 = Object.keys(masterArtistDataSumm);
 }
