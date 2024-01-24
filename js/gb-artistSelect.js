@@ -404,10 +404,9 @@ async function progressFailure() {
 
 function selectDateRange() {
   let artists = Object.keys(masterArtistDataSumm);
-  let a1 = artists[0];
   let masterYears = {};
-  for (var artist in artists) {
-    console.log(artist);
+  for (let x = 0; x < artists.length(); x++) {
+    console.log(artists[x]);
   }
   let masterYearsA1 = Object.keys(masterArtistDataSumm);
 }
