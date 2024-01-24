@@ -304,7 +304,7 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
   }
   if(debug) { console.dir(progressRowsArr);}
   let progressRowsSlice = progressRowsArr.slice(startIndex, endIndex);
-  progressRowsSlice.forEach(row => { 
+  for (var row of progressRowsSlice) {
     let artistSummObj = {};
     let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
     let artistId = row.getElementsByClassName("artist-cell")[0].getAttribute("data-artist-id");
