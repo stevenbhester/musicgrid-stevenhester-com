@@ -391,7 +391,7 @@ async function validateGroups() {
   //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
   console.dir(masterArtistDataSumm);
   console.dir(masterArtistDataDetails);
-  selectDateRange();
+  yearRange = await selectDateRange();
 }
 
 
@@ -402,11 +402,16 @@ async function progressFailure() {
 }
 
 
-function selectDateRange() {
+async function selectDateRange() {
   let artists = Object.keys(masterArtistDataSumm);
   let masterYears = {};
-  for (let x = 0; x < artists.length(); x++) {
+  for (let x = 0; x < artists.length; x++) {
     console.log(artists[x]);
   }
-  let masterYearsA1 = Object.keys(masterArtistDataSumm);
+  // map each year to (artist:numsongs)
+  // generalize to 5 year buckets
+  // rank 5 year buckets by the highest min of artists songs
+  // select top and we can iterate through later
+  // return array of min and max year for year range (or just take min and know it's +5 years)
+  // actually be careful to count songs in a border year towards both (2005 counts for 2000-2005 and 2005-2010)
 }
