@@ -421,17 +421,28 @@ async function selectDateRange() {
       }
       console.log("Checking year: "+observedYear+" with "+yearReleases+" releases");
       for (let z = 0; z < relevantBuckets.length; z++) {
-        console.log("Assigned to bucket "+relevantBuckets[z]);
+        currYear = relevantBuckets[z];
+        console.log("Assigned to bucket "+currYear);
+        
+        let currYearKeys = Object.keys(artistYearsBucketObj);
+        let currYearArtistKeys = Object.keys(artistYearsBucketObj[currYearKeys]);
+        if(currYearKeys.length >= 0 && currYearKeys.includes(observedYear)) { //If year bucket already exists
+          if(currYearArtistKeys.length >= 0 && currYearArtistKeys.includes(artistName) { //And artist exists in that year bucket
+            artistYearsBucketObj[observedYear][artistName] += yearReleases; //Increment bucket release count by current year
+            console.log(observedYear+ " & "+artistName+" already exists, incrementing by "+yearReleases);
+          } else { //But if year bucket exists and artist not found, create artist record and set to yearReleases
+            artistYearsBucketObj[observedYear][artistName] = yearReleases;
+            console.log(observedYear+" exists, "+artistName+" doesn't already exists, creating & setting to "+yearReleases);
+          }
+        } else { //If year bucket doesn't yet exist, create year and add artist//num release pair
+          artistYearsBucketObj[observedYear] = {[artistName]: yearReleases};
+          console.log(observedYear+ " & "+artistName+" don't exist, creating and setting to "+yearReleases);
+        }
       }
-      // let currKeys = Object.keys(artistYearsBucketObj);
-      // if(currKeys.length >= 0 && currKeys.includes(observedYear)) {
-      //   artistYearsBucketObj[observedYear].push({id:albumTrack.id, name:albumTrack.name}); 
-      // } else {
-      //   artistYearsBucketObj[observedYear] = [];
-      //   artistYearsBucketObj[observedYear].push({id:albumTrack.id, name:albumTrack.name}); // TODO: This isn't exhaustive we should actually search Album tracks or hit existing endpoint
-      // }
     }
   }
+  console.dir(artistYearsBucketObj);
+  return artistYearsBucketObj;
   // map each year to (artist:numsongs)
   // generalize to 5 year buckets
   // rank 5 year buckets by the highest min of artists songs
