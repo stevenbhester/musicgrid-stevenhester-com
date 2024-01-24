@@ -319,7 +319,7 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
       categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
     }
     let xa = await checkArtistData(artistId, artistName, categoryCellsObj["release-date"], categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
-  });
+  }
 }
 
 async function checkArtistData(artistId, artistName, releaseDateCell, wordCountCell, durationCell) {
