@@ -248,7 +248,7 @@ async function buildProgressReport(artists) {
   });
   
   //Once we're done with building progress, move to parsing
-  xa = await parseArtists(progressContainer).then(() =>  validateGroups());
+  let xa = await parseArtists(progressContainer).then(() =>  validateGroups());
   
 }
 
