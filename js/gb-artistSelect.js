@@ -426,8 +426,8 @@ async function selectDateRange() {
         
         let currYearKeys = Object.keys(artistYearsBucketObj);
         let currYearArtistKeys = Object.keys(artistYearsBucketObj[currYearKeys]);
-        if(currYearKeys.length >= 0 && currYearKeys.includes(observedYear)) { //If year bucket already exists
-          if(currYearArtistKeys.length >= 0 && currYearArtistKeys.includes(artistName) { //And artist exists in that year bucket
+        if(currYearKeys.length >= 0 && currYearKeys.includes(observedYear))) { //If year bucket already exists
+          if(currYearArtistKeys.length >= 0 && currYearArtistKeys.includes(artistName)) { //And artist exists in that year bucket
             artistYearsBucketObj[observedYear][artistName] += yearReleases; //Increment bucket release count by current year
             console.log(observedYear+ " & "+artistName+" already exists, incrementing by "+yearReleases);
           } else { //But if year bucket exists and artist not found, create artist record and set to yearReleases
