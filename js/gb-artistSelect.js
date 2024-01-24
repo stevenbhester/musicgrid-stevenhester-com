@@ -389,7 +389,7 @@ async function validateGroups() {
   if(debug) {console.dir(masterArtistDataSumm);}
   if(debug) {console.dir(masterArtistDataDetails);}
   //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
-  yearRange = await selectDateRange();
+  let yearRange = await selectDateRange();
 }
 
 
@@ -406,9 +406,9 @@ async function selectDateRange() {
   for (let x = 0; x < artists.length; x++) {
     let artistName = artists[x];
     console.log("Checking date ranges for "+artistName+" of years:");
-    let artistYears = Object.keys(masterArtistDataSumm[artistName][releaseDate]);
+    let artistYears = Object.keys(masterArtistDataSumm[artistName]["releaseDate"]);
     console.dir(artistYears);
-    for (artistYear of artistYears) {
+    for (var artistYear of artistYears) {
       console.dir(artistYears[artistYear]);
     }
   }
