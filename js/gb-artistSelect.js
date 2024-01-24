@@ -424,6 +424,8 @@ async function selectDateRange() {
         console.log("Assigned to bucket "+currYear);
         let currYearKeys = Object.keys(artistYearsBucketObj);
         let currYearArtistKeys = [];
+        console.log("Checking if "+currYear+"exists in existing "+(currYearKeys.length)+" logged years of:");
+        console.log(currYearkeys);
         if(currYearKeys.length >= 0 && currYearKeys.includes(currYear)) { //If year bucket already exists
           currYearArtistKeys = Object.keys(artistYearsBucketObj[currYear]);
           if(currYearArtistKeys.length >= 0 && currYearArtistKeys.includes(artistName)) { //And artist exists in that year bucket
