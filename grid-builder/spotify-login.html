@@ -58,8 +58,10 @@
               <div class="hero-content">
                 <h1>Spotify login complete - proceed to <a href="/grid-builder/artist-selection">Step 2</a> to Build Your Grid!</h1>
                 <br>
-                <h1>Logged in as <span data-bind="display_name"></span></h1>
-                <img width="150" data-bind-src="images[0].url" data-bind-alt="display_name" />
+                <a href="/grid-builder/artist-selection"><button id="proceed-button">Select Grid Artists</button></a>
+<!--                 <h1>Logged in as <span data-bind="display_name"></span></h1> -->
+<!--                 <img width="150" data-bind-src="images[0].url" data-bind-alt="display_name" /> -->
+                  <br>
                 <button id="refresh-token-button" data-bind-onclick="refreshTokenClick();">Refresh Token</button>
                 <button id="logout-button" data-bind-onclick="logoutClick();">Log out</button>
               </div>
