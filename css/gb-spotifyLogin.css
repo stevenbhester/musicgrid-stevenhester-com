@@ -33,12 +33,12 @@ button {
     color: black;
 }
 
-proceed-button {
+#proceed-button {
     margin: 1rem 1rem 1rem 1rem;
     border: 0;
     border-radius: 20px;
     padding: 20px 20rem;
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-family: Cultive Mono, Arial, Helvetica, sans-serif;
     text-transform: uppercase;
     font-weight: bold;
