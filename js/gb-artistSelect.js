@@ -402,14 +402,13 @@ async function progressFailure() {
 
 async function selectDateRange() {
   let artists = Object.keys(masterArtistDataSumm);
-  let masterYears = {};
+  let artistYearsBucketObj = {};
   for (let x = 0; x < artists.length; x++) {
     let artistName = artists[x];
     console.log("Checking date ranges for "+artistName+" of years:");
     let releaseSummObj = masterArtistDataSumm[artistName]["releaseDate"];
     let artistYearsArr = Object.keys(releaseSummObj);
     console.dir(artistYearsArr);
-    let artistYearsBucketObj = {};
     for (let y = 0; y < artistYearsArr.length; y++) {
       let observedYear = parseInt(artistYearsArr[y]);
       let yearReleases = releaseSummObj[observedYear];
@@ -421,7 +420,7 @@ async function selectDateRange() {
       }
       console.log("Checking year: "+observedYear+" with "+yearReleases+" releases");
       for (let z = 0; z < relevantBuckets.length; z++) {
-        currYear = relevantBuckets[z];
+        let currYear = relevantBuckets[z];
         console.log("Assigned to bucket "+currYear);
         
         let currYearKeys = Object.keys(artistYearsBucketObj);
