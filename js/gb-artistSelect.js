@@ -406,10 +406,30 @@ async function selectDateRange() {
   for (let x = 0; x < artists.length; x++) {
     let artistName = artists[x];
     console.log("Checking date ranges for "+artistName+" of years:");
-    let artistYears = Object.keys(masterArtistDataSumm[artistName]["releaseDate"]);
-    console.dir(artistYears);
-    for (var artistYear of artistYears) {
-      console.dir(artistYears[artistYear]);
+    let releaseSummObj = masterArtistDataSumm[artistName]["releaseDate"];
+    let artistYearsArr = Object.keys(releaseSummObj);
+    console.dir(artistYearsArr);
+    let artistYearsBucketObj = {};
+    for (let y = 0; y < artistYearsArr.length; y++) {
+      let observedYear = parseInt(artistYearsArr[y]);
+      let yearReleases = releaseSummObj[observedYear];
+      let yearBucket = observedYear - observedYear%5;
+      let relevantBuckets = [];
+      relevantBuckets.push(yearBucket);
+      if(yearBucket == observedYear) {
+        relevantBuckets.push(observedYear - 5);
+      }
+      console.log("Checking year: "+observedYear+" with "+yearReleases+" releases");
+      for (let z = 0; z < relevantBuckets.length; z++) {
+        console.log("Assigned to bucket "+relevantBuckets[z]);
+      }
+      // let currKeys = Object.keys(artistYearsBucketObj);
+      // if(currKeys.length >= 0 && currKeys.includes(observedYear)) {
+      //   artistYearsBucketObj[observedYear].push({id:albumTrack.id, name:albumTrack.name}); 
+      // } else {
+      //   artistYearsBucketObj[observedYear] = [];
+      //   artistYearsBucketObj[observedYear].push({id:albumTrack.id, name:albumTrack.name}); // TODO: This isn't exhaustive we should actually search Album tracks or hit existing endpoint
+      // }
     }
   }
   // map each year to (artist:numsongs)
