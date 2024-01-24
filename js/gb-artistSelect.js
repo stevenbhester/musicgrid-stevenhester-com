@@ -424,18 +424,18 @@ async function selectDateRange() {
         console.log("Assigned to bucket "+currYear);
         let currYearKeys = Object.keys(artistYearsBucketObj);
         let currYearArtistKeys = [];
-        if(currYearKeys.length >= 0 && currYearKeys.includes(observedYear)) { //If year bucket already exists
-          currYearArtistKeys = Object.keys(artistYearsBucketObj[observedYear]);
+        if(currYearKeys.length >= 0 && currYearKeys.includes(currYear)) { //If year bucket already exists
+          currYearArtistKeys = Object.keys(artistYearsBucketObj[currYear]);
           if(currYearArtistKeys.length >= 0 && currYearArtistKeys.includes(artistName)) { //And artist exists in that year bucket
-            artistYearsBucketObj[observedYear][artistName] += yearReleases; //Increment bucket release count by current year
-            console.log(observedYear+ " & "+artistName+" already exists, incrementing by "+yearReleases);
+            artistYearsBucketObj[currYear][artistName] += yearReleases; //Increment bucket release count by current year
+            console.log(currYear+ " & "+artistName+" already exists, incrementing by "+yearReleases);
           } else { //But if year bucket exists and artist not found, create artist record and set to yearReleases
-            artistYearsBucketObj[observedYear][artistName] = yearReleases;
-            console.log(observedYear+" exists, "+artistName+" doesn't already exists, creating & setting to "+yearReleases);
+            artistYearsBucketObj[currYear][artistName] = yearReleases;
+            console.log(currYear+" exists, "+artistName+" doesn't already exists, creating & setting to "+yearReleases);
           }
         } else { //If year bucket doesn't yet exist, create year and add artist//num release pair
-          artistYearsBucketObj[observedYear] = {[artistName]: yearReleases};
-          console.log(observedYear+ " & "+artistName+" don't exist, creating and setting to "+yearReleases);
+          artistYearsBucketObj[currYear] = {[artistName]: yearReleases};
+          console.log(currYear+ " & "+artistName+" don't exist, creating and setting to "+yearReleases);
         }
       }
     }
