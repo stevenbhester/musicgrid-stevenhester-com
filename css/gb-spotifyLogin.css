@@ -34,12 +34,12 @@ button {
 }
 
 #proceed-button {
-    margin: 1rem 1rem 1rem 1rem;
+    margin-bottom: 1rem;
     border: 0;
     border-radius: 20px;
-    padding: 20px 20rem;
+    padding: 10vh;
     font-size: 2rem;
-    font-family: Cultive Mono, Arial, Helvetica, sans-serif;
+    font-family: Josefin Sans, Cultive Mono, Arial, Helvetica, sans-serif;
     text-transform: uppercase;
     font-weight: bold;
     background-color:#1ed760;
@@ -276,6 +276,17 @@ header {
 }
 
 @media (max-width: 600px) {
+    #proceed-button {
+        margin-bottom: 10rem;
+        padding: 10px;
+        font-size: 2rem;
+        font-family: Cultive Mono, Arial, Helvetica, sans-serif;
+        text-transform: uppercase;
+        font-weight: bold;
+        background-color:#1ed760;
+        color: black;
+    }
+    
     .navbar .nav-links {
         display: none; /* Hide the desktop links */
     }
