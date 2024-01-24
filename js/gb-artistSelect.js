@@ -401,7 +401,7 @@ async function progressFailure() {
 }
 
 
-selectDateRange() {
+function selectDateRange() {
   let artists = Object.keys(masterArtistDataSumm);
   let a1 = artists[0];
   let masterYears = {};
