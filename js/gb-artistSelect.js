@@ -338,8 +338,6 @@ async function checkArtistData(artistId, artistName, releaseDateCell, wordCountC
 }
 
 async function countReleasesByCat(artistId, artistName, releaseDateCell, wordCountcell, durationCell) { 
-  let masterArtistDataSumm = {};
-  let masterArtistDataDetails = {};
   let durations = [60000, 120000, 180000, 240000, 300000, 360000];
   let wordCounts = [1, 2, 3, 4, 5];
   console.log("Fetching heroku for artist: "+artistName);
@@ -400,4 +398,15 @@ async function progressFailure() {
   let debug = true;
   if(debug) {console.log("Groups failed to update");}
   //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
+}
+
+
+selectDateRange() {
+  let artists = Object.keys(masterArtistDataSumm);
+  let a1 = artists[0];
+  let masterYears = {};
+  for (var artist in artists) {
+    
+  }
+  let masterYearsA1 = Object.keys(masterArtistDataSumm);
 }
