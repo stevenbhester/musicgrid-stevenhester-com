@@ -56,7 +56,8 @@
           
             <template id="logged-in-template">
               <div class="hero-content">
-                <h1>Spotify login complete - proceed to <a href="/grid-builder/artist-selection">Step 2</a> to Build Your Grid!</h1>
+                <h1>Spotify login complete</h1>
+                  <p>Proceed to <a href="/grid-builder/artist-selection">Step 2</a> to Build Your Grid!</p>
                 <br>
                 <a href="/grid-builder/artist-selection"><button id="proceed-button">Select Grid Artists</button></a>
 <!--                 <h1>Logged in as <span data-bind="display_name"></span></h1> -->
@@ -68,7 +69,7 @@
             </template>
           
             <template id="oauth-template">
-              <div class="hero-content">
+              <div class="hero-content" display="none">
                   <h2>oAuth info</h2>
                   <table>
                     <tr>
