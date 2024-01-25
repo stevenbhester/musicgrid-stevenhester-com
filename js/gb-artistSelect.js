@@ -250,19 +250,23 @@ async function buildProgressReport(artists) {
   //Once we're done with building progress, move to parsing
   let numArtists = Object.keys(artists);
   let gridOutline = null;
-  for(let q = 3; q<numArtists; q++) {
-    if(!gridOutline) {
-      console.log("Checking subsets of first "+q+" artists");
-      gridOutline = await parseArtists(progressContainer,q).then(() =>  validateGroups(q));
-      if(!gridOutline) { 
-        console.log("No valid match found, incrementing search")
-      } else {
-        console.log("Found valid match for below grid!");
-        console.log(gridOutline);
-        console.dir(gridOutline);
-      }
-    } 
-  }  
+  
+  gridOutline = async _ => {
+    for(let q = 3; q<numArtists; q++) {
+      if(!gridOutline) {
+        console.log("Checking subsets of first "+q+" artists");
+        gridOutline = await parseArtists(progressContainer,q).then(() =>  validateGroups(q));
+      } 
+    }  
+  }
+
+  if(!gridOutline) { 
+          console.log("No valid match found, incrementing search")
+        } else {
+          console.log("Found valid match for below grid!");
+          console.log(gridOutline);
+          console.dir(gridOutline);
+        }
 }
 
 function createHeader(headerType, headerText) {
