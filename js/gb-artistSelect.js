@@ -716,7 +716,7 @@ function selectSongLength(currIteration,validLengthsArr) {
             } 
           }
         }
-        if(songArtistMatches > 3) {
+        if(songArtistMatches > 1) {
           numValidArtists++;
         }
       }
