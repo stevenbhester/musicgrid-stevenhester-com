@@ -610,7 +610,7 @@ function selectWordCounts(currIteration,validCountsArr) {
         console.log("Checking for songs with "+currWordCount+" by "+artistName);
         if(artistCountArr.length > 0 && artistCountArr.includes(currWordCount)) {
           numValidArtists++;
-          console.log("Found songs of matching length for "+artistName+"! Now at "+numValidArtists" matched for "+currWordCount+" word length songs");
+          console.log("Found songs of matching length for "+artistName+"! Now at "+numValidArtists+" matched for "+currWordCount+" word length songs");
         }
         if(numValidArtists == 3) {
           console.log("All three artists matched, returning");
@@ -654,7 +654,7 @@ function selectSongLength(currIteration,validLengthsArr) {
         console.log("Checking for songs with "+currLength+" duration by "+artistName+" against durations of ["+lengthArr.join(",")+"]");
         if(lengthArr.length > 0 && lengthArr.includes(currLength)) {
           numValidArtists++;
-          console.log("Found songs of matching duration for "+artistName+"! Now at "+numValidArtists" matched for "+currLength+" duration songs");
+          console.log("Found songs of matching duration for "+artistName+"! Now at "+numValidArtists+" matched for "+currLength+" duration songs");
         }
         if(numValidArtists == 3) {
           console.log("All three artists matched, returning"); //TODO: We should check for more than 1 but that sounds hard rn
