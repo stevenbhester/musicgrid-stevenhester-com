@@ -248,7 +248,7 @@ async function buildProgressReport(artists) {
   });
   
   //Once we're done with building progress, move to parsing
-  let numArtists = Object.keys(artists);
+  let numArtists = artists.length;
   let gridOutlineFound = false;
   let gridOutline = null;
   
