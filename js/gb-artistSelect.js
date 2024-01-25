@@ -748,14 +748,16 @@ function assembleGridFrame(gridOutline) {
   for(let y = 0; y<currPattern.length; y++) {
     if(currPattern[y] == 1) { 
       artists.push(fullArtists[y]); 
-      console.log("Adding "+fullArtists[y]+" to framework");
-      masterGridOutline[artistName] = {"songLength": [], "wordCount": [], "releaseDate": []};
     } else {
       console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
     }
   }
   
   for(let z = 0; z<artists.length; z++) {
+    let artistName = artists[0];
+      console.log("Adding "+artistName+" to framework");
+      masterGridOutline[artistName] = {"songLength": [], "wordCount": [], "releaseDate": []};
+    
 }
 
 function populateGridData(gridOutline) { 
