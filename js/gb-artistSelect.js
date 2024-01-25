@@ -790,10 +790,10 @@ function populateGridData(gridOutline) {
     //First lets find the songs matching the final duration category
     let durationObj = artistDetailsObj.duration;
     let durationKeys = Object.keys(durationObj);
+    let songsMatchingDuration = [];
     for(let a=0; a<durationKeys.length; a++) {
       let dataSetDurStr = durationKeys[a];
       let dataSetDur = parseInt(dataSetDurStr);
-      let songsMatchingDuration = [];
       if(comparisonType == "under") { 
         console.log("Finding all songs by "+artistName+" "+comparisonType+"(u) "+paramLength+" ms");
         if(dataSetDur <= paramLength) {
@@ -812,10 +812,11 @@ function populateGridData(gridOutline) {
           console.dir(songDurMatches);
         } 
       }
-      console.log("creating masterGridOutline data for");
-      console.dir(songsMatchingDuration);
-      masterGridOutline[artistName] = {songLength: songsMatchingDuration};
     }
+  
+    console.log("creating masterGridOutline data for");
+    console.dir(songsMatchingDuration);
+    masterGridOutline[artistName] = {songLength: songsMatchingDuration};
 
     //Next we find songs matching the final title length count
     let wordCountObj = artistDetailsObj.wordCount;
@@ -825,16 +826,17 @@ function populateGridData(gridOutline) {
     //Next we find songs matching the date range
     let yearsObj = artistDetailsObj.releaseDate;
     let yearKeys = Object.keys(yearsObj);
+    let songsMatchingDate = [];
     for(let a=0; a<yearKeys.length; a++) {
       let detailsSetYear = yearKeys[a];
       let detailsSetYearInt = parseInt(yearKeys[a]);
-      let songsMatchingDate = [];
       if(detailsSetYearInt >= paramLength && detailsSetYearInt <= paramLength - 5) {
         let songYearMatches = yearsObj[detailsSetYear];
         songsMatchingDate.push(songYearMatches);
       }
-      masterGridOutline[artistName]["releaseDate"] = songsMatchingDate;
     }
+    
+    masterGridOutline[artistName]["releaseDate"] = songsMatchingDate;
   }
   console.log("Final grid outline is:");
   console.dir(masterGridOutline);
