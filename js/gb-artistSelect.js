@@ -846,15 +846,15 @@ function populateGridData(gridOutline) {
   }
   console.log("Final grid outline is:");
   console.dir(masterGridOutline);
-  storeGridInSql(masterGridOutline);
+  storeGridInSql(masterGridOutline, gridOutline.categories);
 }
 
-async function storeGridInSql(masterGridOutline) { 
+async function storeGridInSql(masterGridOutline, categories) { 
   try {
-    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/createCustomTable", {
+    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/create-custom-table", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ masterGridOutline })
+      body: JSON.stringify({content: masterGridOutline, categories: categories})
     });
     if (!response.ok) {
       throw new Error("Failed to create custom table");
