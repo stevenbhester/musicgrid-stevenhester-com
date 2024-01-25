@@ -984,6 +984,7 @@ async function calculateAnswerScores(answersUnscored, customGridId) {
   }
 
   await updateEncodedAnswers(answersWithScores);
+  linkToGrid(customGridId);
 }
 
 async function updateEncodedAnswers(encodedAnswers) {
@@ -1002,4 +1003,13 @@ async function updateEncodedAnswers(encodedAnswers) {
   } catch (error) {
     console.error("Error updating encoded answers:", error);
   }
+}
+
+function linkToGrid(customGridId) {
+  const progressContainer = document.getElementById("gridProgressContainer");
+  progressContainer.innerHTML = "";
+  const heroContainers = document.getElementsByClassName("artist-content");
+  const heroContainer = heroContainers[0];
+  heroContainer.innerHTML = "";
+  heroContainer.innerHTML = "<h1> Grid Created! </h1> <br> <p> Click through below to play your custom grid.</p> <div class =\"proceedButtonWrapper\"><a href=/play-custom-grid?custom_grid_id="+customGridId+"><button class=\"continue-button\">Play My Grid</button></a>";
 }
