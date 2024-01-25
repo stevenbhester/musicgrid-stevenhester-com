@@ -248,7 +248,13 @@ async function buildProgressReport(artists) {
   });
   
   //Once we're done with building progress, move to parsing
-  let xa = await parseArtists(progressContainer).then(() =>  validateGroups());
+  let numArtists = Object.keys(artists);
+  let gridOutline = null;
+  for(let q = 3; q<numArtists; q++) {
+    if(!gridOutline) {
+       gridOutline = await parseArtists(progressContainer,q).then(() =>  validateGroups(q));
+    } 
+  }
   
 }
 
@@ -291,9 +297,11 @@ function fetchValidCategories() {
 
 let masterArtistDataSumm = {};
 let masterArtistDataDetails = {};
+let startIndex = 0;
 
-async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
+async function parseArtists(progressContainer, endIndex = 3) {
   let debug = true;
+  let startIndex = 0;
   if(debug) { console.log("parsing Artist progress");}
   let progressRowsHTMLObj = progressContainer.getElementsByClassName("row");
   let progressRowsArr = [];
@@ -304,6 +312,7 @@ async function parseArtists(progressContainer, startIndex = 0, endIndex = 4) {
   }
   if(debug) { console.dir(progressRowsArr);}
   let progressRowsSlice = progressRowsArr.slice(startIndex, endIndex);
+  startIndex = endIndex;
   for (var row of progressRowsSlice) {
     let artistSummObj = {};
     let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
@@ -382,7 +391,7 @@ function leaf(obj, keyPath, value) {
   obj[keyPath[lastKeyIndex]] = value;
 }
 
-async function validateGroups() {
+async function validateGroups(groupSize = 3) {
   let debug = true;
   let artists = Object.keys(masterArtistDataSumm);
   if(debug) {console.log("Groups to compare registered as:");console.log(artists);}
@@ -391,8 +400,7 @@ async function validateGroups() {
   if(debug) {console.log("Checking group configs now");}
 
   //Check group iterations, we'll start with just the top 4 and add looping logic later- 
-  let group = [0,0,0,0];
-  let iterations = findIterations(group);
+  let iterations = findIterations(groupSize);
   console.log("iterations returned:");
   console.log(iterations);
   console.dir(iterations);
@@ -400,8 +408,9 @@ async function validateGroups() {
   let yearRange = null;
   let wordCount = null;
   let songLength = null;
-  let matchFound = false;
   let currIteration = null;
+  let matchFound = false;
+  
   for(var x = 0; x < iterations.length; x++) { //TODO: Sort by score instead of at random
     if(!matchFound) {
       yearRange = null;
@@ -439,8 +448,7 @@ async function validateGroups() {
   
 }
 
-function findIterations(group) {
-  let groupSize = group.length;
+function findIterations(groupSize) {
   let numVariations = findFreshVariations(groupSize);
   console.log(numVariations+" possible variations of group size "+groupSize+" found.");
   
