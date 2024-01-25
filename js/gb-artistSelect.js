@@ -251,7 +251,7 @@ async function buildProgressReport(artists) {
   let numArtists = Object.keys(artists);
   let gridOutlineFound = false;
   
-  gridOutlineFunc = async _ => {
+  const gridOutlineFunc = async _ => {
     for(let q = 3; q<numArtists; q++) {
       if(!gridOutlineFound) {
         console.log("Checking subsets of first "+q+" artists");
@@ -266,6 +266,7 @@ async function buildProgressReport(artists) {
       }
     }  
   };
+  console.log(gridOutlineFunc);
 }
 
 function createHeader(headerType, headerText) {
