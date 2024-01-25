@@ -252,7 +252,7 @@ async function buildProgressReport(artists) {
   let gridOutline = null;
   for(let q = 3; q<numArtists; q++) {
     if(!gridOutline) {
-       gridOutline = await parseArtists(progressContainer,q).then(() =>  validateGroups(q));
+      gridOutline = await parseArtists(progressContainer,q).then(() =>  validateGroups(q));
     } 
   }
   
@@ -445,7 +445,7 @@ async function validateGroups(groupSize = 3) {
   console.log(categoriesObj);
   console.dir(categoriesObj);
   console.log("For iteration:"+currIteration);
-  
+  return {iteration: currIteration, categories: categoriesObj};
 }
 
 function findIterations(groupSize) {
