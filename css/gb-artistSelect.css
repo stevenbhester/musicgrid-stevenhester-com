@@ -104,6 +104,18 @@ header {
     font-size: 1.1em;
 }
 
+.continue-button {
+    padding: 1em 2em;
+    background-color: #5C946E; /* Earthy Green Button */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 50px; /* More rounded corners for elegance */
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
 .hamburger-menu .bar {
     display: block;
     width: 25px;
