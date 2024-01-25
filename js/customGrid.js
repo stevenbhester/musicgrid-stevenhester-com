@@ -9,7 +9,7 @@ let livesLost = 0;
 let correctGuesses = 0;
 
 // What grid are we goofin around with?
-let customGridId = 2;
+let customGridId = 1;
 
 // Easy mode boolean
 let easyModeBool = false;
@@ -131,7 +131,7 @@ function loadFooter() {
 
 // Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
 function loadGrid() {
-  fetchGridData(2);
+  fetchGridData(customGridId);
 }
 
 function fetchGridData(customGridId) {
