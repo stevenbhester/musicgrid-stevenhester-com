@@ -388,10 +388,61 @@ async function validateGroups() {
   if(debug) {console.log("Groups to compare registered as:");console.log(artists);}
   if(debug) {console.dir(masterArtistDataSumm);}
   if(debug) {console.dir(masterArtistDataDetails);}
+  if(debug) {console.log("Checking group configs now");}
+
+  //Check group iterations, we'll start with just the top 4 and add looping logic later- 
+  let group = [0,0,0,0];
+  let iterations = currentGroup.findIterations(group);
+  console.log("iterations returned:");
+  console.log(iterations);
+  console.dir(iterations);
+  
   //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
+  
   let yearRange = await selectDateRange();
 }
 
+function findIterations(group) {
+  let groupSize = group.length;
+  let numVariations = findFreshVariations(groupSize);
+  console.log(numVariations+" possible variations of group size "+groupSize+" found.");
+  
+  let permutations = [];
+  let emptyPerm = [];
+  for(var n = 0; n<groupSize - 1; n++) {
+    emptyPerm.push(0);
+  }
+  emptyPerm.push(1);
+  console.log("Empty perm built for group size "+groupSize+" as:");
+  console.dir(emptyPerm);
+  //Take in number of iterations, remove already checked, rank by lowest sum of parts
+  //return sorted array with highest prio groupings at top
+  for(var k = 1; k<numVariations; k++) {
+    //First we set the current permutation to be empty so we can populate it below
+    let currPerm = emptyPerm;
+    console.log("building new iteration, starting at: ["+currPerm.join(",")+"]");
+    let artistsActive = 0;
+    for(var l=0; l<groupSize-2; l++){ // Var l will count the location of the first 1
+      currPerm[l] = 1;
+      console.log("setting "+l+" value to first 1: ["+currPerm.join(",")+"]");
+      for(var m=l+1; m<groupSize-1; m++){ // Var m will count the location of the second 1
+        currPerm[m] = 1;
+        console.log("setting"+m+"value to second 1: ["+currPerm.join(",")+"]");
+        let currScore = m+l;
+        console.log("Setting score of current perm to "+currScore+" and appending to Permutations");
+        permutations.push({perm: currPerm, score: currScore});
+        currPerm[m] = 0;
+      } 
+    }
+  }
+}
+
+function findFreshVariations(groupSize) {  
+  let newVars = 1;
+  if(groupSize > 3) {
+   newVars = (groupSize-2)+findVariations(groupSize-1);}
+  return newVars;
+}
 
 async function progressFailure() {
   let debug = true;
