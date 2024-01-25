@@ -755,9 +755,9 @@ function assembleGridFrame(gridOutline) {
   
   for(let z = 0; z<artists.length; z++) {
     let artistName = artists[0];
-      console.log("Adding "+artistName+" to framework");
-      masterGridOutline[artistName] = {"songLength": [], "wordCount": [], "releaseDate": []};
-    
+    console.log("Adding "+artistName+" to framework");
+    masterGridOutline[artistName] = {"songLength": [], "wordCount": [], "releaseDate": []};
+  }   
 }
 
 function populateGridData(gridOutline) { 
