@@ -458,8 +458,11 @@ async function validateGroups(groupSize = 3) {
     console.log(categoriesObj);
     console.dir(categoriesObj);
     console.log("For iteration:"+currIteration);
-  } else{console.log("No valid categories found for iterations")};
-  return {iteration: currIteration, categories: categoriesObj};
+    return {iteration: currIteration, categories: categoriesObj};
+  } else{
+    console.log("No valid categories found for iterations");
+    return null;
+  }
 }
 
 function findIterations(groupSize) {
