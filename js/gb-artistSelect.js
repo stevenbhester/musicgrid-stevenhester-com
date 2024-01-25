@@ -708,7 +708,7 @@ function selectSongLength(currIteration,validLengthsArr) {
               songArtistMatches += lengthSummObj[dataSetDurStr];
             } else { console.log("No matches found"); }
           } else if(comparisonType == "over") { 
-            paramLengthTrue=paramLength+60000; // By default we sort songs by the duration they're under, so we need to increment up by 1 here. 
+            let paramLengthTrue=paramLength+60000; // By default we sort songs by the duration they're under, so we need to increment up by 1 here. 
             console.log("Checking for songs by "+artistName+" "+comparisonType+"(o) "+paramLengthTrue+" ms");
             if(dataSetDur >= paramLengthTrue) { 
               console.log("Found match on "+lengthArr[a]);
