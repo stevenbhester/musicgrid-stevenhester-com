@@ -416,7 +416,7 @@ async function validateGroups() {
       wordCount = selectWordCounts(currIteration, [1,3]); //Just one and three word titles to start
       if(wordCount) { console.log("found word count match for "+wordCount);}
       console.log("Checking durations for "+currIteration);
-      songLength = selectSongLength(currIteration, [{type: "under", durmin: 2},{type: "over", durmin: 6}]); //Just under 2 mins, over 5 mins to start (6 = over 5 mins in backend)
+      songLength = selectSongLength(currIteration, [{type: "under", durmin: 2},{type: "over", durmin: 5}]); //Just under 2 mins, over 5 mins to start
       if(songLength) { console.log("found duration match for "+songLength);}
       if(wordCount && songLength && yearRange) { 
         matchFound = true;
@@ -683,6 +683,7 @@ function selectSongLength(currIteration,validLengthsArr) {
               songArtistMatches += lengthSummObj[dataSetDurStr];
             } else { console.log("No matches found"); }
           } else if(comparisonType == "over") { 
+            paramLength+=60000; // By default we sort songs by the duration they're under, so we need to increment up by 1 here. 
             console.log("Checking for songs by "+artistName+" "+comparisonType+"(o) "+paramLength+" ms");
             if(dataSetDur >= paramLength) { 
               console.log("Found match on "+lengthArr[a]);
