@@ -400,11 +400,15 @@ async function validateGroups() {
   let yearRange = null;
   let wordCount = null;
   let songLength = null;
-  
+  let matchFound = false;
+  let currIteration = null;
   for(var x = 0; x < iterations.length; x++) { //TODO: Sort by score instead of at random
-    if(!yearRange || !yearRange || !songLength) {
+    if(!matchFound) {
+      yearRange = null;
+      wordCount = null;
+      songLength = null;
       let currIterationObj = iterations[x];
-      let currIteration = currIterationObj.perm; 
+      currIteration = currIterationObj.perm; 
       console.log("Checking years for "+currIteration);
       yearRange = await processDateRanges(currIteration).then(yearRangeData => selectDateRange(yearRangeData));
       if(yearRange) { console.log("found year range starting "+yearRange);}
@@ -414,12 +418,20 @@ async function validateGroups() {
       console.log("Checking durations for "+currIteration);
       songLength = selectSongLength(currIteration, [{type: "under", durmin: 2},{type: "over", durmin: 6}]); //Just under 2 mins, over 5 mins to start (6 = over 5 mins in backend)
       if(songLength) { console.log("found duration match for "+songLength);}
+      if(wordCount && songLength && yearRange) { 
+        matchFound = true;
+        console.log("Found complete match on iteration "+currIteration);
+      } else {
+        console.log("Missing element for match on iteration "+currIteration);
+      }
     } else {console.log("Skipping iteration as all criteria already found");}
   }
   let songLengthParsed = songLength.type +" "+ songLength.durmin+" minutes";
   let categoriesObj = {yearRange: yearRange, wordCount: wordCount, songLength: songLengthParsed };
   console.log("Final categories determined as:");
+  console.log(categoriesObj);
   console.dir(categoriesObj);
+  console.log("For iteration:"+currIteration);
   
 }
 
