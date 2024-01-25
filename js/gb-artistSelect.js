@@ -842,7 +842,7 @@ function populateGridData(gridOutline) {
       }
     }
     
-    masterGridOutline[artistName]["releaseDate"] = songsMatchingDate;
+    masterGridOutline[artistName]["yearRange"] = songsMatchingDate;
   }
   console.log("Final grid outline is:");
   console.dir(masterGridOutline);
