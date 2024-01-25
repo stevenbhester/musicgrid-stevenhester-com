@@ -241,7 +241,7 @@ function loadLeaderboard() {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/scores", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ lb_id: gridId })
+    body: JSON.stringify({ lb_id: customGridId+100 })
   })
     .then(response => response.json())
     .then(scores => {
