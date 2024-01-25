@@ -313,7 +313,6 @@ let startIndex = 0;
 
 async function parseArtists(progressContainer, endIndex = 3) {
   let debug = true;
-  let startIndex = 0;
   if(debug) { console.log("parsing Artist progress");}
   let progressRowsHTMLObj = progressContainer.getElementsByClassName("row");
   let progressRowsArr = [];
