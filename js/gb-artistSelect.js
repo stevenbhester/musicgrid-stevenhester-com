@@ -736,32 +736,32 @@ function saveCustomGrid(gridOutline) {
   
 }
 
-function assembleGridFrame(gridOutline) {
-  let currIteration = gridOutline.iteration;
-  let fullArtists = Object.keys(masterArtistDataSumm);
-  let currPattern = currIteration.split(",");
+// function assembleGridFrame(gridOutline) {
+//   let currIteration = gridOutline.iteration;
+//   let fullArtists = Object.keys(masterArtistDataSumm);
+//   let currPattern = currIteration.split(",");
   
-  // console.log("Checking years for current iteration: ");
-  console.log(currPattern);
+//   // console.log("Checking years for current iteration: ");
+//   console.log(currPattern);
 
-  let artists = [];
-  for(let y = 0; y<currPattern.length; y++) {
-    if(currPattern[y] == 1) { 
-      artists.push(fullArtists[y]); 
-    } else {
-      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
-    }
-  }
+//   let artists = [];
+//   for(let y = 0; y<currPattern.length; y++) {
+//     if(currPattern[y] == 1) { 
+//       artists.push(fullArtists[y]); 
+//     } else {
+//       console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
+//     }
+//   }
   
-  for(let z = 0; z<artists.length; z++) {
-    let artistName = artists[0];
-    console.log("Adding "+artistName+" to framework");
-    masterGridOutline[artistName] = {"songLength": [], "wordCount": [], "releaseDate": []};
-  }   
-}
+//   for(let z = 0; z<artists.length; z++) {
+//     let artistName = artists[0];
+//     console.log("Adding "+artistName+" to framework");
+//     masterGridOutline[artistName] = {"songLength": [], "wordCount": [], "releaseDate": []};
+//   }   
+// }
 
 function populateGridData(gridOutline) { 
-  assembleGridFrame(gridOutline);
+  // assembleGridFrame(gridOutline);
   let currIteration = gridOutline.iteration;
   let fullArtists = Object.keys(masterArtistDataSumm);
   let currPattern = currIteration.split(",");
@@ -786,7 +786,6 @@ function populateGridData(gridOutline) {
   for(let z = 0; z<artists.length; z++) {
     let artistName = artists[z];
     let artistDetailsObj = masterArtistDataDetails[artistName];
-    let masterGridOutlineArtist = masterGridOutline[artistName];
     
     //First lets find the songs matching the final duration category
     let durationObj = artistDetailsObj.duration;
@@ -800,6 +799,8 @@ function populateGridData(gridOutline) {
         if(dataSetDur <= paramLength) {
           let songDurMatches = durationObj[dataSetDurStr];
           songsMatchingDuration.push(songDurMatches);
+          console.log("Adding these songs to master list for "+artistName);
+          console.dir(songDurMatches);
         }
       } else if(comparisonType == "over") { 
         let paramLengthTrue=paramLength+60000; // By default we sort songs by the duration they're under, so we need to increment up by 1 here. 
@@ -807,9 +808,13 @@ function populateGridData(gridOutline) {
         if(dataSetDur >= paramLengthTrue) { 
           let songDurMatches = durationObj[dataSetDurStr];
           songsMatchingDuration.push(songDurMatches);
+          console.log("Adding these songs to master list for "+artistName);
+          console.dir(songDurMatches);
         } 
       }
-      masterGridOutlineArtist.songLength.push(songsMatchingDuration);
+      console.log("creating masterGridOutline data for");
+      console.dir(songsMatchingDuration);
+      masterGridOutline[artistName] = {songLength: songsMatchingDuration};
     }
 
     //Next we find songs matching the final title length count
