@@ -741,7 +741,8 @@ function populateGridData(gridOutline) {
   let fullArtists = Object.keys(masterArtistDataSumm);
   let currPattern = currIteration.split(",");
   let paramWordCount = gridOutline.categories.wordCount;
-  let paramLength = gridOutline.categories.songLength;
+  let paramLength = gridOutline.categories.songLength.durmin*60000;
+  let comparisonType = gridOutline.categories.songLength.type;
   let paramYear = parseInt(gridOutline.categories.yearRange);
   
   // console.log("Checking years for current iteration: ");
@@ -787,7 +788,7 @@ function populateGridData(gridOutline) {
 
     //Next we find songs matching the final title length count
     let wordCountObj = artistDetailsObj.wordCount;
-    let songsMatchingWordCount = wordCountObj[paramWordCount]
+    let songsMatchingWordCount = wordCountObj[paramWordCount];
     masterGridOutline[artistName]["wordCount"] = songsMatchingWordCount;
     
     //Next we find songs matching the date range
