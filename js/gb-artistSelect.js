@@ -860,9 +860,144 @@ async function storeGridInSql(masterGridOutline, categories) {
       throw new Error("Failed to create custom table");
     }
     console.log("Custom table created successfully");
+    encodeCustomAnswers(response);
   } catch (error) {
     console.error("Error creating custom table: ", error);
   }
 }
 
- 
+async function encodeCustomAnswers(customGridId) {
+  try {
+    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/custom-grid-data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ custom_grid_id: customGridId })
+    });
+
+    const data = await response.json();
+    await answerEncoder(data, customGridId);
+  } catch (error) {
+    console.error("Error encoding answers for grid:", error);
+  }
+}
+
+async function answerEncoder(data, customGridId) {
+  console.log("Parsing grid data for grid ID:", customGridId);
+  const answersUnscored = {};
+  const artists = {};
+
+  // Parse the answers and artists from the data
+  data.forEach(item => {
+    if (item.field_type === "Answer") {
+      answersUnscored[item.field] = item.field_value.split("\", \"").map(answer => answer.trim().replace(/^'|'$/g, ""));
+    } else if (item.field_type === "Artist") {
+      artists[item.field] = item.field_value;
+    }
+  });
+
+  const answerPops = {};
+  for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
+    const nestedSongPops = [];
+    const [category, artistKey] = fieldKey.split(" ");
+    const artistName = artists[artistKey];
+
+    for (const songData of songs) {
+      let songParsed = songData;
+      if (songParsed.slice(0,1) == "\"") {
+        songParsed = songParsed.slice(1,songParsed.length);
+      }
+      if (songParsed.slice(songParsed.length-1,songParsed.length) == "\"") {
+        songParsed = songParsed.slice(0,songParsed.length-1);
+      }
+      try {
+        const searchTerm = `${songParsed}`; 
+        const artistSearch = `${artistName}`;
+        console.log(`Fetching data for ${searchTerm} by ${artistSearch}`);
+        const resultsObj = await searchSpotify(searchTerm, artistSearch);
+        console.log("Received passback resultsObj");
+        console.dir(resultsObj);
+        console.log(resultsObj.popularity);
+        console.log(resultsObj.preview_url);
+        const popularity = resultsObj.popularity || -1;
+        const previewUrl = resultsObj.preview_url || "";
+        nestedSongPops.push({ song: songParsed, popularity, previewUrl });
+      } catch (error) {
+        console.error("Error fetching Spotify data for song:", songParsed, error);
+      }
+    }
+    answerPops[fieldKey] = nestedSongPops;
+  }
+
+  console.log("Encoded answers ready for update:", answerPops);
+  calculateAnswerScores(answerPops, gridId);
+}
+
+ async function searchSpotify(searchTerm, artistSearch) {
+  let easyModeBool = true;
+  let encoderReq = true;
+  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search-encoding-answer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ searchTerm, easyModeBool, artistSearch, encoderReq })
+  });
+  console.log("Received response: "+response);
+  if (!response.ok) throw new Error("Failed to fetch");
+  return response.json();
+}
+
+async function calculateAnswerScores(answersUnscored, customGridId) {
+  console.log("Calculating answer scores for Answer pops");
+  let gridIdString = customGridId.toString();
+  const answersWithScores = [];
+
+  for (const [fieldKey, nestedSongPopsArr] of Object.entries(answersUnscored)) {
+    console.log(`Calculating scores for ${fieldKey}`);
+    const filteredSongPopsArr = [];
+    for (const songPopElement of nestedSongPopsArr) {
+      if(songPopElement.popularity > 0) {
+        filteredSongPopsArr.push(songPopElement);
+      }
+    }
+    // Calculate max and min popularity in the field
+    let fieldScoreMax = Math.max(...filteredSongPopsArr.map(o => o.popularity));
+    let fieldScoreMin = Math.min(...filteredSongPopsArr.map(o => o.popularity));
+
+    // Calculate scores for each song
+    for (const { song, popularity, previewUrl } of nestedSongPopsArr) {
+      let normedAnswerScore = 11;
+      if( popularity == -1 ) {
+        normedAnswerScore = 11;
+      } else {
+        normedAnswerScore = (fieldScoreMin === fieldScoreMax) ? 11 : 6 + 5 * Math.round(10 * (1 - ((popularity - fieldScoreMin) / (fieldScoreMax - fieldScoreMin)))) / 10;
+      }
+      answersWithScores.push({
+        fieldKey,
+        song,
+        popularity,
+        normedAnswerScore,
+        previewUrl,
+        customGridId: gridIdString
+      });
+    }
+  }
+
+  await updateEncodedAnswers(answersWithScores);
+}
+
+async function updateEncodedAnswers(encodedAnswers) {
+  try {
+    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/update-custom-encoded-answers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ encodedAnswers })
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update encoded answers");
+    }
+
+    console.log("Encoded answers updated successfully");
+  } catch (error) {
+    console.error("Error updating encoded answers:", error);
+  }
+}
