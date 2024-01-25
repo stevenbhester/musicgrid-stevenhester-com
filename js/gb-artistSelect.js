@@ -859,7 +859,8 @@ async function storeGridInSql(masterGridOutline, categories) {
     if (!response.ok) {
       throw new Error("Failed to create custom table");
     }
-    let responseGridId = response.customGridId;
+    const data = await response.json();
+    let responseGridId = data.customGridId;
     console.log("Custom table created successfully, gridId read as "+responseGridId);
     encodeCustomAnswers(responseGridId);
   } catch (error) {
