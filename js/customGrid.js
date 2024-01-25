@@ -131,23 +131,14 @@ function loadFooter() {
 
 // Add submitted game + username to leaderboard, let"s not worry about sanitizing for now as there"s not much to hack
 function loadGrid() {
-  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/latest-grid")
-    .then(response => response.json())
-    .then(data => {
-      gridId = data.latestGridId;
-      // Now we use latestGridId to fetch and display the corresponding grid
-      console.log("Grid ID determined as "+gridId);
-      console.log("Fetching Grid Data");
-      fetchGridData(gridId);
-    })
-    .catch(error => console.error("Error fetching live grid id:", error));
+  fetchGridData(1);
 }
 
-function fetchGridData(gridId) {
-  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/grid-data", {
+function fetchGridData(customGridId) {
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/custom-grid-data", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ grid_id: gridId })
+    body: JSON.stringify({ custom_grid_id: customGridId })
   })
     .then(response => response.json())
     .then(data => buildGrid(data))
