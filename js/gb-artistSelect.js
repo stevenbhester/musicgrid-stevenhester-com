@@ -252,23 +252,22 @@ async function buildProgressReport(artists) {
   let gridOutlineFound = false;
   let gridOutline = null;
   
-  const gridOutlineFunc = async _ => {
-    for(let q = 3; q<numArtists; q++) {
-      if(!gridOutlineFound) {
-        console.log("Checking subsets of first "+q+" artists");
-        gridOutline = await parseArtists(progressContainer,q).then(() =>  validateGroups(q));
-        if(gridOutline) { gridOutlineFound = true;}
-      }
-      if(!gridOutlineFound) { 
-        console.log("No valid match found, incrementing search");
-      } else {
-        console.log("Found valid match for below grid!");
-        console.log(gridOutline);
-        console.dir(gridOutline);
-      }
-    }  
-  };
-  console.log(gridOutlineFunc);
+  for(let q = 3; q<numArtists; q++) {
+    console.log("Running parseArtists at loop #"+q);
+    if(!gridOutlineFound) {
+      console.log("Checking subsets of first "+q+" artists");
+      gridOutline = await parseArtists(progressContainer,q).then(() =>  validateGroups(q));
+      if(gridOutline) { gridOutlineFound = true;}
+    }
+    if(!gridOutlineFound) { 
+      console.log("No valid match found, incrementing search");
+    } else {
+      console.log("Found valid match for below grid!");
+      console.log(gridOutline);
+      console.dir(gridOutline);
+    }
+  }  
+  console.log(gridOutline);
 }
 
 function createHeader(headerType, headerText) {
