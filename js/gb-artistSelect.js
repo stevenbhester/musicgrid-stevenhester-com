@@ -798,7 +798,9 @@ function populateGridData(gridOutline) {
         console.log("Finding all songs by "+artistName+" "+comparisonType+"(u) "+paramLength+" ms");
         if(dataSetDur <= paramLength) {
           let songDurMatches = durationObj[dataSetDurStr];
-          songsMatchingDuration.push(songDurMatches);
+          songDurMatches.forEach(songMatch => {
+            songsMatchingDuration.push(songMatch);
+          }
           console.log("Adding these songs to master list for "+artistName);
           console.dir(songDurMatches);
         }
@@ -807,7 +809,9 @@ function populateGridData(gridOutline) {
         console.log("Finding all songs by "+artistName+" "+comparisonType+"(o) "+paramLengthTrue+" ms");
         if(dataSetDur >= paramLengthTrue) { 
           let songDurMatches = durationObj[dataSetDurStr];
-          songsMatchingDuration.push(songDurMatches);
+          songDurMatches.forEach(songMatch => {
+            songsMatchingDuration.push(songMatch);
+          }
           console.log("Adding these songs to master list for "+artistName);
           console.dir(songDurMatches);
         } 
@@ -827,12 +831,14 @@ function populateGridData(gridOutline) {
     let yearsObj = artistDetailsObj.releaseDate;
     let yearKeys = Object.keys(yearsObj);
     let songsMatchingDate = [];
-    for(let a=0; a<yearKeys.length; a++) {
-      let detailsSetYear = yearKeys[a];
+    for(let b=0; b<yearKeys.length; b++) {
+      let detailsSetYear = yearKeys[b];
       let detailsSetYearInt = parseInt(yearKeys[a]);
-      if(detailsSetYearInt >= paramLength && detailsSetYearInt <= paramLength - 5) {
+      if(detailsSetYearInt >= paramLength && detailsSetYearInt <= paramLength + 5) {
         let songYearMatches = yearsObj[detailsSetYear];
-        songsMatchingDate.push(songYearMatches);
+        songYearMatches.forEach(songMatch => {
+          songsMatchingDate.push(songMatch);
+        }
       }
     }
     
