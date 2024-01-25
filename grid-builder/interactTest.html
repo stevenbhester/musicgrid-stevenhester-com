@@ -4,31 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pick Your Grid</title>
+    <link rel="stylesheet" href="/css/gb-artistSelect.css">
     <link rel="icon" 
           type="image/png" 
           href="/img/favicon.png">
-  <style>
-    #drag-1, #drag-2 {
-  width: 25%;
-  min-height: 6.5em;
-  margin: 1rem 0 0 1rem;
-  background-color: #29e;
-  color: white;
-  border-radius: 0.75em;
-  padding: 4%;
-  touch-action: none;
-  user-select: none;
-  transform: translate(0px, 0px);
-}
-  </style>
 </head>
 <body>
-    <div id="drag-1" class="draggable">
-  <p> You can drag one element </p>
-</div>
-<div id="drag-2" class="draggable">
-  <p> with each pointer </p>
-</div>
-<script src="/js/interactTest.js" type = "module"></script>
+    <header>
+        <nav class="navbar">
+            <div class="nav-logo">
+                <img src="/img/musicgrid-logo.png" alt="MusicGrid Logo" class="header-logo">
+                MusicGrid
+            </div>
+            <div class="hamburger-menu">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/index">Home</a></li>
+                <li><a href="/grid-builder/spotify-login">Build Your Own Grid</a></li>
+<!--                 <li><a href="#leaderboard">Leaderboard</a></li> -->
+                <li><a href="#settings">Settings</a></li>
+            </ul>
+        </nav>
+        <div class="mobile-nav">
+            <ul class="mobile-nav-links">
+                <li><a href="/index">Home</a></li>
+                <li><a href="/grid-builder/spotify-login">Build Your Own Grid</a></li>
+<!--                 <li><a href="#leaderboard">Leaderboard</a></li> -->
+                <li><a href="#settings">Settings</a></li>
+            </ul>
+        </div>
+    </header>
+    <main>
+        <section class="hero">
+            <div class="overlay"></div>
+            <div class="artist-content">
+                <div class="hero-content">
+                    <h1>Pick Your Artists</h1>
+                    <p>Prioritize artists by dragging, then click "Finalize Artists".<br>We'll use the highest placement artists that work in a grid together.</p>
+                </div>
+                <div class="proceedButtonWrapper">
+                    <button class="proceed-button">Finalize Artists</button>  
+                </div>
+                <div class="artists-container" id="artists-container">
+                   <ul class="sortable-list">
+                      <li class="item" draggable="true">
+                        <div class="details">
+                          <img src="/img/noArtist.png">
+                          <span>Top Artist 1</span>
+                        </div>
+                        <i class="uil uil-draggabledots"></i>
+                      </li>
+                      <li class="item" draggable="true">
+                        <div class="details">
+                          <img src="/img/noArtist.png">
+                          <span>Top Artist 2</span>
+                        </div>
+                        <i class="uil uil-draggabledots"></i>
+                      </li>
+                      <li class="item" draggable="true">
+                        <div class="details">
+                          <img src="/img/noArtist.png">
+                          <span>Top Artist 3</span>
+                        </div>
+                        <i class="uil uil-draggabledots"></i>
+                      </li>
+                      <li class="item" draggable="true">
+                        <div class="details">
+                          <img src="/img/noArtist.png">
+                          <span>Top Artist 4</span>
+                        </div>
+                        <i class="uil uil-draggabledots"></i>
+                      </li>
+                      <li class="item" draggable="true">
+                        <div class="details">
+                          <img src="/img/noArtist.png">
+                          <span>Top Artist 5</span>
+                        </div>
+                        <i class="uil uil-draggabledots"></i>
+                      </li>
+                      <li class="item" draggable="true">
+                        <div class="details">
+                          <img src="/img/noArtist.png">
+                          <span>Top Artist 6</span>
+                        </div>
+                        <i class="uil uil-draggabledots"></i>
+                      </li>
+                    </ul>
+                </div>
+                <br>
+            </div>
+            <div id = "gridProgressContainer" class = "progressContainer">
+                
+            </div>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2024 MusicGrid</p>
+    </footer>
+    <script src="/js/interactTest.js"></script>
 </body>
 </html>
