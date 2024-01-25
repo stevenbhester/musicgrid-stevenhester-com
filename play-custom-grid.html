@@ -1,1 +1,118 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicGrid, Game of Royalty</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" 
+          type="image/png" 
+          href="/img/favicon.png">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-logo">
+                <img src="/img/musicgrid-logo.png" alt="MusicGrid Logo" class="header-logo">
+                MusicGrid
+            </div>
+            <div class="hamburger-menu">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/index">Home</a></li>
+                <li><a href="/grid-builder/spotify-login">Build Your Own Grid</a></li>
+<!--                 <li><a href="#leaderboard">Leaderboard</a></li> -->
+                <li><a href="#settings">Settings</a></li>
+            </ul>
+        </nav>
+        <div class="mobile-nav">
+            <ul class="mobile-nav-links">
+                <li><a href="/index">Home</a></li>
+                <li><a href="/grid-builder/spotify-login">Build Your Own Grid</a></li>
+<!--                 <li><a href="#leaderboard">Leaderboard</a></li> -->
+                <li><a href="#settings">Settings</a></li>
+            </ul>
+        </div>
+    </header>
+    <main>
+        <section class="hero">
+            <div class="overlay"></div>
+            <div class="hero-content">
+                <h1>Play Your Custom MusicGrid</h1>
+                <p>The ultimate music trivia game</p>
+                <button class="play-button">Play Now</button>
+            </div>
+            
+            <div class="grid-container" id="grid-container" style="display:none">
+                <!-- Artists Row -->
+                <div class="row">
+                    <div class="cell invisible"></div>
+                    <div class="cell artist">Adele</div>
+                    <div class="cell artist">Bruno Mars</div>
+                    <div class="cell artist">Ed Sheeran</div>
+                </div>
+            
+                <!-- Category 1: Songs Released in the 2010s -->
+                <div class="row">
+                    <div class="cell genre-header">Songs Released in the 2010s</div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C1 A1' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C1 A1')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C1 A2' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C1 A2')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C1 A3' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C1 A3')" placeholder="Type to search...">
+                    </div>
+                </div>
+            
+                <!-- Category 1: Charted Above Top 5 in the Billboard 100 -->
+                <div class="row">
+                    <div class="cell genre-header">Charted Above Top 5 in Billboard 100</div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C2 A1' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C2 A1')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C2 A2' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C2 A2')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C2 A3' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C2 A3')" placeholder="Type to search...">
+                    </div>
+                </div>
+            
+                <!-- Category 1: Songs That Won Song of the Year at the Grammy Awards -->
+                <div class="row">
+                    <div class="cell genre-header">Songs That Won Song of the Year at the Grammy Awards</div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C3 A1' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C3 A1')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C3 A2' style="display: none;"></button>
+                        <input type="text" oninput="liveSearch(this, 'C3 A2')" placeholder="Type to search...">
+                    </div>
+                    <div class="cell song-cell">
+                        <button class="cheat-btn" id = 'C3 A3 style="display: none;"'></button>
+                        <input type="text" oninput="liveSearch(this, 'C3 A3')" placeholder="Type to search...">
+                    </div>
+                </div>
+            </div>
+            <div class = "under-game"></div>
+            <br>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2024 MusicGrid</p>
+    </footer>
+    <script src="/js/musicGrid.js"></script>
+</body>
+</html>
