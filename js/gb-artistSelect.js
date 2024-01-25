@@ -432,9 +432,17 @@ function findIterations(group) {
         console.log("Setting score of current perm to "+currScore+" and appending to Permutations");
         permutations.push({perm: currPerm, score: currScore});
         currPerm[m] = 0;
-      } 
+      }
+      currPerm[l] = 0;
     }
   }
+  for(var x = 0; x < permutations.length; x++) {
+    let obsPerms = permutations[x];
+    let obsPerm = obserPerms.perm;
+    let obsScore = obserPerms.score;
+    console.log("Permutation #"+x+" is "+obsPerm.join(",")+" with score "+obsScore);
+  }
+  return permutations;
 }
 
 function findFreshVariations(groupSize) {  
