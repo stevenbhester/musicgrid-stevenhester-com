@@ -800,7 +800,7 @@ function populateGridData(gridOutline) {
           let songDurMatches = durationObj[dataSetDurStr];
           songDurMatches.forEach(songMatch => {
             songsMatchingDuration.push(songMatch);
-          }
+          });
           console.log("Adding these songs to master list for "+artistName);
           console.dir(songDurMatches);
         }
@@ -811,7 +811,7 @@ function populateGridData(gridOutline) {
           let songDurMatches = durationObj[dataSetDurStr];
           songDurMatches.forEach(songMatch => {
             songsMatchingDuration.push(songMatch);
-          }
+          });
           console.log("Adding these songs to master list for "+artistName);
           console.dir(songDurMatches);
         } 
@@ -838,7 +838,7 @@ function populateGridData(gridOutline) {
         let songYearMatches = yearsObj[detailsSetYear];
         songYearMatches.forEach(songMatch => {
           songsMatchingDate.push(songMatch);
-        }
+        });
       }
     }
     
