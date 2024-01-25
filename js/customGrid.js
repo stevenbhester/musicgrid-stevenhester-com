@@ -9,7 +9,8 @@ let livesLost = 0;
 let correctGuesses = 0;
 
 // What grid are we goofin around with?
-let customGridId = 1;
+const searchParams = new URLSearchParams(window.location.search);
+let customGridId = searchParams.get("custom_grid_id")||1;
 
 // Easy mode boolean
 let easyModeBool = false;
