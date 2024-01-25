@@ -397,10 +397,14 @@ async function validateGroups() {
   console.log(iterations);
   console.dir(iterations);
 
+  let yearRange = null;
   for(var x = 0; x < iterations.length; x++) { //TODO: Sort by score instead of at random
-    let currIterationObj = iterations[x];
-    let currIteration = currIterationObj.perm; 
-    let yearRange = await processDateRanges(currIteration).then(yearRangeData => selectDateRange(yearRangeData));
+    if(!yearRange) {
+      let currIterationObj = iterations[x];
+      let currIteration = currIterationObj.perm; 
+      console.log("Checking years for "+currIteration);
+      yearRange = await processDateRanges(currIteration).then(yearRangeData => selectDateRange(yearRangeData));
+    } else {console.log("Skipping iteration as year range already found");}
   }
   
   
@@ -530,6 +534,40 @@ async function processDateRanges(currIteration) {
 }
 
 function selectDateRange(yearRangeData) {
-  console.log("Pseudocode for selectin date range from data");
-  return null;
+  let years = Object.keys(yearRangeData);
+  let yearRankObj = {};
+  let maxMin = 0;
+  let yearOfMaxMin = 0;
+  for(var z = 0; z<years.length; z++){
+    let observedYear = years[z];
+    let yearObj = yearRangeData[observedYear];
+    let yearArtists = Object.keys(yearObj);
+    //First check if enough artists even exist for the year
+    console.log("Checking year of "+observedYear);
+    if(yearArtists.length == 3) {
+      console.log(observedYear+" has all artists, checking min count of releases");
+      let minCount = 420;
+      for(var i = 0; i<3; i++) {
+        let currArtist = yearArtists[i];
+        let currCount = yearObj[currArtist];
+        console.log(currArtist+" has count of "+currCount+" in year "+observedYear);
+        if(currCount < minCount) { 
+          minCount = currCount;
+        }
+        console.log("Min releases from valid artist in "+observedYear+" recorded as "+minCount);
+      }
+      if(minCount > maxMin) { 
+        console.log("Min count of "+minCount+" is lower than max min of "+maxMin+" for year "+observedYear+", recording as new maxMin year");
+        maxMin = minCount;
+        yearOfMaxMin = observedYear;
+      }
+    } else {console.log(observedYear+" skipped for not having all artists");}
+  }
+  if(maxMin < 5) {
+    console.log("No years with 5+ releases from all artists found");
+    return null;
+  } else { 
+    console.log("Best year identified as "+yearofMaxMin+" to "+(yearofMaxMin+5));
+    return yearOfMaxMin;
+  }
 }
