@@ -567,7 +567,7 @@ function selectDateRange(yearRangeData) {
     console.log("No years with 5+ releases from all artists found");
     return null;
   } else { 
-    console.log("Best year identified as "+yearofMaxMin+" to "+(yearofMaxMin+5));
+    console.log("Best year identified as "+yearOfMaxMin+" to "+(yearOfMaxMin+5));
     return yearOfMaxMin;
   }
 }
