@@ -57,9 +57,9 @@
             <template id="logged-in-template">
               <div class="hero-content">
                 <h1>Spotify login complete</h1>
-                  <p>Proceed to <a href="/grid-builder/artist-selection">Step 2</a> to Build Your Grid!</p>
+                  <p><b>Proceed to <a href="/grid-builder/artist-selection">Step 2</a> to Build Your Grid!</b></p>
                 <br>
-                <a href="/grid-builder/artist-selection"><button id="proceed-button">Select Grid Artists</button></a>
+                <a href="/grid-builder/artist-selection"><button id="proceed-button">Build My Custom Grid</button></a>
 <!--                 <h1>Logged in as <span data-bind="display_name"></span></h1> -->
 <!--                 <img width="150" data-bind-src="images[0].url" data-bind-alt="display_name" /> -->
                   <br>
@@ -69,7 +69,7 @@
             </template>
           
             <template id="oauth-template">
-              <div class="hero-content" display="none">
+<!--               <div class="hero-content" display="none">
                   <h2>oAuth info</h2>
                   <table>
                     <tr>
@@ -85,7 +85,7 @@
                       <td data-bind="expires">${getExpirationDate(expires_in)}</td>
                     </tr>
                   </table>
-              </div>
+              </div> -->
             </template>
           </div>
             
