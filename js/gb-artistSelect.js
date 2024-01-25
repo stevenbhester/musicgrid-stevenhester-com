@@ -736,7 +736,30 @@ function saveCustomGrid(gridOutline) {
   
 }
 
+function assembleGridFrame(gridOutline) {
+  let currIteration = gridOutline.iteration;
+  let fullArtists = Object.keys(masterArtistDataSumm);
+  let currPattern = currIteration.split(",");
+  
+  // console.log("Checking years for current iteration: ");
+  console.log(currPattern);
+
+  let artists = [];
+  for(let y = 0; y<currPattern.length; y++) {
+    if(currPattern[y] == 1) { 
+      artists.push(fullArtists[y]); 
+      console.log("Adding "+fullArtists[y]+" to framework);
+      masterGridOutline[artistName] = {"songLength": []; "wordCount": []; "releaseDate": []};
+    } else {
+      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
+    }
+  }
+  
+  for(let z = 0; z<artists.length; z++) {
+}
+
 function populateGridData(gridOutline) { 
+  assembleGridFrame(gridOutline);
   let currIteration = gridOutline.iteration;
   let fullArtists = Object.keys(masterArtistDataSumm);
   let currPattern = currIteration.split(",");
