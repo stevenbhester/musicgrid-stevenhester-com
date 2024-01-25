@@ -786,6 +786,7 @@ function populateGridData(gridOutline) {
   for(let z = 0; z<artists.length; z++) {
     let artistName = artists[z];
     let artistDetailsObj = masterArtistDataDetails[artistName];
+    let masterGridOutlineArtist = masterGridOutline[artistName];
     
     //First lets find the songs matching the final duration category
     let durationObj = artistDetailsObj.duration;
@@ -808,7 +809,7 @@ function populateGridData(gridOutline) {
           songsMatchingDuration.push(songDurMatches);
         } 
       }
-      masterGridOutline[artistName]["songLength"] = songsMatchingDuration;
+      masterGridOutlineArtist.songLength.push(songsMatchingDuration);
     }
 
     //Next we find songs matching the final title length count
