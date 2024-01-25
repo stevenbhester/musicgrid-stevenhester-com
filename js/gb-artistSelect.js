@@ -256,17 +256,16 @@ async function buildProgressReport(artists) {
       if(!gridOutline) {
         console.log("Checking subsets of first "+q+" artists");
         gridOutline = await parseArtists(progressContainer,q).then(() =>  validateGroups(q));
-      } 
+      }
+      if(!gridOutline) { 
+        console.log("No valid match found, incrementing search")
+      } else {
+        console.log("Found valid match for below grid!");
+        console.log(gridOutline);
+        console.dir(gridOutline);
+      }
     }  
   }
-
-  if(!gridOutline) { 
-          console.log("No valid match found, incrementing search")
-        } else {
-          console.log("Found valid match for below grid!");
-          console.log(gridOutline);
-          console.dir(gridOutline);
-        }
 }
 
 function createHeader(headerType, headerText) {
