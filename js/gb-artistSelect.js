@@ -250,12 +250,14 @@ async function buildProgressReport(artists) {
   //Once we're done with building progress, move to parsing
   let numArtists = Object.keys(artists);
   let gridOutlineFound = false;
+  let gridOutline = null;
   
   const gridOutlineFunc = async _ => {
     for(let q = 3; q<numArtists; q++) {
       if(!gridOutlineFound) {
         console.log("Checking subsets of first "+q+" artists");
         gridOutline = await parseArtists(progressContainer,q).then(() =>  validateGroups(q));
+        if(gridOutline) { gridOutlineFound = true;}
       }
       if(!gridOutlineFound) { 
         console.log("No valid match found, incrementing search");
