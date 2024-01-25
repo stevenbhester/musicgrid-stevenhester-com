@@ -253,21 +253,22 @@ async function buildProgressReport(artists) {
   let gridOutline = null;
   
   for(let q = 3; q<numArtists; q++) {
-    console.log("Running parseArtists at loop #"+q);
     if(!gridOutlineFound) {
+      console.log("Running parseArtists at loop #"+q);
       console.log("Checking subsets of first "+q+" artists");
       gridOutline = await parseArtists(progressContainer,q).then(() =>  validateGroups(q));
-      if(gridOutline) { gridOutlineFound = true;}
-    }
-    if(!gridOutlineFound) { 
-      console.log("No valid match found, incrementing search");
-    } else {
-      console.log("Found valid match for below grid!");
-      console.log(gridOutline);
-      console.dir(gridOutline);
+      if(gridOutline) { 
+        gridOutlineFound = true;
+        console.log("Found valid match for below grid!");
+        console.log(gridOutline);
+        console.dir(gridOutline);
+      } else {
+        console.log("No valid match found, incrementing search");
+      }
     }
   }  
   console.log(gridOutline);
+  saveCustomGrid(gridOutline);
 }
 
 function createHeader(headerType, headerText) {
@@ -309,6 +310,7 @@ function fetchValidCategories() {
 
 let masterArtistDataSumm = {};
 let masterArtistDataDetails = {};
+let masterGridOutline = {};
 let startIndex = 0;
 
 async function parseArtists(progressContainer, endIndex = 3) {
@@ -451,8 +453,7 @@ async function validateGroups(groupSize = 3) {
     } else {console.log("Skipping iteration as all criteria already found");}
   }
   if(matchFound) {
-    let songLengthParsed = songLength.type +" "+ songLength.durmin+" minutes";
-    let categoriesObj = {yearRange: yearRange, wordCount: wordCount, songLength: songLengthParsed };
+    let categoriesObj = {yearRange: yearRange, wordCount: wordCount, songLength: songLength };
     console.log("Final categories determined as:");
     console.log(categoriesObj);
     console.dir(categoriesObj);
@@ -729,3 +730,84 @@ function selectSongLength(currIteration,validLengthsArr) {
   console.log("No match found on duration, returning null");
   return null;
 }
+
+function saveCustomGrid(gridOutline) {
+  let customGridDetails = populateGridData(gridOutline);
+  
+}
+
+function populateGridData(gridOutline) { 
+  let currIteration = gridOutline.iteration;
+  let fullArtists = Object.keys(masterArtistDataSumm);
+  let currPattern = currIteration.split(",");
+  let paramWordCount = gridOutline.categories.wordCount;
+  let paramLength = gridOutline.categories.songLength;
+  let paramYear = parseInt(gridOutline.categories.yearRange);
+  
+  // console.log("Checking years for current iteration: ");
+  console.log(currPattern);
+
+  let artists = [];
+  for(let y = 0; y<currPattern.length; y++) {
+    if(currPattern[y] == 1) { 
+      artists.push(fullArtists[y]); 
+      console.log("Adding "+fullArtists[y]+" to final list of artists to compare");
+    } else {
+      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
+    }
+  }
+  
+  for(let z = 0; z<artists.length; z++) {
+    let artistName = artists[z];
+    let artistDetailsObj = masterArtistDataDetails[artistName];
+    
+    //First lets find the songs matching the final duration category
+    let durationObj = artistDetailsObj.duration;
+    let durationKeys = Object.keys(durationObj);
+    for(let a=0; a<durationKeys.length; a++) {
+      let dataSetDurStr = durationKeys[a];
+      let dataSetDur = parseInt(dataSetDurStr);
+      let songsMatchingDuration = [];
+      if(comparisonType == "under") { 
+        console.log("Finding all songs by "+artistName+" "+comparisonType+"(u) "+paramLength+" ms");
+        if(dataSetDur <= paramLength) {
+          let songDurMatches = durationObj[dataSetDurStr];
+          songsMatchingDuration.push(songDurMatches);
+        }
+      } else if(comparisonType == "over") { 
+        let paramLengthTrue=paramLength+60000; // By default we sort songs by the duration they're under, so we need to increment up by 1 here. 
+        console.log("Finding all songs by "+artistName+" "+comparisonType+"(o) "+paramLengthTrue+" ms");
+        if(dataSetDur >= paramLengthTrue) { 
+          let songDurMatches = durationObj[dataSetDurStr];
+          songsMatchingDuration.push(songDurMatches);
+        } 
+      }
+      masterGridOutline[artistName]["songLength"] = songsMatchingDuration;
+    }
+
+    //Next we find songs matching the final title length count
+    let wordCountObj = artistDetailsObj.wordCount;
+    let songsMatchingWordCount = wordCountObj[paramWordCount]
+    masterGridOutline[artistName]["wordCount"] = songsMatchingWordCount;
+    
+    //Next we find songs matching the date range
+    let yearsObj = artistDetailsObj.releaseDate;
+    let yearKeys = Object.keys(yearsObj);
+    for(let a=0; a<yearKeys.length; a++) {
+      let detailsSetYear = yearKeys[a];
+      let detailsSetYearInt = parseInt(yearKeys[a]);
+      let songsMatchingDate = [];
+      if(detailsSetYearInt >= paramLength && detailsSetYearInt <= paramLength - 5) {
+        let songYearMatches = yearsObj[detailsSetYear];
+        songsMatchingDate.push(songYearMatches);
+      }
+      masterGridOutline[artistName]["releaseDate"] = songsMatchingDate;
+    }
+  }
+  console.log("Final grid outline is:");
+  console.dir(masterGridOutline);
+
+  
+}
+
+ 
