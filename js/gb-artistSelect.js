@@ -414,7 +414,7 @@ async function validateGroups() {
       if(songLength) { console.log("found duration match for "+songLength);}
     } else {console.log("Skipping iteration as all criteria already found");}
   }
-  let songLengthParsed = songLength.type +" "+ songLength.durmin+" minutes"
+  let songLengthParsed = songLength.type +" "+ songLength.durmin+" minutes";
   let categoriesObj = {yearRange: yearRange, wordCount: wordCount, songLength: songLengthParsed };
   console.log("Final categories determined as:");
   console.dir(categoriesObj);
