@@ -929,10 +929,10 @@ async function answerEncoder(data, customGridId) {
   }
 
   console.log("Encoded answers ready for update:", answerPops);
-  calculateAnswerScores(answerPops, gridId);
+  calculateAnswerScores(answerPops, customGridId);
 }
 
- async function searchSpotify(searchTerm, artistSearch) {
+async function searchSpotify(searchTerm, artistSearch) {
   let easyModeBool = true;
   let encoderReq = true;
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search-encoding-answer", {
