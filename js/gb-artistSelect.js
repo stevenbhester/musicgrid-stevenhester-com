@@ -417,30 +417,27 @@ function findIterations(group) {
   console.dir(emptyPerm);
   //Take in number of iterations, remove already checked, rank by lowest sum of parts
   //return sorted array with highest prio groupings at top
-  for(var k = 1; k<numVariations; k++) {
-    //First we set the current permutation to be empty so we can populate it below
-    let currPerm = emptyPerm;
-    console.log("building new iteration, starting at: ["+currPerm.join(",")+"]");
-    let artistsActive = 0;
-    for(var l=0; l<groupSize-2; l++){ // Var l will count the location of the first 1
-      currPerm[l] = 1;
-      console.log("setting "+l+" value to first 1: ["+currPerm.join(",")+"]");
-      for(var m=l+1; m<groupSize-1; m++){ // Var m will count the location of the second 1
-        currPerm[m] = 1;
-        console.log("setting"+m+"value to second 1: ["+currPerm.join(",")+"]");
-        let currScore = m+l;
-        console.log("Setting score of current perm to "+currScore+" and appending to Permutations");
-        permutations.push({perm: currPerm, score: currScore});
-        currPerm[m] = 0;
-      }
-      currPerm[l] = 0;
+  let currPerm = emptyPerm;
+  console.log("building Iterations, starting at: ["+currPerm.join(",")+"]");
+
+  for(var l=0; l<groupSize-2; l++){ // Var l will count the location of the first 1
+    currPerm[l] = 1;
+    console.log("setting "+l+" value to first 1: ["+currPerm.join(",")+"]");
+    for(var m=l+1; m<groupSize-1; m++){ // Var m will count the location of the second 1
+      currPerm[m] = 1;
+      console.log("setting"+m+"value to second 1: ["+currPerm.join(",")+"]");
+      let currScore = m+l;
+      console.log("Setting score of current perm to "+currScore+" and appending to Permutations");
+      permutations.push({perm: currPerm.join(","), score: currScore});
+      currPerm[m] = 0;
     }
+    currPerm[l] = 0;
   }
   for(var x = 0; x < permutations.length; x++) {
     let obsPerms = permutations[x];
     let obsPerm = obsPerms.perm;
     let obsScore = obsPerms.score;
-    console.log("Permutation #"+x+" is "+obsPerm.join(",")+" with score "+obsScore);
+    console.log("Permutation #"+x+" is "+obsPerm+" with score "+obsScore);
   }
   return permutations;
 }
