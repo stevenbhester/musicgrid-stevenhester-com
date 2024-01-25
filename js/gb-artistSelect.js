@@ -392,7 +392,7 @@ async function validateGroups() {
 
   //Check group iterations, we'll start with just the top 4 and add looping logic later- 
   let group = [0,0,0,0];
-  let iterations = currentGroup.findIterations(group);
+  let iterations = findIterations(group);
   console.log("iterations returned:");
   console.log(iterations);
   console.dir(iterations);
@@ -440,7 +440,7 @@ function findIterations(group) {
 function findFreshVariations(groupSize) {  
   let newVars = 1;
   if(groupSize > 3) {
-   newVars = (groupSize-2)+findVariations(groupSize-1);}
+    newVars = (groupSize-2)+findFreshVariations(groupSize-1);}
   return newVars;
 }
 
