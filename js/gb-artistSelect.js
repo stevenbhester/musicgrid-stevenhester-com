@@ -396,10 +396,16 @@ async function validateGroups() {
   console.log("iterations returned:");
   console.log(iterations);
   console.dir(iterations);
+
+  for(var x = 0; x < iterations.length; x++) {
+    let currIteration = iterations[x];
+    let yearRange = await selectDateRange(currIteration);
+    
+  }
+  
   
   //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
   
-  let yearRange = await selectDateRange();
 }
 
 function findIterations(group) {
@@ -456,8 +462,22 @@ async function progressFailure() {
 }
 
 
-async function selectDateRange() {
-  let artists = Object.keys(masterArtistDataSumm);
+async function selectDateRange(currIteration) {
+  let fullArtists = Object.keys(masterArtistDataSumm);
+  let currPattern = currIteration.split(",");
+  console.log("Checking years for current iteration: ");
+  console.log(currPattern);
+
+  let artists = [];
+  for(let y = 0; y<currPattern.length; y++) {
+    if(currPattern[y] == 1) { 
+      artists.push(fullArtists[y]); 
+      console.log("Adding "+fullArtists[y]+" to list of artists to compare");
+    } else {
+      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
+    }
+  }
+  
   let artistYearsBucketObj = {};
   for (let x = 0; x < artists.length; x++) {
     let artistName = artists[x];
@@ -498,6 +518,7 @@ async function selectDateRange() {
       }
     }
   }
+  
   console.dir(artistYearsBucketObj);
   return artistYearsBucketObj;
   // map each year to (artist:numsongs)
