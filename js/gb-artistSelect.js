@@ -451,12 +451,14 @@ async function validateGroups(groupSize = 3) {
       }
     } else {console.log("Skipping iteration as all criteria already found");}
   }
-  let songLengthParsed = songLength.type +" "+ songLength.durmin+" minutes";
-  let categoriesObj = {yearRange: yearRange, wordCount: wordCount, songLength: songLengthParsed };
-  console.log("Final categories determined as:");
-  console.log(categoriesObj);
-  console.dir(categoriesObj);
-  console.log("For iteration:"+currIteration);
+  if(matchFound) {
+    let songLengthParsed = songLength.type +" "+ songLength.durmin+" minutes";
+    let categoriesObj = {yearRange: yearRange, wordCount: wordCount, songLength: songLengthParsed };
+    console.log("Final categories determined as:");
+    console.log(categoriesObj);
+    console.dir(categoriesObj);
+    console.log("For iteration:"+currIteration);
+  } else{console.log("No valid categories found for iterations");
   return {iteration: currIteration, categories: categoriesObj};
 }
 
@@ -703,9 +705,9 @@ function selectSongLength(currIteration,validLengthsArr) {
               songArtistMatches += lengthSummObj[dataSetDurStr];
             } else { console.log("No matches found"); }
           } else if(comparisonType == "over") { 
-            paramLength+=60000; // By default we sort songs by the duration they're under, so we need to increment up by 1 here. 
-            console.log("Checking for songs by "+artistName+" "+comparisonType+"(o) "+paramLength+" ms");
-            if(dataSetDur >= paramLength) { 
+            paramLengthTrue=paramLength+60000; // By default we sort songs by the duration they're under, so we need to increment up by 1 here. 
+            console.log("Checking for songs by "+artistName+" "+comparisonType+"(o) "+paramLengthTrue+" ms");
+            if(dataSetDur >= paramLengthTrue) { 
               console.log("Found match on "+lengthArr[a]);
               songArtistMatches += lengthSummObj[dataSetDurStr];
             } else { console.log("No matches found"); }
