@@ -397,8 +397,9 @@ async function validateGroups() {
   console.log(iterations);
   console.dir(iterations);
 
-  for(var x = 0; x < iterations.length; x++) {
-    let currIteration = iterations[x];
+  for(var x = 0; x < iterations.length; x++) { //TODO: Sort by score instead of at random
+    let currIterationObj = iterations[x];
+    let currIteration = iterations.perm; 
     let yearRange = await selectDateRange(currIteration);
     
   }
