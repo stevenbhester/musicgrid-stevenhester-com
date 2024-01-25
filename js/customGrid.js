@@ -9,7 +9,7 @@ let livesLost = 0;
 let correctGuesses = 0;
 
 // What grid are we goofin around with?
-let gridId = 0;
+let customGridId = 0;
 
 // Easy mode boolean
 let easyModeBool = false;
@@ -331,10 +331,10 @@ function selectSong(songInfo, inputElement, cellKey, popularity) {
 function evaluateGuess(songInfo, inputElement, cellKey) {
   // Hit endpoint to find out guess score
   let guessScore = 0;
-  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/check-answer", {
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/check-custom-answer", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ songGuess: songInfo, fieldGuessed: cellKey, gridId: gridId })
+    body: JSON.stringify({ songGuess: songInfo, fieldGuessed: cellKey, customGridId: customGridId })
   })
     .then(response => response.json())
     .then(data => scoreParse(data, songInfo, inputElement))
@@ -468,11 +468,11 @@ function displayEndGameMessage() {
 }
 
 
-function fetchCheatPreviewUrl(gridId, fieldKey, cell) {
-  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/get-cheat-preview-url", {
+function fetchCheatPreviewUrl(customGridId, fieldKey, cell) {
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/get-custom-cheat-preview-url", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ gridId, fieldKey })
+    body: JSON.stringify({ customGridId, fieldKey })
   })
     .then(response => response.json())
     .then(data => {
@@ -518,7 +518,7 @@ function leaderboardUpdate(playerName, score) {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/submit-score", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name: playerName, score: score, lb_id: gridId })
+    body: JSON.stringify({ name: playerName, score: score, lb_id: customGridId })
   })
     .then(response => response.json())
     .then(data => {
@@ -573,7 +573,7 @@ function startGame() {
       const fieldKey = event.target.getAttribute("id");
       
       // Here you can call your function to fetch the cheat preview URL and then play it
-      fetchCheatPreviewUrl(gridId, fieldKey, cell);
+      fetchCheatPreviewUrl(customGridId, fieldKey, cell);
     }
   });
 }
