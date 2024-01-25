@@ -438,8 +438,8 @@ function findIterations(group) {
   }
   for(var x = 0; x < permutations.length; x++) {
     let obsPerms = permutations[x];
-    let obsPerm = obserPerms.perm;
-    let obsScore = obserPerms.score;
+    let obsPerm = obsPerms.perm;
+    let obsScore = obsPerms.score;
     console.log("Permutation #"+x+" is "+obsPerm.join(",")+" with score "+obsScore);
   }
   return permutations;
