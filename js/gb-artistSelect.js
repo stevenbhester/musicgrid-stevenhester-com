@@ -142,12 +142,12 @@ function addEventListeners() {
   
   items.forEach(item => {
     item.addEventListener("dragstart", () => {
-      console.log("Dragging element "+item.textContent.trim());
+      // console.log("Dragging element "+item.textContent.trim());
       // Adding dragging class to item after a delay
       setTimeout(() => item.classList.add("dragging"), 0);
     });
     item.addEventListener("touchmove", () => {
-      console.log("Dragging element "+item.textContent.trim());
+      // console.log("Dragging element "+item.textContent.trim());
       // Adding dragging class to item after a delay
       setTimeout(() => item.classList.add("dragging"), 0);
     });
@@ -157,14 +157,14 @@ function addEventListeners() {
   });
   const initSortableList = (e) => {
     e.preventDefault();
-    console.log("initSortableList fired");
+    // console.log("initSortableList fired");
     
     const draggingItem = document.querySelector(".dragging"); 
-    console.log("initSortableList detected at "+e.clientY);
+    // console.log("initSortableList detected at "+e.clientY);
       
     // Getting all items except currently dragging and making array of them
     let siblings = [...sortableList.querySelectorAll(".item:not(.dragging)")];
-    console.log("siblings pulled");
+    // console.log("siblings pulled");
     
     // Finding the sibling after which the dragging item should be placed
     let nextSibling = null;
@@ -172,15 +172,15 @@ function addEventListeners() {
     siblings.forEach(sibling => {
       let rect = sibling.getBoundingClientRect();
       let yCoord = rect.top + sibling.offsetHeight/2;
-      console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+ yCoord + " (rect: " + rect.top + "; offsetHeight/2: "+(sibling.offsetHeight/2));
+      // console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+ yCoord + " (rect: " + rect.top + "; offsetHeight/2: "+(sibling.offsetHeight/2));
       if (e.clientY >= yCoord && (!priorSibling || yCoord < priorSibling.getBoundingClientRect().top + priorSibling.offsetHeight/2)) {
         priorSibling = sibling;
       } else if (e.clientY < yCoord && (!nextSibling || yCoord < nextSibling.getBoundingClientRect().top + nextSibling.offsetHeight/2)) {
         nextSibling = sibling;
       }
     });
-    if(priorSibling) {console.log("Found prior sibling "+priorSibling.textContent.trim());} else {console.log("No prior sibling found");}
-    if(nextSibling) {console.log("Found next sibling "+nextSibling.textContent.trim());} else {console.log("No next sibling found");}
+    // if(priorSibling) {console.log("Found prior sibling "+priorSibling.textContent.trim());} else {console.log("No prior sibling found");}
+    // if(nextSibling) {console.log("Found next sibling "+nextSibling.textContent.trim());} else {console.log("No next sibling found");}
     
     // Inserting the dragging item before the found sibling
     if(nextSibling) {
