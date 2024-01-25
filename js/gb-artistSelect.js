@@ -834,7 +834,7 @@ function populateGridData(gridOutline) {
     for(let b=0; b<yearKeys.length; b++) {
       let detailsSetYear = yearKeys[b];
       let detailsSetYearInt = parseInt(yearKeys[b]);
-      if(detailsSetYearInt >= paramLength && detailsSetYearInt <= paramLength + 5) {
+      if(detailsSetYearInt >= paramYear && detailsSetYearInt <= paramYear + 5) {
         let songYearMatches = yearsObj[detailsSetYear];
         songYearMatches.forEach(songMatch => {
           songsMatchingDate.push(songMatch);
