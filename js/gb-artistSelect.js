@@ -408,8 +408,10 @@ async function validateGroups() {
       console.log("Checking years for "+currIteration);
       yearRange = await processDateRanges(currIteration).then(yearRangeData => selectDateRange(yearRangeData));
       if(yearRange) { console.log("found year range starting "+yearRange);}
+      console.log("Checking wordcounts for "+currIteration);
       wordCount = selectWordCounts(currIteration, [1,3]); //Just one and three word titles to start
       if(wordCount) { console.log("found word count match for "+wordCount);}
+      console.log("Checking durations for "+currIteration);
       songLength = selectSongLength(currIteration, [{type: "under", durmin: 2},{type: "over", durmin: 6}]); //Just under 2 mins, over 5 mins to start (6 = over 5 mins in backend)
       if(songLength) { console.log("found duration match for "+songLength);}
     } else {console.log("Skipping iteration as all criteria already found");}
@@ -478,7 +480,7 @@ async function progressFailure() {
 async function processDateRanges(currIteration) {
   let fullArtists = Object.keys(masterArtistDataSumm);
   let currPattern = currIteration.split(",");
-  console.log("Checking years for current iteration: ");
+  // console.log("Checking years for current iteration: ");
   console.log(currPattern);
 
   let artists = [];
@@ -584,7 +586,7 @@ function selectDateRange(yearRangeData) {
 function selectWordCounts(currIteration,validCountsArr) {
   let fullArtists = Object.keys(masterArtistDataSumm);
   let currPattern = currIteration.split(",");
-  console.log("Checking years for current iteration: ");
+  // console.log("Checking years for current iteration: ");
   console.log(currPattern);
 
   let artists = [];
@@ -608,7 +610,8 @@ function selectWordCounts(currIteration,validCountsArr) {
         let countSummObj = masterArtistDataSumm[artistName]["wordCount"];
         let artistCountArr = Object.keys(countSummObj);
         console.log("Checking for songs with "+currWordCount+" by "+artistName);
-        if(artistCountArr.length > 0 && artistCountArr.includes(currWordCount)) {
+        let currCountStr = currWordCount.toString();
+        if(artistCountArr.length > 0 && artistCountArr.includes(currCountStr)) {
           numValidArtists++;
           console.log("Found songs of matching length for "+artistName+"! Now at "+numValidArtists+" matched for "+currWordCount+" word length songs");
         }
@@ -628,7 +631,7 @@ function selectWordCounts(currIteration,validCountsArr) {
 function selectSongLength(currIteration,validLengthsArr) {
   let fullArtists = Object.keys(masterArtistDataSumm);
   let currPattern = currIteration.split(",");
-  console.log("Checking years for current iteration: ");
+  // console.log("Checking years for current iteration: ");
   console.log(currPattern);
 
   let artists = [];
