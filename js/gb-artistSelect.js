@@ -410,12 +410,12 @@ async function validateGroups() {
       if(yearRange) { console.log("found year range starting "+yearRange);}
       wordCount = selectWordCounts(currIteration, [1,3]); //Just one and three word titles to start
       if(wordCount) { console.log("found word count match for "+wordCount);}
-      songLength = selectSongLength(currIteration, [2,6]); //Just under 2 mins, over 5 mins to start (6 = over 5 mins in backend)
+      songLength = selectSongLength(currIteration, [{type: "under", durmin: 2},{type: "over", durmin: 6}]); //Just under 2 mins, over 5 mins to start (6 = over 5 mins in backend)
       if(songLength) { console.log("found duration match for "+songLength);}
     } else {console.log("Skipping iteration as all criteria already found");}
   }
-
-  let categoriesObj = {yearRange: yearRange, wordCount: wordCount, songLength: songLength};
+  let songLengthParsed = songLength.type +" "+ songLength.durmin+" minutes"
+  let categoriesObj = {yearRange: yearRange, wordCount: wordCount, songLength: songLengthParsed };
   console.log("Final categories determined as:");
   console.dir(categoriesObj);
   
@@ -646,21 +646,39 @@ function selectSongLength(currIteration,validLengthsArr) {
   for(let z = 0; z<validLengthsArr.length; z++) {
     let numValidArtists = 0;
     if(!foundLength) {
-      let currLength = validLengthsArr[z]*60000;
+      let currLengthObj = validLengthsArr[z];
+      let comparisonType = currLengthObj.type;
+      let paramLength = currLengthObj.durmin*60000;
       for (let x = 0; x < artists.length; x++) {
         let artistName = artists[x];
         let lengthSummObj = masterArtistDataSumm[artistName]["duration"];
         let lengthArr = Object.keys(lengthSummObj);
-        console.log("Checking for songs with "+currLength+" duration by "+artistName+" against durations of ["+lengthArr.join(",")+"]");
-        if(lengthArr.length > 0 && lengthArr.includes(currLength)) {
+        let songArtistMatches = 0;
+        for (let a = 0; a < lengthArr.length; a++) { 
+          let dataSetDur = parseInt(lengthArr[a]);
+          let dataSetDurStr = lengthArr[a];
+          if(comparisonType == "under") { 
+            console.log("Checking for songs by "+artistName+" "+comparisonType+"(u) "+paramLength+" ms");
+            if(dataSetDur <= paramLength) { 
+              console.log("Found match on "+lengthArr[a]);
+              songArtistMatches += lengthSummObj[dataSetDurStr];
+            } else { console.log("No matches found"); }
+          } else if(comparisonType == "over") { 
+            console.log("Checking for songs by "+artistName+" "+comparisonType+"(o) "+paramLength+" ms");
+            if(dataSetDur >= paramLength) { 
+              console.log("Found match on "+lengthArr[a]);
+              songArtistMatches += lengthSummObj[dataSetDurStr];
+            } else { console.log("No matches found"); }
+          }
+        }
+        if(songArtistMatches > 3) {
           numValidArtists++;
-          console.log("Found songs of matching duration for "+artistName+"! Now at "+numValidArtists+" matched for "+currLength+" duration songs");
         }
-        if(numValidArtists == 3) {
-          console.log("All three artists matched, returning"); //TODO: We should check for more than 1 but that sounds hard rn
-          foundLength = true;
-          return currLength;
-        }
+      }
+      if(numValidArtists==3) {
+        foundLength = true;
+        console.log("Found complete matches for "+comparisonType+" "+paramLength+" ms");
+        return currLengthObj;
       }
     }
   }
