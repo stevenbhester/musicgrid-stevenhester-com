@@ -398,17 +398,26 @@ async function validateGroups() {
   console.dir(iterations);
 
   let yearRange = null;
+  let wordCount = null;
+  let songLength = null;
+  
   for(var x = 0; x < iterations.length; x++) { //TODO: Sort by score instead of at random
-    if(!yearRange) {
+    if(!yearRange || !yearRange || !songLength) {
       let currIterationObj = iterations[x];
       let currIteration = currIterationObj.perm; 
       console.log("Checking years for "+currIteration);
       yearRange = await processDateRanges(currIteration).then(yearRangeData => selectDateRange(yearRangeData));
-    } else {console.log("Skipping iteration as year range already found");}
+      if(yearRange) { console.log("found year range starting "+yearRange);}
+      wordCount = selectWordCounts(currIteration, [1,3]); //Just one and three word titles to start
+      if(wordCount) { console.log("found word count match for "+wordCount);}
+      songLength = selectSongLength(currIteration, [2,6]); //Just under 2 mins, over 5 mins to start (6 = over 5 mins in backend)
+      if(songLength) { console.log("found duration match for "+songLength);}
+    } else {console.log("Skipping iteration as all criteria already found");}
   }
-  
-  
-  //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
+
+  let categoriesObj = {yearRange: yearRange, wordCount: wordCount, songLength: songLength};
+  console.log("Final categories determined as:");
+  console.dir(categoriesObj);
   
 }
 
@@ -567,7 +576,94 @@ function selectDateRange(yearRangeData) {
     console.log("No years with 5+ releases from all artists found");
     return null;
   } else { 
-    console.log("Best year identified as "+yearOfMaxMin+" to "+(yearOfMaxMin+5));
+    console.log("Best year identified as "+yearOfMaxMin+" to "+(parseInt(yearOfMaxMin)+5));
     return yearOfMaxMin;
   }
+}
+
+function selectWordCounts(currIteration,validCountsArr) {
+  let fullArtists = Object.keys(masterArtistDataSumm);
+  let currPattern = currIteration.split(",");
+  console.log("Checking years for current iteration: ");
+  console.log(currPattern);
+
+  let artists = [];
+  for(let y = 0; y<currPattern.length; y++) {
+    if(currPattern[y] == 1) { 
+      artists.push(fullArtists[y]); 
+      console.log("Adding "+fullArtists[y]+" to list of artists to compare");
+    } else {
+      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
+    }
+  }
+
+  let foundWordCount = false;
+  let artistWordCountBucketObj = {};
+  for(let z = 0; z<validCountsArr.length; z++) {
+    let numValidArtists = 0;
+    if(!foundWordCount) {
+      let currWordCount = validCountsArr[z];
+      for (let x = 0; x < artists.length; x++) {
+        let artistName = artists[x];
+        let countSummObj = masterArtistDataSumm[artistName]["wordCount"];
+        let artistCountArr = Object.keys(countSummObj);
+        console.log("Checking for songs with "+currWordCount+" by "+artistName);
+        if(artistCountArr.length > 0 && artistCountArr.includes(currWordCount)) {
+          numValidArtists++;
+          console.log("Found songs of matching length for "+artistName+"! Now at "+numValidArtists" matched for "+currWordCount+" word length songs");
+        }
+        if(numValidArtists == 3) {
+          console.log("All three artists matched, returning");
+          foundWordCount = true;
+          return currWordCount;
+        }
+      }
+    }
+  }
+  console.log("No match found on wordcount, returning null");
+  return null;
+}
+
+
+function selectSongLength(currIteration,validLengthsArr) {
+  let fullArtists = Object.keys(masterArtistDataSumm);
+  let currPattern = currIteration.split(",");
+  console.log("Checking years for current iteration: ");
+  console.log(currPattern);
+
+  let artists = [];
+  for(let y = 0; y<currPattern.length; y++) {
+    if(currPattern[y] == 1) { 
+      artists.push(fullArtists[y]); 
+      console.log("Adding "+fullArtists[y]+" to list of artists to compare");
+    } else {
+      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
+    }
+  }
+
+  let foundLength = false;
+  let artistLengthsBucketObj = {};
+  for(let z = 0; z<validLengthsArr.length; z++) {
+    let numValidArtists = 0;
+    if(!foundLength) {
+      let currLength = validLengthsArr[z]*60000;
+      for (let x = 0; x < artists.length; x++) {
+        let artistName = artists[x];
+        let lengthSummObj = masterArtistDataSumm[artistName]["duration"];
+        let lengthArr = Object.keys(lengthSummObj);
+        console.log("Checking for songs with "+currLength+" duration by "+artistName+" against durations of ["+lengthArr.join(",")+"]");
+        if(lengthArr.length > 0 && lengthArr.includes(currLength)) {
+          numValidArtists++;
+          console.log("Found songs of matching duration for "+artistName+"! Now at "+numValidArtists" matched for "+currLength+" duration songs");
+        }
+        if(numValidArtists == 3) {
+          console.log("All three artists matched, returning"); //TODO: We should check for more than 1 but that sounds hard rn
+          foundLength = true;
+          return currLength;
+        }
+      }
+    }
+  }
+  console.log("No match found on duration, returning null");
+  return null;
 }
