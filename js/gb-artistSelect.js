@@ -399,9 +399,8 @@ async function validateGroups() {
 
   for(var x = 0; x < iterations.length; x++) { //TODO: Sort by score instead of at random
     let currIterationObj = iterations[x];
-    let currIteration = iterations.perm; 
-    let yearRange = await selectDateRange(currIteration);
-    
+    let currIteration = currIterationObj.perm; 
+    let yearRange = await processDateRanges(currIteration).then(yearRangeData => selectDateRange(yearRangeData));
   }
   
   
@@ -463,7 +462,7 @@ async function progressFailure() {
 }
 
 
-async function selectDateRange(currIteration) {
+async function processDateRanges(currIteration) {
   let fullArtists = Object.keys(masterArtistDataSumm);
   let currPattern = currIteration.split(",");
   console.log("Checking years for current iteration: ");
@@ -482,10 +481,10 @@ async function selectDateRange(currIteration) {
   let artistYearsBucketObj = {};
   for (let x = 0; x < artists.length; x++) {
     let artistName = artists[x];
-    console.log("Checking date ranges for "+artistName+" of years:");
+    // console.log("Checking date ranges for "+artistName+" of years:");
     let releaseSummObj = masterArtistDataSumm[artistName]["releaseDate"];
     let artistYearsArr = Object.keys(releaseSummObj);
-    console.dir(artistYearsArr);
+    // console.dir(artistYearsArr);
     for (let y = 0; y < artistYearsArr.length; y++) {
       let observedYear = parseInt(artistYearsArr[y]);
       let yearReleases = releaseSummObj[observedYear];
@@ -495,26 +494,26 @@ async function selectDateRange(currIteration) {
       if(yearBucket == observedYear) {
         relevantBuckets.push(observedYear - 5);
       }
-      console.log("Checking year: "+observedYear+" with "+yearReleases+" releases");
+      // console.log("Checking year: "+observedYear+" with "+yearReleases+" releases");
       for (let z = 0; z < relevantBuckets.length; z++) {
         let currYear = relevantBuckets[z];
-        console.log("Assigned to bucket "+currYear);
+        // console.log("Assigned to bucket "+currYear);
         let currYearKeys = Object.keys(artistYearsBucketObj);
         let currYearArtistKeys = [];
-        console.log("Checking if "+currYear+"exists in existing "+(currYearKeys.length)+" logged years of:");
-        console.log(currYearKeys);
+        // console.log("Checking if "+currYear+"exists in existing "+(currYearKeys.length)+" logged years of:");
+        // console.log(currYearKeys);
         if(currYearKeys.length >= 0 && currYearKeys.includes(currYear.toString())) { //If year bucket already exists
           currYearArtistKeys = Object.keys(artistYearsBucketObj[currYear]);
           if(currYearArtistKeys.length >= 0 && currYearArtistKeys.includes(artistName)) { //And artist exists in that year bucket
             artistYearsBucketObj[currYear][artistName] += yearReleases; //Increment bucket release count by current year
-            console.log(currYear+ " & "+artistName+" already exists, incrementing by "+yearReleases);
+            // console.log(currYear+ " & "+artistName+" already exists, incrementing by "+yearReleases);
           } else { //But if year bucket exists and artist not found, create artist record and set to yearReleases
             artistYearsBucketObj[currYear][artistName] = yearReleases;
-            console.log(currYear+" exists, "+artistName+" doesn't already exists, creating & setting to "+yearReleases);
+            // console.log(currYear+" exists, "+artistName+" doesn't already exists, creating & setting to "+yearReleases);
           }
         } else { //If year bucket doesn't yet exist, create year and add artist//num release pair
           artistYearsBucketObj[currYear] = {[artistName]: yearReleases};
-          console.log(currYear+ " & "+artistName+" don't exist, creating and setting to "+yearReleases);
+          // console.log(currYear+ " & "+artistName+" don't exist, creating and setting to "+yearReleases);
         }
       }
     }
@@ -528,4 +527,9 @@ async function selectDateRange(currIteration) {
   // select top and we can iterate through later
   // return array of min and max year for year range (or just take min and know it's +5 years)
   // actually be careful to count songs in a border year towards both (2005 counts for 2000-2005 and 2005-2010)
+}
+
+function selectDateRange(yearRangeData) {
+  console.log("Pseudocode for selectin date range from data");
+  return null;
 }
