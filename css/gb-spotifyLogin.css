@@ -204,6 +204,7 @@ header {
     padding-top: 1px;
     margin-top: -1px;
     min-height: 100vh;
+    font-family: "Josefin Sans";
 }
 
 .overlay {
