@@ -422,7 +422,11 @@ async function validateGroups() {
         matchFound = true;
         console.log("Found complete match on iteration "+currIteration);
       } else {
-        console.log("Missing element for match on iteration "+currIteration);
+        let missingElements = [];
+        if(!wordCount){missingElements.push("Word Count");}
+        if(!songLength){missingElements.push("Song Length");}
+        if(!yearRange){missingElements.push("Year Range");}
+        console.log("Missing "+missingElements.join(", ")+" for match on iteration "+currIteration);
       }
     } else {console.log("Skipping iteration as all criteria already found");}
   }
