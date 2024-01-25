@@ -749,7 +749,7 @@ function assembleGridFrame(gridOutline) {
     if(currPattern[y] == 1) { 
       artists.push(fullArtists[y]); 
       console.log("Adding "+fullArtists[y]+" to framework");
-      masterGridOutline[artistName] = {"songLength": []; "wordCount": []; "releaseDate": []};
+      masterGridOutline[artistName] = {"songLength": [], "wordCount": [], "releaseDate": []};
     } else {
       console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
     }
