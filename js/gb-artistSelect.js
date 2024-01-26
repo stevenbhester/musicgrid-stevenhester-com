@@ -1336,7 +1336,7 @@ async function encodeCustomAnswers(customGridId) {
     });
 
     const data = await response.json();
-    await fetchGridOutline(customGridId).then(() =>  {await answerEncoder(data, customGridId);});
+    fetchGridOutline(customGridId).then(() =>  {await answerEncoder(data, customGridId);});
   } catch (error) {
     console.error("Error encoding answers for grid:", error);
   }
