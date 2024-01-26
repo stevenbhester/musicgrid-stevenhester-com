@@ -1392,7 +1392,7 @@ function createCell(className = "dummy1", text = "", classPrefix = "dummy2") {
 
 function createSongCell(cellKey) {
   const cell = document.createElement("div");
-  cell.classList.add("cell", "song-cell",  cellKey.replaceAll(" ","-");, "unstarted");
+  cell.classList.add("cell", "song-cell",  cellKey.replaceAll(" ","-"), "unstarted");
   
   const whitespace = document.createElement("div");
   cell.appendChild(whitespace);
