@@ -1392,7 +1392,7 @@ function createCell(className = "dummy1", text = "", classPrefix = "dummy2") {
 
 function createSongCell(cellKey) {
   const cell = document.createElement("div");
-  cell.classList.add("cell", "song-cell",  cellKey, "unstarted");
+  cell.classList.add("cell", "song-cell",  cellKey.replaceAll(" ","-");, "unstarted");
   
   const whitespace = document.createElement("div");
   cell.appendChild(whitespace);
@@ -1416,7 +1416,7 @@ async function answerEncoder(data, customGridId) {
   const answerPops = {};
   for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
     //Update frontend to show we're processing the song
-    var songProgressElemArr = document.getElementsByClassName(fieldKey);
+    var songProgressElemArr = document.getElementsByClassName(fieldKey.replaceAll(" ","-"));
     var songProgressElem = null;
     console.log("searching for cell "+fieldKey+" to update to in-progress");
     if(songProgressElemArr.length>0) {
