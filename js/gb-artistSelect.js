@@ -16,12 +16,12 @@ async function fetchTopArtists(timeRange) {
   
   const heroContainers = document.getElementsByClassName("artist-content");
   const heroContainer = heroContainers[0];
-  heroContainer.TextContent = "";
-  heroContainer.innerHTML = "<h1>Pick Your Artists</h1><br><p>Prioritize artists by dragging, then click \"Finalize Artists\".<br>We'll use the highest placement artists that work in a grid together.</p>";
+  heroContainer.classList.remove("invisible");
   let aToken = null;
   let tokenResponseObj = await handleOauth();
   if (tokenResponseObj.err) {
     const listContainer = document.getElementsByClassName("sortable-list");
+    listContainer[0].classList.remove("invisible");
     listContainer[0].innerHTML = "";
     const errorMessage = document.createElement("div");
     errorMessage.textContent = "Encountered error while fetching artists: "+tokenResponseObj.err;
@@ -95,10 +95,12 @@ async function refreshToken(refresh_token) {
 }
 
 async function buildArtistList(topArtistsData) {
+  const heroCont = document.getElementsByClassName("hero-container");
+  heroCont[0].classList.remove("invisible");
   const listContainer = document.getElementsByClassName("sortable-list");
-  listContainer[0].removeAttribute("style");  
+  listContainer[0].classList.remove("invisible");
   const finalizeBtn = document.getElementsByClassName("proceedButtonWrapper");
-  finalizeBtn[0].removeAttribute("style");
+  finalizeBtn[0].classList.remove("invisible");
   listContainer[0].innerHTML = "";
   topArtistsData.forEach(artist => {
     listContainer[0].appendChild(createArtistItem(artist.id,artist.name,artist.img));
