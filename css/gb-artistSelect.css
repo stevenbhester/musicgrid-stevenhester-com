@@ -556,6 +556,15 @@ select {
         margin-bottom: 5px;
     }
 
+    .preload-hero-content {
+        position: relative;
+        z-index: 2;
+        color: #333;
+        text-align: center;
+        margin-left: 15%;
+        margin-right: 15%
+    }
+    
     .hero-content {
         position: relative;
         z-index: 2;
