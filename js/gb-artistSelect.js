@@ -1344,7 +1344,7 @@ async function fetchGridOutline(customGridId) {
 async function buildGridOutline(data) {
   let gridContainer = document.getElementById("grid-container");
   gridContainer.innerHTML = ""; // Clear existing content
-  grid-container.style.display="flex";
+  gridContainer.style.display="flex";
 
   // Separate the data into categories, artists, and answers
   const categories = {};
