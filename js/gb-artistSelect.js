@@ -3,6 +3,7 @@
 //   initializeSite();
 // };
 
+
 // Log functionality and ask to fetch grid summary
 function buttonPressArtist(timeRange) {
   console.log("Initializing Site");
