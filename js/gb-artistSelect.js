@@ -1342,6 +1342,9 @@ async function fetchGridOutline(customGridId) {
     .catch(error => console.error("Error fetching grid data:", error));
 }
 async function buildGridOutline(data, customGridId) {
+  const listContainer = document.getElementsByClassName("sortable-list");
+  listContainer[0].innerHTML = "";
+  
   let gridContainer = document.getElementById("grid-container");
   gridContainer.innerHTML = ""; // Clear existing content
   gridContainer.style.display="flex";
