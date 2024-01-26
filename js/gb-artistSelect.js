@@ -1320,13 +1320,14 @@ async function storeGridInSql(masterGridOutline, categories) {
     const data = await response.json();
     let responseGridId = data.customGridId;
     console.log("Custom table created successfully, gridId read as "+responseGridId);
-    encodeCustomAnswers(responseGridId);
+    encodeCustomAnswers(responseGridId));
   } catch (error) {
     console.error("Error creating custom table: ", error);
   }
 }
 
 async function encodeCustomAnswers(customGridId) {
+  await buildGrid(masterArtistDataSumm);
   try {
     const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/custom-grid-data", {
       method: "POST",
@@ -1335,10 +1336,76 @@ async function encodeCustomAnswers(customGridId) {
     });
 
     const data = await response.json();
-    await answerEncoder(data, customGridId);
+    await fetchGridOutline(customGridId).then(() =>  {await answerEncoder(data, customGridId);});
   } catch (error) {
     console.error("Error encoding answers for grid:", error);
   }
+}
+function fetchGridOutline(customGridId) {
+  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/custom-grid-data", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ custom_grid_id: customGridId })
+  })
+    .then(response => response.json())
+    .then(data => buildGridOutline(data))
+    .catch(error => console.error("Error fetching grid data:", error));
+}
+function buildGridOutline(customGridId) {
+  const gridContainer = document.getElementById("grid-container");
+  gridContainer.innerHTML = ""; // Clear existing content
+
+  // Separate the data into categories, artists, and answers
+  const categories = {};
+  const artists = {};
+
+  data.forEach(item => {
+    if (item.field_type === "Category") {
+      categories[item.field] = item.field_value;
+    } else if (item.field_type === "Artist") {
+      artists[item.field] = item.field_value;
+    } 
+  });
+
+  // Create artist row
+  const artistRow = document.createElement("div");
+  artistRow.classList.add("row");
+  artistRow.appendChild(createCell("invisible")); // Invisible cell for alignment
+  Object.keys(artists).forEach(key => artistRow.appendChild(createCell("artist", artists[key], "artist-")));
+  gridContainer.appendChild(artistRow);
+
+  // Create rows for each category
+  Object.keys(categories).forEach(categoryKey => {
+    const categoryRow = document.createElement("div");
+    categoryRow.classList.add("row");
+
+    // Category cell
+    categoryRow.appendChild(createCell("genre-header", categories[categoryKey], "cat-"));
+
+    // Song cells
+    Object.keys(artists).forEach(artistKey => {
+      const cellKey = `${categoryKey} ${artistKey}`;
+      categoryRow.appendChild(createSongCell(cellKey));
+    });
+
+    gridContainer.appendChild(categoryRow);
+  });
+}
+function createCell(className = "dummy1", text = "", classPrefix = "dummy2") {
+  const cell = document.createElement("div");
+  const className2 = classPrefix + text.replaceAll(" ","-");
+  cell.classList.add("cell", className, className2);
+  cell.textContent = text;
+  return cell;
+}
+
+function createSongCell(cellKey) {
+  const cell = document.createElement("div");
+  cell.classList.add("cell", "song-cell",  cellKey, "unstarted");
+  
+  const whitespace = document.createElement("div");
+  cell.appendChild(whitespace);
+  return cell;
 }
 
 async function answerEncoder(data, customGridId) {
@@ -1357,6 +1424,16 @@ async function answerEncoder(data, customGridId) {
 
   const answerPops = {};
   for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
+    //Update frontend to show we're processing the song
+    var songProgressElemArr = document.getElementsByClassName(fieldKey);
+    var songProgressElem = null;
+    console.log("searching for cell "+fieldKey+" to update to in-progress");
+    if(songProgressElemArr.length>0) {
+      songProgressElem = songProgressElemArr[0];
+      songProgressElem.classList.remove("finished");
+      songProgressElem.classList.remove("unstarted");
+      songProgressElem.classList.add("in-progress");
+    }
     const nestedSongPops = [];
     const [category, artistKey] = fieldKey.split(" ");
     const artistName = artists[artistKey];
@@ -1381,11 +1458,17 @@ async function answerEncoder(data, customGridId) {
         const popularity = resultsObj.popularity || -1;
         const previewUrl = resultsObj.preview_url || "";
         nestedSongPops.push({ song: songParsed, popularity, previewUrl });
+        if(songProgressElemArr.length>0) {
+          songProgressElem.classList.remove("in-progress");
+          songProgressElem.classList.remove("unstarted");
+          songProgressElem.classList.add("finished");
+        }
       } catch (error) {
         console.error("Error fetching Spotify data for song:", songParsed, error);
       }
     }
     answerPops[fieldKey] = nestedSongPops;
+    
   }
 
   console.log("Encoded answers ready for update:", answerPops);
