@@ -1341,7 +1341,7 @@ async function encodeCustomAnswers(customGridId) {
     console.error("Error encoding answers for grid:", error);
   }
 }
-function fetchGridOutline(customGridId) {
+async function fetchGridOutline(customGridId) {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/custom-grid-data", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -1351,7 +1351,7 @@ function fetchGridOutline(customGridId) {
     .then(data => buildGridOutline(data))
     .catch(error => console.error("Error fetching grid data:", error));
 }
-function buildGridOutline(customGridId) {
+async function buildGridOutline(customGridId) {
   const gridContainer = document.getElementById("grid-container");
   gridContainer.innerHTML = ""; // Clear existing content
 
