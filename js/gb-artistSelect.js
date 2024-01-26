@@ -16,7 +16,7 @@ async function fetchTopArtists(timeRange) {
   
   const heroContainers = document.getElementsByClassName("artist-content");
   const heroContainer = heroContainers[0];
-  heroContainer.innerHTML = "";
+  heroContainer.TextContent = "";
   heroContainer.innerHTML = "<h1>Pick Your Artists</h1><br><p>Prioritize artists by dragging, then click \"Finalize Artists\".<br>We'll use the highest placement artists that work in a grid together.</p>";
   let aToken = null;
   let tokenResponseObj = await handleOauth();
