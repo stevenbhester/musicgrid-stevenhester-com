@@ -1340,7 +1340,8 @@ async function encodeCustomAnswers(customGridId) {
     console.error("Error encoding answers for grid:", error);
   }
   
-  fetchGridOutline(customGridId).then(() =>  {await answerEncoder(data, customGridId);});
+  await fetchGridOutline(customGridId);
+  await answerEncoder(data, customGridId);
 }
 async function fetchGridOutline(customGridId) {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/custom-grid-data", {
