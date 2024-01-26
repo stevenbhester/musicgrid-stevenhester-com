@@ -95,9 +95,9 @@ async function refreshToken(refresh_token) {
 
 async function buildArtistList(topArtistsData) {
   const listContainer = document.getElementsByClassName("sortable-list");
-  listContainer.removeAttribute("style");  
+  listContainer[0].removeAttribute("style");  
   const finalizeBtn = document.getElementsByClassName("proceedButtonWrapper");
-  finalizeBtn.removeAttribute("style");
+  finalizeBtn[0].removeAttribute("style");
   listContainer[0].innerHTML = "";
   topArtistsData.forEach(artist => {
     listContainer[0].appendChild(createArtistItem(artist.id,artist.name,artist.img));
