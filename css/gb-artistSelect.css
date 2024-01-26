@@ -657,7 +657,7 @@ select {
         min-width: 100px;
     }
 
-    window-btn {
+    .window-btn {
         margin-left: 3vw;
         margin-right: 3vw;
     }
