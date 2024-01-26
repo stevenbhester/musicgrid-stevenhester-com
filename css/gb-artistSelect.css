@@ -406,6 +406,9 @@ header {
 
 .progress-cell.in-progress {
     background-color: RGBA(250,0,250,0.1);
+    content:url('/img/loading.gif');
+    width: 100%;
+    height: auto;
 }
 
 .progress-cell.finished::before {
@@ -420,6 +423,9 @@ header {
 
 .song-cell.in-progress {
     background-color: RGBA(250,0,250,0.1);
+    content:url('/img/loading.gif');
+    width: 100%;
+    height: auto;
 }
 
 .song-cell.finished::before {
