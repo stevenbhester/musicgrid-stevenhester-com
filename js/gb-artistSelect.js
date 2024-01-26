@@ -291,27 +291,27 @@ function addEventListeners() {
         ddt._imgOffset = { x: offsetX, y: offsetY };
       };
       return DataTransfer;
-      }());
-      DragDropTouch_1.DataTransfer = DataTransfer;
-      /**
-      * Defines a class that adds support for touch-based HTML5 drag/drop operations.
-      *
-      * The @see:DragDropTouch class listens to touch events and raises the
-      * appropriate HTML5 drag/drop events as if the events had been caused
-      * by mouse actions.
-      *
-      * The purpose of this class is to enable using existing, standard HTML5
-      * drag/drop code on mobile devices running IOS or Android.
-      *
-      * To use, include the DragDropTouch.js file on the page. The class will
-      * automatically start monitoring touch events and will raise the HTML5
-      * drag drop events (dragstart, dragenter, dragleave, drop, dragend) which
-      * should be handled by the application.
-      *
-      * For details and examples on HTML drag and drop, see
-      * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Drag_operations.
-      */
-      var DragDropTouch = (function () {
+    }());
+    DragDropTouch_1.DataTransfer = DataTransfer;
+    /**
+    * Defines a class that adds support for touch-based HTML5 drag/drop operations.
+    *
+    * The @see:DragDropTouch class listens to touch events and raises the
+    * appropriate HTML5 drag/drop events as if the events had been caused
+    * by mouse actions.
+    *
+    * The purpose of this class is to enable using existing, standard HTML5
+    * drag/drop code on mobile devices running IOS or Android.
+    *
+    * To use, include the DragDropTouch.js file on the page. The class will
+    * automatically start monitoring touch events and will raise the HTML5
+    * drag drop events (dragstart, dragenter, dragleave, drop, dragend) which
+    * should be handled by the application.
+    *
+    * For details and examples on HTML drag and drop, see
+    * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Drag_operations.
+    */
+    var DragDropTouch = (function () {
       /**
        * Initializes the single instance of the @see:DragDropTouch class.
        */
@@ -405,7 +405,7 @@ function addEventListeners() {
             if (e.cancelable) {
               e.preventDefault();
             }
-          return;
+            return;
           }
           // start dragging
           if (this._dragSource && !this._img && this._shouldStartDragging(e)) {
@@ -485,7 +485,7 @@ function addEventListeners() {
         var delta = this._getDelta(e);
         return delta > DragDropTouch._THRESHOLD ||
           (DragDropTouch._ISPRESSHOLDMODE && delta >= DragDropTouch._PRESSHOLDTHRESHOLD);
-      }
+      };
       
       // clear all members
       DragDropTouch.prototype._reset = function () {
@@ -592,8 +592,8 @@ function addEventListeners() {
         }
         dst.style.pointerEvents = "none";
         // and repeat for all children
-        for (var i = 0; i < src.children.length; i++) {
-          this._copyStyle(src.children[i], dst.children[i]);
+        for (var ij = 0; ij < src.children.length; ij++) {
+          this._copyStyle(src.children[ij], dst.children[ij]);
         }
       };
       DragDropTouch.prototype._dispatchEvent = function (e, type, target) {
