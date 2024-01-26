@@ -207,8 +207,8 @@ header {
     margin-left: 15%;
     margin-right: 15%;
     margin-top: 10vh;
-    margin-bottom: 10vh;
-    padding-bottom: 10vh;
+    margin-bottom: 5vh;
+    padding-bottom: 5vh;
     background-color: RGBA(25, 20, 20, 0.5);
     color: RGBA(230, 230, 230, 1);
     border-radius: 30px;
