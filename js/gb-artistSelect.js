@@ -1344,6 +1344,7 @@ async function fetchGridOutline(customGridId) {
 async function buildGridOutline(data, customGridId) {
   const progressContainer = document.getElementById("gridProgressContainer");
   progressContainer.innerHTML = "";
+  progresscontainer.style.display="none";
   
   const heroContainers = document.getElementsByClassName("artist-content");
   const heroContainer = heroContainers[0];
