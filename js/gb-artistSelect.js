@@ -1345,6 +1345,11 @@ async function buildGridOutline(data, customGridId) {
   const progressContainer = document.getElementById("gridProgressContainer");
   progressContainer.innerHTML = "";
   
+  const heroContainers = document.getElementsByClassName("artist-content");
+  const heroContainer = heroContainers[0];
+  heroContainer.innerHTML = "";
+  heroContainer.innerHTML = "<h1>Wrapping Up Grid Creation</h1><br><p>Found valid categories & artists, now encoding answer data before handing you off to play your grid!</p>";
+
   let gridContainer = document.getElementById("grid-container");
   gridContainer.innerHTML = ""; // Clear existing content
   gridContainer.style.display="flex";
