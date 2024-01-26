@@ -1327,7 +1327,7 @@ async function storeGridInSql(masterGridOutline, categories) {
 }
 
 async function encodeCustomAnswers(customGridId) {
-  await buildGrid(masterArtistDataSumm);
+  let data = null;
   try {
     const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/custom-grid-data", {
       method: "POST",
@@ -1335,11 +1335,12 @@ async function encodeCustomAnswers(customGridId) {
       body: JSON.stringify({ custom_grid_id: customGridId })
     });
 
-    const data = await response.json();
-    fetchGridOutline(customGridId).then(() =>  {await answerEncoder(data, customGridId);});
+    data = await response.json();
   } catch (error) {
     console.error("Error encoding answers for grid:", error);
   }
+  
+  fetchGridOutline(customGridId).then(() =>  {await answerEncoder(data, customGridId);});
 }
 async function fetchGridOutline(customGridId) {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/custom-grid-data", {
