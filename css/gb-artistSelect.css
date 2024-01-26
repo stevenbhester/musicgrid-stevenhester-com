@@ -262,6 +262,18 @@ header {
     margin-bottom: 1em;
 }
 
+.preload-hero-content h1 {
+    font-size: 2em;
+    margin-bottom: 0.5em;
+    color: white; /* Dark Gray Text */
+}
+
+.preload-hero-content p {
+    font-size: 1.2em;
+    color: white; /* Dark Gray Text */
+    margin-bottom: 1em;
+}
+
 .hero-content sh1 {
     font-size: 1em;
     color: lightGray; /* Dark Gray Text */
@@ -590,6 +602,16 @@ select {
     }
     
     .hero-content p {
+        font-size: 0.9em;
+        margin-bottom: 0.7em;
+    }
+    
+    .preload-hero-content h1 {
+        font-size: 2em;
+        margin-bottom: 0.3em;
+    }
+    
+    .preload-hero-content p {
         font-size: 0.9em;
         margin-bottom: 0.7em;
     }
