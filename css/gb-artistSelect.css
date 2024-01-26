@@ -114,6 +114,7 @@ header {
     border-radius: 50px; /* More rounded corners for elegance */
     font-weight: bold;
     font-size: 1.1em;
+    margin-top: 10px;
 }
 
 .continue-button {
