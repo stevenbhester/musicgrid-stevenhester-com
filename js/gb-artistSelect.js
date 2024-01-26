@@ -1344,7 +1344,7 @@ async function fetchGridOutline(customGridId) {
 async function buildGridOutline(data, customGridId) {
   const progressContainer = document.getElementById("gridProgressContainer");
   progressContainer.innerHTML = "";
-  progresscontainer.style.display="none";
+  progressContainer.style.display="none";
   
   const heroContainers = document.getElementsByClassName("artist-content");
   const heroContainer = heroContainers[0];
@@ -1462,12 +1462,12 @@ async function answerEncoder(data, customGridId) {
         console.log(resultsObj.preview_url);
         const popularity = resultsObj.popularity || -1;
         const previewUrl = resultsObj.preview_url || "";
+        nestedSongPops.push({ song: songParsed, popularity, previewUrl });
       } catch (error) {
         console.error("Error fetching Spotify data for song:", songParsed, error);
       }
     }
     answerPops[fieldKey] = nestedSongPops;
-    nestedSongPops.push({ song: songParsed, popularity, previewUrl });
     if(songProgressElemArr.length>0) {
       songProgressElem.classList.remove("in-progress");
       songProgressElem.classList.remove("unstarted");
