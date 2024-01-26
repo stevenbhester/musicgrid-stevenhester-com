@@ -1330,7 +1330,6 @@ async function encodeCustomAnswers(customGridId) {
   }
   
   await fetchGridOutline(customGridId);
-  await answerEncoder(data, customGridId);
 }
 async function fetchGridOutline(customGridId) {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/custom-grid-data", {
@@ -1345,6 +1344,7 @@ async function fetchGridOutline(customGridId) {
 async function buildGridOutline(data) {
   const gridContainer = document.getElementById("grid-container");
   gridContainer.innerHTML = ""; // Clear existing content
+  grid-container.style.display="flex";
 
   // Separate the data into categories, artists, and answers
   const categories = {};
@@ -1381,6 +1381,7 @@ async function buildGridOutline(data) {
 
     gridContainer.appendChild(categoryRow);
   });
+  await answerEncoder(data, customGridId);
 }
 function createCell(className = "dummy1", text = "", classPrefix = "dummy2") {
   const cell = document.createElement("div");
