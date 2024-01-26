@@ -1552,6 +1552,11 @@ async function updateEncodedAnswers(encodedAnswers) {
 function linkToGrid(customGridId) {
   const progressContainer = document.getElementById("gridProgressContainer");
   progressContainer.innerHTML = "";
+  
+  let gridContainer = document.getElementById("grid-container");
+  gridContainer.innerHTML = ""; // Clear existing content
+  gridContainer.style.display="none";
+  
   const heroContainers = document.getElementsByClassName("artist-content");
   const heroContainer = heroContainers[0];
   heroContainer.innerHTML = "";
