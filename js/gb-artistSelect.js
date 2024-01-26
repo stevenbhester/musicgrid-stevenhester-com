@@ -1416,11 +1416,15 @@ async function answerEncoder(data, customGridId) {
   const answerPops = {};
   for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
     //Update frontend to show we're processing the song
-    var songProgressElemArr = document.getElementsByClassName(fieldKey.replaceAll(" ","-"));
+    var nameFieldKey = fieldKey.replaceAll(" ","-");
+    var songProgressElemArr = document.getElementsByClassName(nameFieldKey);
     var songProgressElem = null;
-    console.log("searching for cell "+fieldKey+" to update to in-progress");
+    console.log("searching for cell "+nameFieldKey+" to update to in-progress");
+    console.log("found "+songProgressElemArr.length+" matching elements");
     if(songProgressElemArr.length>0) {
+      console.log("matching to:");
       songProgressElem = songProgressElemArr[0];
+      console.log(songProgressElem);
       songProgressElem.classList.remove("finished");
       songProgressElem.classList.remove("unstarted");
       songProgressElem.classList.add("in-progress");
