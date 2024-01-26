@@ -1342,7 +1342,7 @@ async function fetchGridOutline(customGridId) {
     .catch(error => console.error("Error fetching grid data:", error));
 }
 async function buildGridOutline(data) {
-  const gridContainer = document.getElementById("grid-container");
+  let gridContainer = document.getElementById("grid-container");
   gridContainer.innerHTML = ""; // Clear existing content
   grid-container.style.display="flex";
 
