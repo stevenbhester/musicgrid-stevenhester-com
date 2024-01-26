@@ -96,7 +96,7 @@ async function refreshToken(refresh_token) {
 }
 
 async function buildArtistList(topArtistsData) {
-  const heroCont = document.getElementsByClassName("hero-container");
+  const heroCont = document.getElementsByClassName("hero-content");
   heroCont[0].classList.remove("invisible");
   const listContainer = document.getElementsByClassName("sortable-list");
   listContainer[0].classList.remove("invisible");
