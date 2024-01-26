@@ -17,7 +17,6 @@ async function fetchTopArtists(timeRange) {
   const heroContainer = heroContainers[0];
   heroContainer.innerHTML = "";
   heroContainer.innerHTML = "<h1>Pick Your Artists</h1><br><p>Prioritize artists by dragging, then click \"Finalize Artists\".<br>We'll use the highest placement artists that work in a grid together.</p>"
-                
   let aToken = null;
   let tokenResponseObj = await handleOauth();
   if (tokenResponseObj.err) {
@@ -96,7 +95,9 @@ async function refreshToken(refresh_token) {
 
 async function buildArtistList(topArtistsData) {
   const listContainer = document.getElementsByClassName("sortable-list");
-  listContainer.removeAttribute("style");
+  listContainer.removeAttribute("style");  
+  const finalizeBtn = document.getElementsByClassName("proceedButtonWrapper");
+  finalizeBtn.removeAttribute("style");
   listContainer[0].innerHTML = "";
   topArtistsData.forEach(artist => {
     listContainer[0].appendChild(createArtistItem(artist.id,artist.name,artist.img));
