@@ -41,20 +41,24 @@
         <section class="hero">
             <div class="overlay"></div>
             <div class="artist-content">
-                <div class="hero-content">
+                <div class="preload-hero-content">
                     <h1>Build my grid using my top artists from my last few:</h1>
                     <div class ="time-length-select">
                         <button class="window-btn" onclick="buttonPressArtist('short_term')">Weeks of activity</button>
                         <button class="window-btn" onclick="buttonPressArtist('medium_term')">Months of activity</button>
                         <button class="window-btn" onclick="buttonPressArtist('long_term')">Years of activity</button>
                     </div>
-<!--                         <span class="custom-select"><select><option value="short_term">weeks</option><option value="medium_term">months</option><option value="long_term">years</option></select></h1> -->
                 </div>
-                <div class="proceedButtonWrapper" style="display:none">
+                <div class="hero-content invisible">
+                    <h1>Pick Your Artists</h1><br>
+                    <p>Prioritize artists by dragging, then click \"Finalize Artists\".<br>
+                        We'll use the highest placement artists that work in a grid together.</p>
+                </div>
+                <div class="proceedButtonWrapper invisible">
                     <button class="proceed-button">Finalize Artists</button>  
                 </div>
                 <div class="artists-container" id="artists-container">
-                   <ul class="sortable-list" style="display:none">
+                   <ul class="sortable-list invisible">
                       <li class="item" draggable="true">
                         <div class="details">
                           <img src="/img/noArtist.png">
