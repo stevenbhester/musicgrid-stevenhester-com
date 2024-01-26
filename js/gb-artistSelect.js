@@ -1338,10 +1338,10 @@ async function fetchGridOutline(customGridId) {
     body: JSON.stringify({ custom_grid_id: customGridId })
   })
     .then(response => response.json())
-    .then(data => buildGridOutline(data))
+    .then(data => buildGridOutline(data, customGridId))
     .catch(error => console.error("Error fetching grid data:", error));
 }
-async function buildGridOutline(data) {
+async function buildGridOutline(data, customGridId) {
   let gridContainer = document.getElementById("grid-container");
   gridContainer.innerHTML = ""; // Clear existing content
   gridContainer.style.display="flex";
