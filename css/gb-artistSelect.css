@@ -413,6 +413,23 @@ header {
     font-size: 1.5em;
 }
 
+.song-cell.unstarted::before {
+    content: "\231B";
+    font-size: 1.5em;
+}
+
+.song-cell.in-progress {
+    background-color: RGBA(250,0,250,0.1);
+}
+
+.song-cell.finished::before {
+    content: "\2713";
+    font-size: 1.5em;
+}
+.invisible {
+    visibility: hidden;
+}
+
 @media (max-width: 600px) {
     .cell, .genre-header, .artist {
         font-size: 14px; /* Adjust base font size */
