@@ -14,7 +14,7 @@ function buttonPressArtist(timeRange) {
 //Get user data code (cool!)
 async function fetchTopArtists(timeRange) {
   const buttonHeader = document.getElementsByClassName("preload-hero-content");
-  buttonHeader[0].classList.add("invisible");
+  buttonHeader[0].remove();
   const heroContainers = document.getElementsByClassName("artist-content");
   const heroContainer = heroContainers[0];
   heroContainer.classList.remove("invisible");
