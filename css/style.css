@@ -452,6 +452,7 @@ input[type="text"] {
     margin-top: 0.8em;
     margin-bottom: 0.8em;
     z-index: 3;
+    position: relative;
 }
 
 .cta-button:hover {
