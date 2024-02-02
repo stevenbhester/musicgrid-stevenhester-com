@@ -476,6 +476,57 @@ input[type="text"] {
     font-weight: bold;
 }
 
+/* Container for the headphone icon */
+.headphone-icon {
+  position: relative;
+  display: inline-block;
+  width: 100px; /* Adjust based on the size of your icon */
+  height: 100px; /* Adjust based on the size of your icon */
+  background-image: url('path/to/your/headphone-icon.png'); /* Path to your headphone icon */
+  background-size: cover;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+/* Ripple effect using ::before and ::after pseudo-elements */
+.headphone-icon::before, .headphone-icon::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  width: 150%; /* Initial size of the ripple */
+  height: 150%; /* Initial size of the ripple */
+  background: rgba(255, 255, 255, 0.5); /* Light ripple color, adjust as needed */
+  animation: rippleAnimation 2s infinite ease-in-out;
+  z-index: -1;
+}
+
+.headphone-icon::after {
+  animation-delay: 1s; /* Delays the second ripple to create a continuous effect */
+}
+
+/* Keyframes for the pulse/breathe effect */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1); /* Adjust scaling to control the intensity of the pulse */
+  }
+}
+
+/* Keyframes for the ripple effect */
+@keyframes rippleAnimation {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
 @media (max-width: 600px) {
     .cell, .genre-header, .artist {
         font-size: 14px; /* Adjust base font size */
