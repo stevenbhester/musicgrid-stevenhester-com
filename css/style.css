@@ -400,7 +400,7 @@ input[type="text"] {
 
 .hero-content {
     position: relative;
-    z-index: 1;
+    z-index: 3;
     color: #333;
     text-align: center;
     margin-left: 15%;
@@ -414,13 +414,13 @@ input[type="text"] {
 .hero-content h1 {
     font-size: 3em;
     margin-bottom: 0.5em;
-    z-index: 3;
+    z-index: 5;
     color: #4A4A4A; /* Dark Gray Text */
 }
 
 .hero-content p {
     font-size: 1.2em;
-    z-index: 3;
+    z-index: 4;
     color: #4A4A4A; /* Dark Gray Text */
     margin-bottom: 1em;
 }
@@ -436,7 +436,7 @@ input[type="text"] {
     font-weight: bold;
     font-size: 1.1em;
     margin-top: 1.5em;
-    z-index: 3;
+    z-index: 5;
 }
 
 .build-button {
@@ -451,7 +451,7 @@ input[type="text"] {
     font-size: 1.1em;
     margin-top: 0.8em;
     margin-bottom: 0.8em;
-    z-index: 3;
+    z-index: 5;
     position: relative;
 }
 
@@ -514,11 +514,11 @@ input[type="text"] {
   animation: rippleAnimation 8s infinite ease-in-out;
   opacity: 0;
   z-index: 1;
-  animation-delay: 1.7s;
+  animation-delay: 1.5s;
 }
 
 .headphone-icon::after {
-  animation-delay: 5.7s; /* Delays the second ripple to create a continuous effect */
+  animation-delay: 5.5s; /* Delays the second ripple to create a continuous effect */
 }
 
 /* Keyframes for the pulse/breathe effect */
