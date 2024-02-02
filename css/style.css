@@ -386,12 +386,12 @@ input[type="text"] {
     right: 0;
     bottom: 0;
     background: rgba(255, 255, 255, 0.7); /* Semi-transparent white overlay */
-    z-index: 1;
+    z-index: 2;
 }
 
  .under-game {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     color: #333;
     text-align: center;
     margin-left: 15%;
@@ -400,7 +400,7 @@ input[type="text"] {
 
 .hero-content {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     color: #333;
     text-align: center;
     margin-left: 15%;
@@ -491,7 +491,7 @@ input[type="text"] {
   height: 100px; /* Adjust based on the size of your icon */
   background-image: url('/img/headphone.png'); /* Path to your headphone icon */
   background-size: cover;
-  z-index: -20;
+  z-index: 0;
   animation: pulse 3s infinite ease-in-out;
 }
 
@@ -507,7 +507,7 @@ input[type="text"] {
   background: rgba(255, 255, 255, 0.5); /* Light ripple color, adjust as needed */
   animation: rippleAnimation 3s infinite ease-in-out;
   opacity: 0;
-  z-index: -25;
+  z-index: 0;
 }
 
 .headphone-icon::after {
@@ -628,7 +628,7 @@ input[type="text"] {
 
     .hero-content {
         position: relative;
-        z-index: 2;
+        z-index: 3;
         color: #333;
         text-align: center;
         margin-top: 18vh;
@@ -638,7 +638,7 @@ input[type="text"] {
     
     .under-game {
         position: relative;
-        z-index: 2;
+        z-index: 3;
         color: #333;
         text-align: center;
         margin-left: 15%;
