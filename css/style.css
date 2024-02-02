@@ -491,7 +491,7 @@ input[type="text"] {
   height: 100px; /* Adjust based on the size of your icon */
   background-image: url('/img/headphone.png'); /* Path to your headphone icon */
   background-size: cover;
-  animation: pulse 2s infinite ease-in-out;
+/*   animation: pulse 3s infinite ease-in-out; */
 }
 
 /* Ripple effect using ::before and ::after pseudo-elements */
@@ -504,7 +504,7 @@ input[type="text"] {
   width: 150%; /* Initial size of the ripple */
   height: 150%; /* Initial size of the ripple */
   background: rgba(255, 255, 255, 0.5); /* Light ripple color, adjust as needed */
-  animation: rippleAnimation 2s infinite ease-in-out;
+  animation: rippleAnimation 3s infinite ease-in-out;
   z-index: -1;
 }
 
