@@ -531,13 +531,15 @@ input[type="text"] {
 
 /* Keyframes for the ripple effect */
 @keyframes rippleAnimation {
-  0% {
+  3% {
     transform: scale(0.5);
-    opacity: 1;
+    opacity: 0.5;
+    -webkit-filter: blur(5px);
   }
   100% {
     transform: scale(6);
     opacity: 0;
+    -webkit-filter: blur(0px);
   }
 }
 
