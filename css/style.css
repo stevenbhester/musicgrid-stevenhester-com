@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap');
 
 body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Josefin Sans', 'Helvetica Neue', Arial, sans-serif;
     background-color: #EFEFEF; /* Light Gray Background */
     display: flex;
     justify-content: flex-start;
@@ -199,6 +199,7 @@ input:checked + .slider:before {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
+    margin-top: 0.5em;
 }
 
 #quitButton {
@@ -432,6 +433,7 @@ input[type="text"] {
     border-radius: 50px; /* More rounded corners for elegance */
     font-weight: bold;
     font-size: 1.1em;
+    margin-top: 1.5em;
 }
 
 .build-button {
@@ -444,6 +446,8 @@ input[type="text"] {
     border-radius: 50px; /* More rounded corners for elegance */
     font-weight: bold;
     font-size: 1.1em;
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
 }
 
 .cta-button:hover {
@@ -625,7 +629,7 @@ input[type="text"] {
         z-index: 2;
         color: #333;
         text-align: center;
-        margin-top: 20vh;
+        margin-top: 18vh;
         margin-left: 15%;
         margin-right: 15%
     }
