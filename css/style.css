@@ -503,13 +503,13 @@ input[type="text"] {
   top: 50%;
   width: 150%; /* Initial size of the ripple */
   height: 150%; /* Initial size of the ripple */
-  background: rgba(255, 255, 255, 0.5); /* Light ripple color, adjust as needed */
+  background: rgba(255, 255, 255, 1); /* Light ripple color, adjust as needed */
   animation: rippleAnimation 3s infinite ease-in-out;
   z-index: -1;
 }
 
 .headphone-icon::after {
-  animation-delay: 1s; /* Delays the second ripple to create a continuous effect */
+  animation-delay: 1.5s; /* Delays the second ripple to create a continuous effect */
 }
 
 /* Keyframes for the pulse/breathe effect */
