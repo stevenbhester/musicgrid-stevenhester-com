@@ -497,7 +497,7 @@ input[type="text"] {
   height: 100px; /* Adjust based on the size of your icon */
   background-image: url('/img/headphone.png'); /* Path to your headphone icon */
   background-size: cover;
-  z-index: 0;
+  z-index: 2;
   animation: pulse 4s infinite ease-in-out;
 }
 
@@ -510,7 +510,8 @@ input[type="text"] {
   top: -25%;
   width: 150%; /* Initial size of the ripple */
   height: 150%; /* Initial size of the ripple */
-  background: rgba(255, 255, 255, 0.5); /* Light ripple color, adjust as needed */
+/*   background: rgba(255, 255, 255, 0.5); /* Light ripple color, adjust as needed */ */
+  -webkit-radial-gradient(center, 5em 40px, RGBA(255,255,255,0), RGBA(255,255,255,0.8);
   animation: rippleAnimation 8s infinite ease-in-out;
   opacity: 0;
   z-index: 0;
@@ -537,11 +538,13 @@ input[type="text"] {
     transform: scale(0.5);
     opacity: 0.9;
     -webkit-filter: blur(5px);
+    z-index: 0;
   }
   100% {
     transform: scale(6);
     opacity: 0;
     -webkit-filter: blur(0px);
+    z-index: 0;
   }
 }
 
