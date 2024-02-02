@@ -499,12 +499,12 @@ input[type="text"] {
   content: '';
   position: absolute;
   border-radius: 50%;
-  left: 50%;
-  top: 50%;
+  left: -25%;
+  top: -25%;
   width: 150%; /* Initial size of the ripple */
   height: 150%; /* Initial size of the ripple */
-  background: rgba(255, 255, 255, 1); /* Light ripple color, adjust as needed */
-  animation: rippleAnimation 3s infinite ease-in-out;
+  background: rgba(255, 255, 255, 0.5); /* Light ripple color, adjust as needed */
+  animation: rippleAnimation 9s infinite ease-in-out;
   z-index: -1;
 }
 
@@ -529,7 +529,7 @@ input[type="text"] {
     opacity: 1;
   }
   100% {
-    transform: scale(1);
+    transform: scale(9);
     opacity: 0;
   }
 }
