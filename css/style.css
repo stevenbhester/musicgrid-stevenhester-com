@@ -504,7 +504,7 @@ input[type="text"] {
   top: -25%;
   width: 150%; /* Initial size of the ripple */
   height: 150%; /* Initial size of the ripple */
-  background: rgba(255, 255, 255, 0); /* Light ripple color, adjust as needed */
+  background: rgba(255, 255, 255, 0.5); /* Light ripple color, adjust as needed */
   animation: rippleAnimation 3s infinite ease-in-out;
   opacity: 0;
   z-index: -25;
