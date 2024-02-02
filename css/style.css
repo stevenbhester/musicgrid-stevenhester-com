@@ -400,7 +400,7 @@ input[type="text"] {
 
 .hero-content {
     position: relative;
-    z-index: 3;
+    z-index: 1;
     color: #333;
     text-align: center;
     margin-left: 15%;
@@ -414,11 +414,13 @@ input[type="text"] {
 .hero-content h1 {
     font-size: 3em;
     margin-bottom: 0.5em;
+    z-index: 3;
     color: #4A4A4A; /* Dark Gray Text */
 }
 
 .hero-content p {
     font-size: 1.2em;
+    z-index: 3;
     color: #4A4A4A; /* Dark Gray Text */
     margin-bottom: 1em;
 }
@@ -434,6 +436,7 @@ input[type="text"] {
     font-weight: bold;
     font-size: 1.1em;
     margin-top: 1.5em;
+    z-index: 3;
 }
 
 .build-button {
@@ -448,6 +451,7 @@ input[type="text"] {
     font-size: 1.1em;
     margin-top: 0.8em;
     margin-bottom: 0.8em;
+    z-index: 3;
 }
 
 .cta-button:hover {
@@ -465,6 +469,7 @@ input[type="text"] {
     color: white;
     text-align: center;
     padding: 1em 0;
+    z-index: 3;
 }
 
 .song-cell:hover {
@@ -505,13 +510,13 @@ input[type="text"] {
   width: 150%; /* Initial size of the ripple */
   height: 150%; /* Initial size of the ripple */
   background: rgba(255, 255, 255, 0.5); /* Light ripple color, adjust as needed */
-  animation: rippleAnimation 3s infinite ease-in-out;
+  animation: rippleAnimation 6s infinite ease-in-out;
   opacity: 0;
   z-index: 0;
 }
 
 .headphone-icon::after {
-  animation-delay: 1.5s; /* Delays the second ripple to create a continuous effect */
+  animation-delay: 3s; /* Delays the second ripple to create a continuous effect */
 }
 
 /* Keyframes for the pulse/breathe effect */
