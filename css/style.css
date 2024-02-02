@@ -489,7 +489,7 @@ input[type="text"] {
   display: inline-block;
   width: 100px; /* Adjust based on the size of your icon */
   height: 100px; /* Adjust based on the size of your icon */
-  background-image: url('path/to/your/headphone-icon.png'); /* Path to your headphone icon */
+  background-image: url('/img/headphone.png'); /* Path to your headphone icon */
   background-size: cover;
   animation: pulse 2s infinite ease-in-out;
 }
