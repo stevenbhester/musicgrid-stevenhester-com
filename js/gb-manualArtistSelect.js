@@ -5,139 +5,6 @@
 
 
 // Log functionality and ask to fetch grid summary
-function buttonPressArtist(timeRange) {
-  console.log("Initializing Site");
-  console.log("Fetching Spotify OAUTH");
-  fetchTopArtists(timeRange);
-}
-
-//Get user data code (cool!)
-async function fetchTopArtists(timeRange) {
-  const buttonHeader = document.getElementsByClassName("preload-hero-content");
-  buttonHeader[0].remove();
-  const heroContainers = document.getElementsByClassName("artist-content");
-  const heroContainer = heroContainers[0];
-  heroContainer.classList.remove("invisible");
-  let aToken = null;
-  let tokenResponseObj = await handleOauth();
-  if (tokenResponseObj.err) {
-    const listContainer = document.getElementsByClassName("sortable-list");
-    listContainer[0].classList.remove("invisible");
-    listContainer[0].innerHTML = "";
-    const errorMessage = document.createElement("div");
-    errorMessage.textContent = "Encountered error while fetching artists: "+tokenResponseObj.err;
-    listContainer[0].appendChild(errorMessage);
-  } else {
-    aToken = tokenResponseObj.accessToken;
-  }
-  try {
-    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/fetch-top-artists", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ accessToken: aToken, timeRange: timeRange })
-    });
-
-    const data = await response.json();
-    buildArtistList(data);
-  } catch (error) {
-    console.error("Error encoding answers for grid:", error);
-  }
-}
-
-async function handleOauth() {
-  const currentToken = {
-    get access_token() { return localStorage.getItem("access_token") || null; },
-    get refresh_token() { return localStorage.getItem("refresh_token") || null; },
-    get expires_in() { return localStorage.getItem("expires_in") || null; },
-    get expires() { return localStorage.getItem("expires") || null; },
-  
-    save: function (response) {
-      const { access_token, refresh_token, expires_in } = response;
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("refresh_token", refresh_token);
-      localStorage.setItem("expires_in", expires_in);
-  
-      const now = new Date();
-      const expiry = new Date(now.getTime() + (expires_in * 1000));
-      localStorage.setItem("expires", expiry);
-    }
-  };
-
-  const currentTime = new Date();
-  const expireTime = new Date(currentToken.expires);
-  if (!currentToken.access_token || !currentToken.expires) {
-    console.log("No access token or no expiry date found");
-    return {err: "No access token found for Spotify, please go back to step 1", accessToken: "000"};
-  } else if (expireTime.getTime() - currentTime.getTime() < 300000) {
-    console.log("Time to expire read as "+(expireTime.getTime() - currentTime.getTime())+", found under threshold. Refreshing token.");
-    const token = await refreshToken(currentToken.refresh_token);
-    currentToken.save(token);
-    return {err: null, accessToken: currentToken.access_token};
-  } else {
-    console.log("Token health a-okay, proceeding");
-    return {err: null, accessToken: currentToken.access_token};
-  }
-}
-
-async function refreshToken(refresh_token) {
-  const response = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: new URLSearchParams({
-      client_id: "1d952129111a45b2b86ea1c08dd9c6ca",
-      grant_type: "refresh_token",
-      refresh_token: refresh_token
-    }),
-  });
-
-  return await response.json();
-}
-
-async function buildArtistList(topArtistsData) {
-  const heroCont = document.getElementsByClassName("hero-content");
-  heroCont[0].classList.remove("invisible");
-  const listContainer = document.getElementsByClassName("sortable-list");
-  listContainer[0].classList.remove("invisible");
-  const finalizeBtn = document.getElementsByClassName("proceedButtonWrapper");
-  finalizeBtn[0].classList.remove("invisible");
-  listContainer[0].innerHTML = "";
-  topArtistsData.forEach(artist => {
-    listContainer[0].appendChild(createArtistItem(artist.id,artist.name,artist.img));
-  });
-  const sortableList = document.querySelector(".sortable-list");
-  const items = sortableList.querySelectorAll(".item");
-  addEventListeners();
-}
-
-function createArtistItem(id, name, img) {
-  const outerItem = document.createElement("li");
-  outerItem.classList.add("item");
-  outerItem.setAttribute("draggable", "true");
-  outerItem.setAttribute("data-artist-id", id);
-  
-  const artistImage = document.createElement("img");
-  artistImage.src = img;
-  
-  const innerDetails = document.createElement("div");
-  innerDetails.classList.add("details");
-  
-  const artistName = document.createElement("span");
-  artistName.textContent = name;
-
-  const dragDots = document.createElement("i");
-  dragDots.classList.add("uil", "uil-draggabledots");
-
-  innerDetails.appendChild(artistImage);
-  innerDetails.appendChild(artistName);
-  
-  outerItem.appendChild(innerDetails);
-  outerItem.appendChild(dragDots);
-
-  return outerItem;
-}
-
 function addEventListeners() {
   //Draggable code (blah)
   const sortableList = document.querySelector(".sortable-list");
@@ -1579,7 +1446,7 @@ function linkToGrid(customGridId) {
 function liveSearch(inputElement, cellKey, artistName) {
   if (inputElement.value.length > 2) {
     console.log("Requesting search for "+inputElement.value);
-    searchSpotify(inputElement.value, artistName)
+    searchSpotifyPick(inputElement.value, artistName)
       .then(songs => displaySpotifyResults(songs, inputElement, cellKey))
       .catch(error => console.error("Error fetching Spotify data:", error));
   } else {
@@ -1587,7 +1454,7 @@ function liveSearch(inputElement, cellKey, artistName) {
   }
 }
 
-async function searchSpotify(searchTerm, artistName) {
+async function searchSpotifyPick(searchTerm, artistName) {
   console.log("Searching for "+searchTerm);
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
     method: "POST",
@@ -1619,7 +1486,7 @@ function displaySpotifyResults(songs, inputElement, cellKey) {
     resultsContainer.appendChild(songElement);
     songElement.onclick = () => {
       console.log("Selected song "+`${song.name} by ${song.artists.map(artist => artist.name).join(", ")}`);
-      selectSong(song.name, inputElement, cellKey, song.popularity);
+      selectSong(song.name, song.id, cellKey, song.popularity);
       // Clear the dropdown after selection
       resultsContainer.innerHTML = "";
       resultsContainer.appendChild(songElement);
@@ -1629,6 +1496,58 @@ function displaySpotifyResults(songs, inputElement, cellKey) {
   // Position the results dropdown so it doesn"t cover the input field
   inputElement.parentNode.style.position = "relative";
   inputElement.parentNode.appendChild(resultsContainer);
+}
+
+function selectSong(songInfo, inputElement, cellKey, popularity) {
+  // Clear Artist List
+  
+  // Add selected artist
+
+  // TODO: Update searchSpotifyPick to search for an artist instead of a song
+}
+
+
+async function buildArtistList(topArtist) {
+  const heroCont = document.getElementsByClassName("hero-content");
+  heroCont[0].classList.remove("invisible");
+  const listContainer = document.getElementsByClassName("sortable-list");
+  listContainer[0].classList.remove("invisible");
+  const finalizeBtn = document.getElementsByClassName("proceedButtonWrapper");
+  finalizeBtn[0].classList.remove("invisible");
+  listContainer[0].innerHTML = "";
+  topArtistsData.forEach(artist => {
+    listContainer[0].appendChild(createArtistItem(artist.id,artist.name,artist.img));
+  });
+  const sortableList = document.querySelector(".sortable-list");
+  const items = sortableList.querySelectorAll(".item");
+  addEventListeners();
+}
+
+function createArtistItem(id, name, img) {
+  const outerItem = document.createElement("li");
+  outerItem.classList.add("item");
+  outerItem.setAttribute("draggable", "true");
+  outerItem.setAttribute("data-artist-id", id);
+  
+  const artistImage = document.createElement("img");
+  artistImage.src = img;
+  
+  const innerDetails = document.createElement("div");
+  innerDetails.classList.add("details");
+  
+  const artistName = document.createElement("span");
+  artistName.textContent = name;
+
+  const dragDots = document.createElement("i");
+  dragDots.classList.add("uil", "uil-draggabledots");
+
+  innerDetails.appendChild(artistImage);
+  innerDetails.appendChild(artistName);
+  
+  outerItem.appendChild(innerDetails);
+  outerItem.appendChild(dragDots);
+
+  return outerItem;
 }
 
 function removeAllDropdowns() {
