@@ -498,7 +498,7 @@ input[type="text"] {
   background-image: url('/img/headphone.png'); /* Path to your headphone icon */
   background-size: cover;
   z-index: 0;
-  animation: pulse 3s infinite ease-in-out;
+  animation: pulse 4s infinite ease-in-out;
 }
 
 /* Ripple effect using ::before and ::after pseudo-elements */
@@ -511,13 +511,14 @@ input[type="text"] {
   width: 150%; /* Initial size of the ripple */
   height: 150%; /* Initial size of the ripple */
   background: rgba(255, 255, 255, 0.5); /* Light ripple color, adjust as needed */
-  animation: rippleAnimation 6s infinite ease-in-out;
+  animation: rippleAnimation 8s infinite ease-in-out;
   opacity: 0;
   z-index: 0;
+  animation-delay: 2s;
 }
 
 .headphone-icon::after {
-  animation-delay: 3s; /* Delays the second ripple to create a continuous effect */
+  animation-delay: 6s; /* Delays the second ripple to create a continuous effect */
 }
 
 /* Keyframes for the pulse/breathe effect */
