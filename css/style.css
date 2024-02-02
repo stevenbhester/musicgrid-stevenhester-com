@@ -514,11 +514,11 @@ input[type="text"] {
   animation: rippleAnimation 8s infinite ease-in-out;
   opacity: 0;
   z-index: 1;
-  animation-delay: 2s;
+  animation-delay: 1.7s;
 }
 
 .headphone-icon::after {
-  animation-delay: 6s; /* Delays the second ripple to create a continuous effect */
+  animation-delay: 5.7s; /* Delays the second ripple to create a continuous effect */
 }
 
 /* Keyframes for the pulse/breathe effect */
