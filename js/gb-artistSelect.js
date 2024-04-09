@@ -1191,9 +1191,10 @@ function selectSongLength(currIteration,validLengthsArr) {
 }
 
 function saveCustomGrid(gridOutline) {
+  let artistsForTitle = Object.keys(masterArtistDataSumm);
   let customGridDetails = populateGridData(gridOutline);
-  
 }
+
 
 // function assembleGridFrame(gridOutline) {
 //   let currIteration = gridOutline.iteration;
@@ -1241,6 +1242,8 @@ function populateGridData(gridOutline) {
       console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
     }
   }
+
+  let aiTitle = await genAiTitle(artists);
   
   for(let z = 0; z<artists.length; z++) {
     let artistName = artists[z];
@@ -1305,15 +1308,32 @@ function populateGridData(gridOutline) {
   }
   console.log("Final grid outline is:");
   console.dir(masterGridOutline);
-  storeGridInSql(masterGridOutline, gridOutline.categories);
+  storeGridInSql(masterGridOutline, gridOutline.categories, aiTitle);
 }
 
-async function storeGridInSql(masterGridOutline, categories) { 
+async function genAiTitle(artists) {
+  artistsJoined = artists.join();
+  try {
+    
+    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/fetch-ai-gridname", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ artists: artistsJoined })
+    });
+  } catch (error) {
+    console.error("Error encoding answers for grid:", error);
+  }
+  console.log(response.json());
+  console.log("Suggested name: "+response.json());
+  return response.json();
+}
+
+async function storeGridInSql(masterGridOutline, categories, aiTitle) { 
   try {
     const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/create-custom-table", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({content: masterGridOutline, categories: categories})
+      body: JSON.stringify({content: masterGridOutline, categories: categories, gridTitle: aiTitle })
     });
     if (!response.ok) {
       throw new Error("Failed to create custom table");
