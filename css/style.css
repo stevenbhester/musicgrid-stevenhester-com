@@ -56,7 +56,7 @@ header {
     transition: transform 0.5s ease, opacity 0.5s ease;
     transform: scale(0.9);
     position: relative;
-    z-index: 2;
+    z-index: 3;
 }
 
 .row {
