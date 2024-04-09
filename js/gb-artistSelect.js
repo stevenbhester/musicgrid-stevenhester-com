@@ -1335,12 +1335,13 @@ async function genAiTitle(gridOutline) {
       body: JSON.stringify({ artists: artistsJoined })
     });
     const data = await response.json();
+    console.dir(data);
     let titleSuggestion = data.message.content.trim();
     console.log(titleSuggestion);
     console.log("Suggested name: "+titleSuggestion);
     return titleSuggestion;
   } catch (error) {
-    console.error("Error encoding answers for grid:", error);
+    console.error("Error encoding answers for grid:", error.message);
     return "AI Error, No Fun Name";
   }
 }
