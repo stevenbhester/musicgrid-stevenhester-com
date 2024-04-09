@@ -1334,14 +1334,15 @@ async function genAiTitle(gridOutline) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ artists: artistsJoined })
     });
+    const data = await response.json();
+    let titleSuggestion = data.message.content.trim();
+    console.log(titleSuggestion);
+    console.log("Suggested name: "+titleSuggestion);
+    return titleSuggestion;
   } catch (error) {
     console.error("Error encoding answers for grid:", error);
+    return "AI Error, No Fun Name";
   }
-  const data = await response.json();
-  let titleSuggestion = data.message.content.trim();
-  console.log(titleSuggestion);
-  console.log("Suggested name: "+titleSuggestion);
-  return titleSuggestion;
 }
 
 async function storeGridInSql(masterGridOutline, categories, aiTitle) { 
