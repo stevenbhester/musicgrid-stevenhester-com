@@ -526,7 +526,7 @@ function leaderboardUpdate(playerName, score) {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/submit-score", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name: playerName, score: score, lb_id: customGridId })
+    body: JSON.stringify({ name: playerName, score: score, lb_id: customGridId+100 })
   })
     .then(response => response.json())
     .then(data => {
