@@ -727,7 +727,9 @@ async function buildProgressReport(artists) {
     }
   }  
   console.log(gridOutline);
-  saveCustomGrid(gridOutline);
+  console.log("Now generating AI title");
+  let aiTitle = await genAiTitle(gridOutline);
+  saveCustomGrid(gridOutline, aiTitle);
 }
 
 function createHeader(headerType, headerText) {
@@ -1190,9 +1192,8 @@ function selectSongLength(currIteration,validLengthsArr) {
   return null;
 }
 
-function saveCustomGrid(gridOutline) {
-  let artistsForTitle = Object.keys(masterArtistDataSumm);
-  let customGridDetails = populateGridData(gridOutline);
+function saveCustomGrid(gridOutline, aiTitle) {
+  let customGridDetails = populateGridData(gridOutline, aiTitle);
 }
 
 
@@ -1220,7 +1221,7 @@ function saveCustomGrid(gridOutline) {
 //   }   
 // }
 
-function populateGridData(gridOutline) { 
+function populateGridData(gridOutline, aiTitle) { 
   // assembleGridFrame(gridOutline);
   let currIteration = gridOutline.iteration;
   let fullArtists = Object.keys(masterArtistDataSumm);
@@ -1242,8 +1243,6 @@ function populateGridData(gridOutline) {
       console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
     }
   }
-
-  let aiTitle = await genAiTitle(artists);
   
   for(let z = 0; z<artists.length; z++) {
     let artistName = artists[z];
@@ -1311,10 +1310,24 @@ function populateGridData(gridOutline) {
   storeGridInSql(masterGridOutline, gridOutline.categories, aiTitle);
 }
 
-async function genAiTitle(artists) {
+async function genAiTitle(gridOutline) {
+  let fullArtists = Object.keys(masterArtistDataSumm);
+  let currIteration = gridOutline.iteration;
+  let currPattern = currIteration.split(",");
+  // console.log("Checking years for current iteration: ");
+  console.log(currPattern);
+
+  let artists = [];
+  for(let y = 0; y<currPattern.length; y++) {
+    if(currPattern[y] == 1) { 
+      artists.push(fullArtists[y]); 
+      console.log("Adding "+fullArtists[y]+" to list of artists to compare");
+    } else {
+      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
+    }
+  }
   artistsJoined = artists.join();
   try {
-    
     const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/fetch-ai-gridname", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
