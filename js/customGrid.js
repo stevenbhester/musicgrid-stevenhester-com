@@ -32,7 +32,8 @@ function loadHeader() {
   
   //Build Title
   const titleText = document.createElement("div");
-  titleText.innerHTML = "<span style=\"font-size:2.3em;\">Millenium Alt Rock</span>"; //TODO: Dynamically load Title
+  titleText.setAttribute("id","gridTitleCust");
+  titleText.innerHTML = "<span style=\"font-size:2.3em;\">Millenium Alt Rock</span>"; 
 
   //Build cheat button
   const headWrapper = document.createElement("div");
@@ -153,15 +154,21 @@ function buildGrid(data) {
   // Separate the data into categories, artists, and answers
   const categories = {};
   const artists = {};
-
+  const custGridTitle = 'Fallback Grid Title';
+  
   data.forEach(item => {
     if (item.field_type === "Category") {
       categories[item.field] = item.field_value;
     } else if (item.field_type === "Artist") {
       artists[item.field] = item.field_value;
-    } 
+      custGridTitle = item.grid_title;
+    }
   });
 
+  // Update Title
+  newTitleText = document.getElementById("gridTitleCust");
+  newTitleText.innerHTML = "<span style=\"font-size:2.3em;\">"+custGridTitle+"</span>"; 
+  
   // Create artist row
   const artistRow = document.createElement("div");
   artistRow.classList.add("row");
