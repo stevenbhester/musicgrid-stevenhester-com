@@ -1337,9 +1337,11 @@ async function genAiTitle(gridOutline) {
   } catch (error) {
     console.error("Error encoding answers for grid:", error);
   }
-  console.log(response.json());
-  console.log("Suggested name: "+response.json());
-  return response.json();
+  const data = await response.json();
+  let titleSuggestion = data.message.content.trim();
+  console.log(titleSuggestion);
+  console.log("Suggested name: "+titleSuggestion);
+  return titleSuggestion;
 }
 
 async function storeGridInSql(masterGridOutline, categories, aiTitle) { 
