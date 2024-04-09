@@ -154,7 +154,7 @@ function buildGrid(data) {
   // Separate the data into categories, artists, and answers
   const categories = {};
   const artists = {};
-  const custGridTitle = 'Fallback Grid Title';
+  let custGridTitle = 'Fallback Grid Title';
   
   data.forEach(item => {
     if (item.field_type === "Category") {
