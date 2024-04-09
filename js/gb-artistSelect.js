@@ -1327,7 +1327,7 @@ async function genAiTitle(gridOutline) {
       console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
     }
   }
-  let artistsJoined = artists.join();
+  let artistsJoined = artists.join(", ");
   try {
     const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/fetch-ai-gridname", {
       method: "POST",
