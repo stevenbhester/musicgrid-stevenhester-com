@@ -1311,6 +1311,7 @@ function populateGridData(gridOutline, aiTitle) {
 }
 
 async function genAiTitle(gridOutline) {
+  console.log("Generating AI Title");
   let fullArtists = Object.keys(masterArtistDataSumm);
   let currIteration = gridOutline.iteration;
   let currPattern = currIteration.split(",");
