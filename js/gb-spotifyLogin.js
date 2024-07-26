@@ -168,6 +168,7 @@ function renderTemplate(targetId, templateId, data = null) {
   elements.forEach(ele => {
     const bindingAttrs = [...ele.attributes].filter(a => a.name.startsWith("data-bind"));
 
+    
     bindingAttrs.forEach(attr => {
       const target = attr.name.replace(/data-bind-/, "").replace(/data-bind/, "");
       const targetType = target.startsWith("onclick") ? "HANDLER" : "PROPERTY";
