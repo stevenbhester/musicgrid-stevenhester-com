@@ -169,8 +169,8 @@ function buildGrid(data) {
   newTitleText = document.getElementById("gridTitleCust");
   newTitleText.innerHTML = "<span style=\"font-size:2.3em;\">"+custGridTitle+"</span>"; 
   document.title = custGridTitle;
-  $('meta[name="twitter:title"]').content = custGridTitle;
-  $('meta[name="og:title"]').content = custGridTitle;
+  // $('meta[name="twitter:title"]').content = custGridTitle;
+  // $('meta[name="og:title"]').content = custGridTitle;
   
   var artistsReadable = "";
   var numArtists = 0;
@@ -218,8 +218,8 @@ function buildGrid(data) {
   });
 
   // Pass new metadata to head for unfurl
-  $('meta[name="twitter:data1"]').content = artistsReadable;
-  $('meta[name="twitter:data2"]').content = catsReadable;
+  // $('meta[name="twitter:data1"]').content = artistsReadable;
+  // $('meta[name="twitter:data2"]').content = catsReadable;
   
   
   // Add event listeners to new song cells
