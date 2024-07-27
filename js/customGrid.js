@@ -168,7 +168,7 @@ function buildGrid(data) {
   // Update Title
   newTitleText = document.getElementById("gridTitleCust");
   newTitleText.innerHTML = "<span style=\"font-size:2.3em;\">"+custGridTitle+"</span>"; 
-  document.title = gridTitleCust;
+  document.title = custGridTitle;
   
   // Create artist row
   const artistRow = document.createElement("div");
