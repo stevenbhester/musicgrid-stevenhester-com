@@ -169,14 +169,30 @@ function buildGrid(data) {
   newTitleText = document.getElementById("gridTitleCust");
   newTitleText.innerHTML = "<span style=\"font-size:2.3em;\">"+custGridTitle+"</span>"; 
   document.title = custGridTitle;
+  $('meta[name="twitter:title"]').content = custGridTitle;
+  $('meta[name="og:title"]').content = custGridTitle;
+  
+  var artistsReadable = "";
+  var numArtists = 0;
   
   // Create artist row
   const artistRow = document.createElement("div");
   artistRow.classList.add("row");
   artistRow.appendChild(createCell("invisible")); // Invisible cell for alignment
-  Object.keys(artists).forEach(key => artistRow.appendChild(createCell("artist", artists[key], "artist-")));
+  Object.keys(artists).forEach(key => {
+    artistRow.appendChild(createCell("artist", artists[key], "artist-"));
+    // Update meta content placeholder
+    numArtists+=1;
+    artistsReadable = artistsReadable + artists[key];
+    if (numArtists<3) {
+      artistsReadable = artistsReadable + ", ";
+    }
+  });
   gridContainer.appendChild(artistRow);
 
+  var catsReadable = "";
+  var numCats = 0;
+  
   // Create rows for each category
   Object.keys(categories).forEach(categoryKey => {
     const categoryRow = document.createElement("div");
@@ -184,7 +200,14 @@ function buildGrid(data) {
 
     // Category cell
     categoryRow.appendChild(createCell("genre-header", categories[categoryKey], "cat-"));
-
+    
+    // Update meta content placeholder
+    numCats+=1;
+    catsReadable = catsReadable + categories[categoryKey];
+    if (numCats<3) {
+      catsReadable = catsReadable + ", ";
+    }
+    
     // Song cells
     Object.keys(artists).forEach(artistKey => {
       const cellKey = `${categoryKey} ${artistKey}`;
@@ -193,6 +216,11 @@ function buildGrid(data) {
 
     gridContainer.appendChild(categoryRow);
   });
+
+  // Pass new metadata to head for unfurl
+  $('meta[name="twitter:data1"]').content = artistsReadable;
+  $('meta[name="twitter:data2"]').content = catsReadable;
+  
   
   // Add event listeners to new song cells
   var cells = document.querySelectorAll(".cell.song-cell");
