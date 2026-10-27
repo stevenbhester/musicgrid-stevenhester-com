@@ -38,6 +38,8 @@ Older pages (`old.html`, `v2.html`, `grid-builder/interactTest.html`) still use 
 
 Search (`POST /search`), scores (`POST /scores`) and score submission (`POST /submit-score`) are shared.
 
+On phones (under 600px) the header is compact so the whole board fits on the first screen, and once a browser has played a grid (`returning` on `<body>`) the intro sentence is hidden, leaving the no-repeats line. The share text shades each square by points (🟩 🟨 🟧, 🟥 missed, ⬛ untried); a square solved in easy mode is a circle of the same color (🟢 🟡 🟠).
+
 Game progress is saved in `localStorage` under `musicgrid:<mode>:<gridId>`, so a refresh doesn't lose a game in progress. Each saved game also records its grid's date, title and the day it was finished (`playedOn`). The stats page reads every saved game back, so stats are per browser. A daily grid counts toward a streak when it was finished before the next daily grid went live, so days with no new grid don't break a streak.
 
 ## Daily rotation, clips and difficulty (server)
