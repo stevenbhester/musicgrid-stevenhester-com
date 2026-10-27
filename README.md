@@ -61,7 +61,7 @@ The server knows three kinds of category (`GET /categories` lists them):
 - **AI** (facts the AI checks): top 10 and #1 on the Hot 100, Grammy-nominated, heard in a movie or TV show, covers, real places, people's names, went viral on TikTok.
 - **Opinion** (judgment calls): breakup, love, party, sad, road trip, confidence, nostalgic and revenge songs.
 
-For AI and opinion categories the AI only sorts the artist's real Spotify songs, so it can't invent titles. `POST /artist-categories` returns every category with at least 2 songs for one artist. The grid builder checks every category for every artist live, then the player picks 3 artists and 3 categories that work. Admins do the same in the daily grid maker. AI and opinion categories are saved as `CategoryKind` template rows and show an "AI" or "Opinion" tag on the grid.
+Each artist's categories come from up to 35 albums and 15 singles (read separately, since Spotify lists every album before any single). For AI and opinion categories the AI only sorts the artist's real Spotify songs, so it can't invent titles. They go to Claude in batches of 5 categories at once, side by side, so replies stay short; a reply cut off at the length limit keeps the lists that finished, a reply with no JSON is asked again, and the Heroku log says which happened. `POST /artist-categories` returns every category with at least 2 songs for one artist. The grid builder checks every category for every artist live, then the player picks 3 artists and 3 categories that work. Admins do the same in the daily grid maker. AI and opinion categories are saved as `CategoryKind` template rows and show an "AI" or "Opinion" tag on the grid.
 
 ## Flags, editing and admin
 

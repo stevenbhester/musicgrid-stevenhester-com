@@ -869,7 +869,8 @@ async function loadCategoryList() {
       if (category.id === "decade-*") return;
       build.labels[category.id] = category.label;
       build.kinds[category.id] = category.kind;
-      build.order.push(category.id);
+      // Checking again (going back, retrying) reloads this list: never add a category twice
+      if (!build.order.includes(category.id)) build.order.push(category.id);
     });
   } catch (error) {
     // Rows get added as results arrive instead
@@ -1064,7 +1065,7 @@ function songCount(artistId, categoryId) {
 function categoryIds() {
   const ids = new Set();
   Object.values(build.results).forEach(result => Object.keys(result.categories).forEach(id => ids.add(id)));
-  const ordered = build.order.filter(id => ids.has(id));
+  const ordered = [...new Set(build.order)].filter(id => ids.has(id));
   ids.forEach(id => { if (!ordered.includes(id)) ordered.push(id); });
   return ordered.sort((a, b) => KIND_ORDER.indexOf(kindOf(a)) - KIND_ORDER.indexOf(kindOf(b)) || ordered.indexOf(a) - ordered.indexOf(b));
 }
@@ -1393,6 +1394,7 @@ function linkToGrid(customGridId, canEdit) {
 function resetBuildState() {
   build.artists = [];
   build.results = {};
+  build.order = [];
   build.chosenArtists = [];
   build.chosenCats = [];
   build.preview = null;
