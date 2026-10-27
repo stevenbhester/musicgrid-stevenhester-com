@@ -225,6 +225,54 @@ function save() {
   storage.set(saveKey, game.state);
 }
 
+// Check again when the page comes back into view: after entering a code on
+// the Stats page, going back (or switching tabs) shows the old page as it was
+let lastDeviceCheck = 0;
+function recheckOtherDevice() {
+  if (Date.now() - lastDeviceCheck < 3000) return;
+  lastDeviceCheck = Date.now();
+  loadGameFromOtherDevice();
+}
+window.addEventListener("pageshow", event => { if (event.persisted) recheckOtherDevice(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) recheckOtherDevice(); });
+
+function hasStarted(state) {
+  return Object.values(state.cells).some(cell => cell.status === "solved" || (cell.misses || []).length > 0);
+}
+
+// Finished this grid on another device with the same player code? Show that
+// game here (the best one saved), so it can be shared from this device too.
+// A game in progress here is never replaced; a finished one only by a
+// higher score.
+async function loadGameFromOtherDevice() {
+  if (!game.id || !game.state) return;
+  lastDeviceCheck = Date.now();
+  const local = game.state;
+  if (hasStarted(local) && !local.over) return;
+  let saved = null;
+  try {
+    saved = (await request("/player-games/one", { player_id: playerId(), mode, grid_id: String(game.id) })).game;
+  } catch (error) {
+    return;
+  }
+  if (!saved || !saved.state || saved.state.over !== true || !saved.state.cells) return;
+  const fresh = freshState();
+  if (!Object.keys(fresh.cells).every(key => saved.state.cells[key])) return;
+  // The player may have started guessing while this was loading
+  if (game.state !== local || (hasStarted(local) && !local.over)) return;
+  if (local.over && !(Number(saved.state.score) > Number(local.score))) return;
+  game.state = Object.assign(fresh, saved.state, { title: game.title });
+  if (mode === "daily" && game.day) game.state.day = game.day;
+  save();
+  closeSheet();
+  shownScore = game.state.score;
+  buildBoard();
+  renderHud(false);
+  renderEndPanel();
+  refreshBoards();
+  toast(local.over ? "Showing your higher score from another device." : "Loaded your finished game from another device.");
+}
+
 function solvedCount() {
   return Object.values(game.state.cells).filter(cell => cell.status === "solved").length;
 }
@@ -1684,6 +1732,10 @@ async function boot() {
   if (game.state.over) renderEndPanel();
   loadLeaderboard();
   startCountdown();
+  // A game finished here before syncing existed gets saved now, so linked
+  // devices can show it; the server keeps the higher score
+  if (game.state.over) syncFinishedGame();
+  loadGameFromOtherDevice();
   if (game.notice) toast(game.notice);
   if (window.location.hash === "#edit" && editToken()) openEditor();
 }
