@@ -152,17 +152,17 @@ button { cursor: pointer; }
   padding: 8px var(--gutter) 0;
   display: grid; gap: 24px;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "head" "hud" "board" "results" "side";
+  grid-template-areas: "head" "hud" "board" "results" "flags" "side";
 }
 @media (min-width: 960px) {
   .game {
     grid-template-columns: minmax(0, 1fr) 320px;
-    grid-template-areas: "head head" "board hud" "board results" "board side";
-    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas: "head head" "board hud" "board results" "board flags" "board side";
+    grid-template-rows: auto auto auto auto 1fr;
     align-items: start;
     column-gap: 40px;
   }
-  .game > .side, .game > .results { align-self: start; }
+  .game > .side, .game > .results, .game > .flagged-card { align-self: start; }
 }
 .game-head { grid-area: head; }
 .title {
@@ -393,7 +393,15 @@ button.cell:hover .cell-plus { color: var(--stage); }
 .board-list li.me .rank { color: inherit; }
 .board-list li.me + li { border-top-color: transparent; }
 .empty-note { margin: 0; color: var(--muted); }
-.lb-scroll { max-height: 420px; overflow: auto; }
+/* Room on both sides for the highlighted row, and no sideways scrolling */
+.lb-scroll {
+  max-height: 420px; margin: 0 -10px; padding: 0 10px;
+  overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+}
+.lb-scroll::-webkit-scrollbar { width: 8px; height: 0; }
+.lb-scroll::-webkit-scrollbar-thumb { border-radius: 999px; background: var(--line); }
+.lb-scroll::-webkit-scrollbar-track { background: transparent; }
 
 /* ---------- Guess sheet ---------- */
 .sheet {
@@ -648,6 +656,9 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
 .lb-count { color: var(--muted); font-size: 14px; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .card .lb-sub { margin: -6px 0 12px; font-size: 14px; }
 .board-list .who small { display: block; color: var(--muted); font-size: 12px; font-weight: 500; }
+.recent-board { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.lb-subhead { margin: 0 0 10px; font-size: 15px; font-weight: 750; letter-spacing: -0.01em; }
+.board-list .who small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .board-list li.me .who small { color: inherit; opacity: 0.75; }
 .board-list li.gap { display: block; padding: 2px 0; border-top: 0; color: var(--muted); text-align: center; }
 .board-list li.gap + li { border-top-color: transparent; }
@@ -932,8 +943,8 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
 .flag-link { padding: 0; border: 0; background: none; color: var(--stage); font-size: 14px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 @media (prefers-color-scheme: dark) { .flag-link { color: var(--series); } }
 .flag-done { color: var(--muted); font-size: 14px; }
-.flagged { margin: 0 0 18px; }
-.flagged h3 { margin: 0 0 8px; font-size: 16px; font-weight: 750; }
+.flagged-card { grid-area: flags; }
+.flagged-card h2 { margin: 0 0 8px; }
 .flag-list { margin: 0; padding: 0; list-style: none; }
 .flag-list li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); }
 .flag-list li:first-child { border-top: 0; }
@@ -989,6 +1000,7 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
 .device-code code { color: var(--ink); font-size: 14px; }
 .device-form { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
 .device-form label { display: block; margin-bottom: 8px; font-weight: 650; }
+.device-card .device-hint { margin: -2px 0 10px; font-size: 14px; color: var(--muted); }
 .device-card .device-warn { margin: 12px 0 0; font-size: 13px; }
 
 /* Spotify sign-in needs approval */
@@ -1005,3 +1017,98 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
 .access-fields .field { width: 100%; }
 .access-form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .access-card .access-spotify { margin: 14px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 14px; }
+
+/* Build page: a third choice spans the row; links under a builder card */
+@media (min-width: 640px) { .choices .choice.wide { grid-column: 1 / -1; } }
+.builder-alt { margin: 16px 0 0; }
+.builder-alt a { color: var(--stage-ink); font-weight: 650; }
+
+/* One song, one square */
+.rule-line { margin: 10px 0 0; max-width: 60ch; color: var(--stage-soft); font-size: 15px; }
+.rule-line b { color: var(--gold); font-weight: 800; }
+
+/* Builder: picks that would need the same song twice */
+.choose-cat.clash:disabled { opacity: 0.55; text-decoration: line-through; text-decoration-thickness: 1px; }
+.choose-preview td button.clash { box-shadow: inset 0 0 0 2px var(--miss-ink); background: var(--miss-soft); color: var(--miss-ink); }
+.sticky-go p.clash-note { color: var(--miss-ink); font-weight: 650; }
+
+/* ---------- Misses, last chance and the leaderboard prompt: hard to miss ---------- */
+:root { --miss-strong: #c62828; }
+
+/* The miss bar: red, big, with a hearts line */
+.flag-bar {
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  width: min(580px, calc(100vw - 20px)); max-width: none;
+  gap: 12px; padding: 14px 12px 14px 14px; border-radius: 18px;
+  background: var(--miss-strong); color: #fff;
+  box-shadow: 0 0 0 3px #fff, 0 18px 40px rgba(110, 10, 10, 0.45);
+}
+.flag-icon { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: 50%; background: #fff; color: var(--miss-strong); }
+.flag-icon svg { width: 20px; height: 20px; }
+.flag-copy { display: grid; gap: 5px; flex: 1; min-width: 0; }
+.flag-bar #flagText { font-size: 17px; font-weight: 800; line-height: 1.25; }
+.flag-extra { justify-self: start; font-size: 14px; font-weight: 700; }
+.flag-bar.danger .flag-extra { padding: 3px 10px; border-radius: 999px; background: var(--gold); color: var(--gold-ink); font-weight: 850; }
+.flag-bar .flag-btn, .flag-bar .flag-btn:hover { border-color: rgba(255, 255, 255, 0.75); color: #fff; }
+.flag-bar .flag-btn:hover { background: rgba(255, 255, 255, 0.16); }
+.flag-bar .flag-close { color: #fff; opacity: 0.9; }
+@media (max-width: 520px) {
+  .flag-bar { flex-wrap: wrap; }
+  .flag-copy { flex: 1 1 0; }
+  .flag-bar .flag-close { order: 2; }
+  .flag-bar .flag-btn { order: 3; flex: 1 0 100%; }
+}
+
+/* A red flash around the screen edge on a miss */
+.miss-flash {
+  position: fixed; inset: 0; z-index: 59; pointer-events: none; opacity: 0;
+  box-shadow: inset 0 0 0 6px var(--miss), inset 0 0 140px rgba(255, 70, 50, 0.5);
+}
+.miss-flash.static { opacity: 0.8; }
+
+/* Out of hearts: a banner over the grid, a pulsing outline, a warning in the guess sheet */
+.sudden-banner {
+  margin: 0 0 14px; padding: 12px 16px; border-radius: 14px;
+  background: var(--miss-strong); color: #fff; font-weight: 650; line-height: 1.35;
+  box-shadow: 0 0 0 3px #fff;
+}
+.sudden-banner b { font-weight: 850; }
+.board-wrap.danger .board { outline: 3px solid var(--miss); outline-offset: 8px; border-radius: 16px; }
+.sudden { padding: 5px 12px; font-size: 14px; }
+.sheet-warn { margin: 0 8px 10px; padding: 10px 12px; border-radius: 12px; background: var(--miss-strong); color: #fff; font-size: 15px; font-weight: 750; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .flag-bar.enter { animation: miss-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1); }
+  .miss-flash.on { animation: miss-flash 0.75s ease-out; }
+  .board-wrap.danger .board { animation: danger-pulse 1.6s ease-in-out infinite; }
+  .sudden { animation: pill-pulse 1.6s ease-in-out infinite; }
+  .results:not([hidden]) .submit-form:not([hidden]) { animation: callout-in 0.6s cubic-bezier(0.2, 1.3, 0.4, 1) 0.35s both; }
+}
+@keyframes miss-in { from { opacity: 0; transform: translate(-50%, 34px) scale(0.92); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+@keyframes miss-flash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes danger-pulse { 50% { outline-color: rgba(255, 107, 94, 0.3); } }
+@keyframes pill-pulse { 50% { transform: scale(1.06); } }
+@keyframes callout-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+
+/* The leaderboard prompt: a gold callout right under the score */
+.results .submit-form {
+  margin: 0 0 20px; padding: 16px; border-top: 0; border-radius: 16px;
+  background: var(--gold); color: var(--gold-ink); box-shadow: 0 4px 0 var(--gold-deep);
+}
+.results .submit-form label { margin: 0; font-size: 21px; font-weight: 850; font-stretch: 108%; line-height: 1.2; }
+.card .submit-sub { margin: 2px 0 12px; color: var(--gold-ink); font-size: 15px; opacity: 0.85; }
+.results .submit-form .field { border-color: var(--gold-deep); background: #fff; color: #10163a; }
+.results .submit-form .field::placeholder { color: #5b6280; }
+.results .submit-form .btn-ink { background: #10163a; color: #fff; }
+.card .results .submit-form .form-note, .results .submit-form .form-note { color: var(--gold-ink); }
+.submit-done {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 0 0 20px;
+  padding: 12px 16px; border-radius: 14px; background: var(--surface-2); color: var(--ink); font-weight: 650;
+}
+.see-rank { color: var(--ink); font-weight: 800; text-underline-offset: 3px; }
+
+/* Name reviews */
+.appeal-btn { flex-basis: 100%; justify-self: start; padding: 0; border: 0; background: none; color: var(--ink); font-size: 14px; font-weight: 700; text-align: left; text-decoration: underline; text-underline-offset: 3px; }
+.appeal-note { flex-basis: 100%; font-size: 14px; font-weight: 650; color: var(--muted); }
+.appeal-note.restored { color: #1f7a3f; }
+@media (prefers-color-scheme: dark) { .appeal-note.restored { color: #8fe0a8; } }
