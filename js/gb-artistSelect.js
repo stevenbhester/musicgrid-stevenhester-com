@@ -1,46 +1,77 @@
-// Start running code on page load
-// window.onload = function() {
-//   initializeSite();
-// };
+// MusicGrid grid builder, step 2: pick top artists, then find a grid that works.
+// The UI layer at the top of this file was rebuilt. The grid-finding logic
+// below it is the original, with clearer failure handling added.
 
+const BUILDER_API = "https://music-grid-io-42616e204fd3.herokuapp.com";
+const SPOTIFY_CLIENT_ID = "1d952129111a45b2b86ea1c08dd9c6ca";
+let builtGridTitle = "";
+let buildStarted = false;
 
-// Log functionality and ask to fetch grid summary
+function showView(name) {
+  document.querySelectorAll("[data-view]").forEach(view => {
+    view.hidden = view.dataset.view !== name;
+  });
+  window.scrollTo(0, 0);
+}
+
+function showBuildFailure(message, needsReconnect) {
+  document.getElementById("failMsg").textContent = message;
+  document.getElementById("reconnect").hidden = !needsReconnect;
+  showView("failed");
+}
+
+function setBuildStatus(message) {
+  document.getElementById("buildStatus").textContent = message;
+}
+
+let builderToastTimer = null;
+function builderToast(message) {
+  const node = document.getElementById("toast");
+  node.textContent = message;
+  node.classList.add("show");
+  clearTimeout(builderToastTimer);
+  builderToastTimer = setTimeout(() => node.classList.remove("show"), 2400);
+}
+
+function initBuilder() {
+  if (!localStorage.getItem("access_token")) {
+    document.getElementById("noToken").hidden = false;
+    document.querySelectorAll("[data-range]").forEach(button => { button.disabled = true; });
+  }
+  document.querySelectorAll("[data-range]").forEach(button => {
+    button.addEventListener("click", () => buttonPressArtist(button.dataset.range));
+  });
+  document.getElementById("startOver").addEventListener("click", () => window.location.reload());
+  document.getElementById("copyLink").addEventListener("click", copyGridLink);
+}
+
 function buttonPressArtist(timeRange) {
-  console.log("Initializing Site");
-  console.log("Fetching Spotify OAUTH");
   fetchTopArtists(timeRange);
 }
 
-//Get user data code (cool!)
 async function fetchTopArtists(timeRange) {
-  const buttonHeader = document.getElementsByClassName("preload-hero-content");
-  buttonHeader[0].remove();
-  const heroContainers = document.getElementsByClassName("artist-content");
-  const heroContainer = heroContainers[0];
-  heroContainer.classList.remove("invisible");
-  let aToken = null;
-  let tokenResponseObj = await handleOauth();
+  showView("loading");
+  const tokenResponseObj = await handleOauth();
   if (tokenResponseObj.err) {
-    const listContainer = document.getElementsByClassName("sortable-list");
-    listContainer[0].classList.remove("invisible");
-    listContainer[0].innerHTML = "";
-    const errorMessage = document.createElement("div");
-    errorMessage.textContent = "Encountered error while fetching artists: "+tokenResponseObj.err;
-    listContainer[0].appendChild(errorMessage);
-  } else {
-    aToken = tokenResponseObj.accessToken;
+    showBuildFailure(tokenResponseObj.err, true);
+    return;
   }
   try {
-    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/fetch-top-artists", {
+    const response = await fetch(BUILDER_API + "/fetch-top-artists", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ accessToken: aToken, timeRange: timeRange })
+      body: JSON.stringify({ accessToken: tokenResponseObj.accessToken, timeRange: timeRange })
     });
-
+    if (!response.ok) throw new Error("fetch-top-artists returned " + response.status);
     const data = await response.json();
+    if (!Array.isArray(data) || data.length < 3) {
+      showBuildFailure("Spotify didn't return enough top artists for that window. Try a longer one.");
+      return;
+    }
     buildArtistList(data);
   } catch (error) {
-    console.error("Error encoding answers for grid:", error);
+    console.error("Error fetching top artists:", error);
+    showBuildFailure("Couldn't load your top artists. The server might be waking up, so try again in a few seconds.");
   }
 }
 
@@ -48,160 +79,187 @@ async function handleOauth() {
   const currentToken = {
     get access_token() { return localStorage.getItem("access_token") || null; },
     get refresh_token() { return localStorage.getItem("refresh_token") || null; },
-    get expires_in() { return localStorage.getItem("expires_in") || null; },
     get expires() { return localStorage.getItem("expires") || null; },
-  
+
     save: function (response) {
       const { access_token, refresh_token, expires_in } = response;
       localStorage.setItem("access_token", access_token);
-      localStorage.setItem("refresh_token", refresh_token);
+      if (refresh_token) localStorage.setItem("refresh_token", refresh_token);
       localStorage.setItem("expires_in", expires_in);
-  
-      const now = new Date();
-      const expiry = new Date(now.getTime() + (expires_in * 1000));
-      localStorage.setItem("expires", expiry);
+      localStorage.setItem("expires", new Date(Date.now() + (expires_in * 1000)));
     }
   };
 
-  const currentTime = new Date();
-  const expireTime = new Date(currentToken.expires);
   if (!currentToken.access_token || !currentToken.expires) {
-    console.log("No access token or no expiry date found");
-    return {err: "No access token found for Spotify, please go back to step 1", accessToken: "000"};
-  } else if (expireTime.getTime() - currentTime.getTime() < 300000) {
-    console.log("Time to expire read as "+(expireTime.getTime() - currentTime.getTime())+", found under threshold. Refreshing token.");
-    const token = await refreshToken(currentToken.refresh_token);
-    currentToken.save(token);
-    return {err: null, accessToken: currentToken.access_token};
-  } else {
-    console.log("Token health a-okay, proceeding");
-    return {err: null, accessToken: currentToken.access_token};
+    return { err: "Connect Spotify first so we can see your top artists.", accessToken: "000" };
   }
+  if (new Date(currentToken.expires).getTime() - Date.now() < 300000) {
+    try {
+      const token = await refreshToken(currentToken.refresh_token);
+      if (!token || !token.access_token) throw new Error("Refresh failed");
+      currentToken.save(token);
+    } catch (error) {
+      return { err: "Your Spotify connection expired. Reconnect to keep going.", accessToken: "000" };
+    }
+  }
+  return { err: null, accessToken: currentToken.access_token };
 }
 
 async function refreshToken(refresh_token) {
   const response = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
-      client_id: "1d952129111a45b2b86ea1c08dd9c6ca",
+      client_id: SPOTIFY_CLIENT_ID,
       grant_type: "refresh_token",
       refresh_token: refresh_token
-    }),
+    })
   });
-
   return await response.json();
 }
 
-async function buildArtistList(topArtistsData) {
-  const heroCont = document.getElementsByClassName("hero-content");
-  heroCont[0].classList.remove("invisible");
-  const listContainer = document.getElementsByClassName("sortable-list");
-  listContainer[0].classList.remove("invisible");
-  const finalizeBtn = document.getElementsByClassName("proceedButtonWrapper");
-  finalizeBtn[0].classList.remove("invisible");
-  listContainer[0].innerHTML = "";
+function buildArtistList(topArtistsData) {
+  const list = document.querySelector(".sortable-list");
+  list.innerHTML = "";
   topArtistsData.forEach(artist => {
-    listContainer[0].appendChild(createArtistItem(artist.id,artist.name,artist.img));
+    list.appendChild(createArtistItem(artist.id, artist.name, artist.img));
   });
-  const sortableList = document.querySelector(".sortable-list");
-  const items = sortableList.querySelectorAll(".item");
+  renumberArtists();
+  showView("pick");
   addEventListeners();
 }
+
+const ARROW_UP = "<svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 19V5M6 11l6-6 6 6\"/></svg>";
+const ARROW_DOWN = "<svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 5v14M6 13l6 6 6-6\"/></svg>";
+const GRIP = "<svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"9\" cy=\"6\" r=\"1.6\"/><circle cx=\"15\" cy=\"6\" r=\"1.6\"/><circle cx=\"9\" cy=\"12\" r=\"1.6\"/><circle cx=\"15\" cy=\"12\" r=\"1.6\"/><circle cx=\"9\" cy=\"18\" r=\"1.6\"/><circle cx=\"15\" cy=\"18\" r=\"1.6\"/></svg>";
 
 function createArtistItem(id, name, img) {
   const outerItem = document.createElement("li");
   outerItem.classList.add("item");
   outerItem.setAttribute("draggable", "true");
   outerItem.setAttribute("data-artist-id", id);
-  
-  const artistImage = document.createElement("img");
-  artistImage.src = img;
-  
+
+  const rank = document.createElement("span");
+  rank.className = "rank";
+
+  // .details holds only the image and the name: buildCustomGrid reads its text.
   const innerDetails = document.createElement("div");
   innerDetails.classList.add("details");
-  
+  const artistImage = document.createElement("img");
+  artistImage.alt = "";
+  artistImage.loading = "lazy";
+  if (img) artistImage.src = img;
   const artistName = document.createElement("span");
   artistName.textContent = name;
-
-  const dragDots = document.createElement("i");
-  dragDots.classList.add("uil", "uil-draggabledots");
-
   innerDetails.appendChild(artistImage);
   innerDetails.appendChild(artistName);
-  
-  outerItem.appendChild(innerDetails);
-  outerItem.appendChild(dragDots);
 
+  const moves = document.createElement("div");
+  moves.className = "moves";
+  [["up", ARROW_UP], ["down", ARROW_DOWN]].forEach(([dir, svg]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "move";
+    button.dataset.move = dir;
+    button.setAttribute("aria-label", `Move ${name} ${dir}`);
+    button.innerHTML = svg;
+    moves.appendChild(button);
+  });
+
+  const handle = document.createElement("span");
+  handle.className = "handle";
+  handle.innerHTML = GRIP;
+
+  outerItem.append(rank, innerDetails, moves, handle);
   return outerItem;
 }
 
+function renumberArtists() {
+  const items = document.querySelectorAll(".sortable-list .item");
+  items.forEach((item, index) => {
+    item.querySelector(".rank").textContent = index + 1;
+    item.querySelector("[data-move='up']").disabled = index === 0;
+    item.querySelector("[data-move='down']").disabled = index === items.length - 1;
+  });
+}
+
+async function copyGridLink() {
+  const input = document.getElementById("shareUrl");
+  const url = input.value;
+  if (navigator.share && window.matchMedia("(pointer: coarse)").matches) {
+    try {
+      await navigator.share({ title: builtGridTitle || "My MusicGrid", text: "I made you a MusicGrid. Good luck.", url });
+      return;
+    } catch (error) {
+      if (error.name === "AbortError") return;
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    builderToast("Link copied");
+  } catch (error) {
+    input.select();
+    builderToast("Press Ctrl+C or Cmd+C to copy");
+  }
+}
+
 function addEventListeners() {
-  //Draggable code (blah)
   const sortableList = document.querySelector(".sortable-list");
   const items = sortableList.querySelectorAll(".item");
-  var proceedButton = document.querySelector(".proceed-button");
-  
-  // Play button event listener
-  proceedButton.addEventListener("click", function() {
-    // generatorContainer.classList.add("active");
-    // generatorContainer.style.removeProperty("display");
-    // generatorContainer.innerHTML = "";
+  const proceedButton = document.querySelector(".proceed-button");
+
+  proceedButton.addEventListener("click", function () {
+    proceedButton.disabled = true;
     buildCustomGrid();
   });
-  
+
+  sortableList.addEventListener("click", event => {
+    const move = event.target.closest("[data-move]");
+    if (!move) return;
+    const item = move.closest(".item");
+    if (move.dataset.move === "up" && item.previousElementSibling) {
+      sortableList.insertBefore(item, item.previousElementSibling);
+    } else if (move.dataset.move === "down" && item.nextElementSibling) {
+      sortableList.insertBefore(item.nextElementSibling, item);
+    }
+    renumberArtists();
+    move.focus();
+  });
+
   items.forEach(item => {
     item.addEventListener("dragstart", () => {
-      // console.log("Dragging element "+item.textContent.trim());
-      // Adding dragging class to item after a delay
       setTimeout(() => item.classList.add("dragging"), 0);
     });
     item.addEventListener("touchmove", () => {
-      // console.log("Dragging element "+item.textContent.trim());
-      // Adding dragging class to item after a delay
       setTimeout(() => item.classList.add("dragging"), 0);
     });
-    // Removing dragging class from item on dragend event
-    item.addEventListener("dragend", () => item.classList.remove("dragging"));
-    item.addEventListener("touchend", () => item.classList.remove("dragging"));
+    item.addEventListener("dragend", () => { item.classList.remove("dragging"); renumberArtists(); });
+    item.addEventListener("touchend", () => { item.classList.remove("dragging"); renumberArtists(); });
   });
+
   const initSortableList = (e) => {
     e.preventDefault();
-    // console.log("initSortableList fired");
-    
-    const draggingItem = document.querySelector(".dragging"); 
-    // console.log("initSortableList detected at "+e.clientY);
-      
-    // Getting all items except currently dragging and making array of them
-    let siblings = [...sortableList.querySelectorAll(".item:not(.dragging)")];
-    // console.log("siblings pulled");
-    
-    // Finding the sibling after which the dragging item should be placed
+    const draggingItem = document.querySelector(".dragging");
+    if (!draggingItem) return;
+    const siblings = [...sortableList.querySelectorAll(".item:not(.dragging)")];
+
+    // Find the sibling the dragged item should sit before
     let nextSibling = null;
     let priorSibling = null;
     siblings.forEach(sibling => {
-      let rect = sibling.getBoundingClientRect();
-      let yCoord = rect.top + sibling.offsetHeight/2;
-      // console.log("Comparing drag element at "+e.clientY+" to sibling "+sibling.textContent.trim()+" at "+ yCoord + " (rect: " + rect.top + "; offsetHeight/2: "+(sibling.offsetHeight/2));
-      if (e.clientY >= yCoord && (!priorSibling || yCoord < priorSibling.getBoundingClientRect().top + priorSibling.offsetHeight/2)) {
+      const rect = sibling.getBoundingClientRect();
+      const yCoord = rect.top + sibling.offsetHeight / 2;
+      if (e.clientY >= yCoord && (!priorSibling || yCoord < priorSibling.getBoundingClientRect().top + priorSibling.offsetHeight / 2)) {
         priorSibling = sibling;
-      } else if (e.clientY < yCoord && (!nextSibling || yCoord < nextSibling.getBoundingClientRect().top + nextSibling.offsetHeight/2)) {
+      } else if (e.clientY < yCoord && (!nextSibling || yCoord < nextSibling.getBoundingClientRect().top + nextSibling.offsetHeight / 2)) {
         nextSibling = sibling;
       }
     });
-    // if(priorSibling) {console.log("Found prior sibling "+priorSibling.textContent.trim());} else {console.log("No prior sibling found");}
-    // if(nextSibling) {console.log("Found next sibling "+nextSibling.textContent.trim());} else {console.log("No next sibling found");}
-    
-    // Inserting the dragging item before the found sibling
-    if(nextSibling) {
+    if (nextSibling) {
       sortableList.insertBefore(draggingItem, nextSibling);
-      console.log("Inserted drag element before next sibling");
     } else if (priorSibling) {
       sortableList.appendChild(draggingItem);
-      console.log("Inserted drag element after prior sibling");
-    } else { console.log("No prior or next sibling found for insertion"); }
+    }
   };
   sortableList.addEventListener("dragover", initSortableList);
   sortableList.addEventListener("dragenter", e => e.preventDefault());
@@ -656,6 +714,9 @@ function addEventListeners() {
 
 // Once artists are selected, let's build a fkn grid...
 function buildCustomGrid() {
+  if (buildStarted) return;
+  buildStarted = true;
+  showView("building");
   //Hide the artist list but keep it preserved for our lookup
   const listContainer = document.getElementsByClassName("sortable-list");
   listContainer[0].style.display = "none";
@@ -669,7 +730,10 @@ function buildCustomGrid() {
     artistsRankedArr.push({artistName: artistRankElem.querySelector(".details").textContent, artistId: artistRankElem.getAttribute("data-artist-id")});
   }
 
-  buildProgressReport(artistsRankedArr);
+  buildProgressReport(artistsRankedArr).catch(error => {
+    console.error("Grid build failed:", error);
+    showBuildFailure("Something went wrong while building your grid. Try again in a moment.");
+  });
 }
 
 // Tell the users how we're doing building their grid
@@ -711,7 +775,7 @@ async function buildProgressReport(artists) {
   let gridOutlineFound = false;
   let gridOutline = null;
   
-  for(let q = 3; q<numArtists; q++) {
+  for(let q = 3; q<=numArtists; q++) {
     if(!gridOutlineFound) {
       console.log("Running parseArtists at loop #"+q);
       console.log("Checking subsets of first "+q+" artists");
@@ -726,9 +790,14 @@ async function buildProgressReport(artists) {
       }
     }
   }  
-  console.log(gridOutline);
-  console.log("Now generating AI title");
+  if (!gridOutline) {
+    showBuildFailure("We couldn't find three of these artists with enough songs in common to fill a grid. Try a different listening window, or move other artists to the top.");
+    return;
+  }
+  setBuildStatus("Found a grid that works. Giving it a name…");
   let aiTitle = await genAiTitle(gridOutline);
+  builtGridTitle = aiTitle;
+  setBuildStatus("Saving your grid…");
   saveCustomGrid(gridOutline, aiTitle);
 }
 
@@ -1362,6 +1431,7 @@ async function storeGridInSql(masterGridOutline, categories, aiTitle) {
     encodeCustomAnswers(responseGridId);
   } catch (error) {
     console.error("Error creating custom table: ", error);
+    showBuildFailure("Couldn't save your grid. Try again in a moment.");
   }
 }
 
@@ -1389,21 +1459,20 @@ async function fetchGridOutline(customGridId) {
   })
     .then(response => response.json())
     .then(data => buildGridOutline(data, customGridId))
-    .catch(error => console.error("Error fetching grid data:", error));
+    .catch(error => {
+      console.error("Error fetching grid data:", error);
+      showBuildFailure("Your grid was saved, but loading it back failed. Try again in a moment.");
+    });
 }
 async function buildGridOutline(data, customGridId) {
   const progressContainer = document.getElementById("gridProgressContainer");
   progressContainer.innerHTML = "";
-  progressContainer.style.display="none";
-  
-  const heroContainers = document.getElementsByClassName("artist-content");
-  const heroContainer = heroContainers[0];
-  heroContainer.innerHTML = "";
-  heroContainer.innerHTML = "<h1>Wrapping Up Grid Creation</h1><br><p>Found valid categories & artists, now encoding answer data before handing you off to play your grid!</p>";
+  document.getElementById("buildTitle").textContent = builtGridTitle || "Your grid";
+  setBuildStatus("Here's your grid. Now scoring every possible answer, so deeper cuts earn more points.");
 
   let gridContainer = document.getElementById("grid-container");
   gridContainer.innerHTML = ""; // Clear existing content
-  gridContainer.style.display="flex";
+  gridContainer.hidden = false;
 
   // Separate the data into categories, artists, and answers
   const categories = {};
@@ -1578,8 +1647,8 @@ async function calculateAnswerScores(answersUnscored, customGridId) {
     }
   }
 
-  await updateEncodedAnswers(answersWithScores);
-  linkToGrid(customGridId);
+  const saved = await updateEncodedAnswers(answersWithScores);
+  if (saved) linkToGrid(customGridId);
 }
 
 async function updateEncodedAnswers(encodedAnswers) {
@@ -1595,21 +1664,20 @@ async function updateEncodedAnswers(encodedAnswers) {
     }
 
     console.log("Encoded answers updated successfully");
+    return true;
   } catch (error) {
     console.error("Error updating encoded answers:", error);
+    showBuildFailure("Couldn't finish scoring your grid's answers. Try again in a moment.");
+    return false;
   }
 }
 
 function linkToGrid(customGridId) {
-  const progressContainer = document.getElementById("gridProgressContainer");
-  progressContainer.innerHTML = "";
-  
-  let gridContainer = document.getElementById("grid-container");
-  gridContainer.innerHTML = ""; // Clear existing content
-  gridContainer.style.display="none";
-  
-  const heroContainers = document.getElementsByClassName("artist-content");
-  const heroContainer = heroContainers[0];
-  heroContainer.innerHTML = "";
-  heroContainer.innerHTML = "<h1> Grid Created! </h1> <br> <p> Click through below to play your custom grid.</p> <div class =\"proceedButtonWrapper\"><a href=/play-custom-grid?custom_grid_id="+customGridId+"><button class=\"continue-button\">Play My Grid</button></a>";
+  const path = "/play-custom-grid?custom_grid_id=" + encodeURIComponent(customGridId);
+  document.getElementById("doneTitle").textContent = builtGridTitle || "Your grid is ready";
+  document.getElementById("playLink").href = path;
+  document.getElementById("shareUrl").value = "https://musicgrid.stevenhester.com" + path;
+  showView("done");
 }
+
+initBuilder();

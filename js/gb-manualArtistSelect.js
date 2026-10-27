@@ -1459,13 +1459,17 @@ async function searchSpotifyPick(searchTerm, artistName) {
   const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ searchTerm, easyModeBool, artistName })
+    body: JSON.stringify({ searchTerm, easyModeBool: false, artistName })
   });
   console.log("Received response: "+response);
   if (!response.ok) throw new Error("Failed to fetch");
   return response.json();
 }
 
+function removeDropdown(inputElement) {
+  const existing = inputElement && inputElement.parentNode ? inputElement.parentNode.querySelector(".results-dropdown") : null;
+  if (existing) existing.remove();
+}
 
 function displaySpotifyResults(songs, inputElement, cellKey) {
   removeAllDropdowns(); // Remove existing dropdown if present
@@ -1515,7 +1519,7 @@ async function buildArtistList(topArtist) {
   const finalizeBtn = document.getElementsByClassName("proceedButtonWrapper");
   finalizeBtn[0].classList.remove("invisible");
   listContainer[0].innerHTML = "";
-  topArtistsData.forEach(artist => {
+  topArtist.forEach(artist => {
     listContainer[0].appendChild(createArtistItem(artist.id,artist.name,artist.img));
   });
   const sortableList = document.querySelector(".sortable-list");
