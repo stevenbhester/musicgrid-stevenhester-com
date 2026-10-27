@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>musicgrid.io game of royalty</title>
     <link rel="icon" type="image/x-icon" href="/img/favicon.png">
-    <script src="/js/adminCode.js?v=2026102708"></script>
+    <script src="/js/adminCode.js?v=2026102711"></script>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -206,7 +206,11 @@
         .answer-chip { display: inline-flex; align-items: center; gap: 4px; margin: 3px; padding: 2px 4px 2px 10px; border: 1px solid #e6dfa8; border-radius: 999px; }
         .answer-chip button { border: 0; background: none; color: #a3170b; font-size: 1.1em; cursor: pointer; }
         .grid-preview.is-skipped table { opacity: 0.55; }
-        .lock { min-height: 100vh; display: grid; place-items: center; background: #1e44b5; }
+        /* A display rule would otherwise beat the hidden attribute (the lock screen stayed up) */
+        [hidden] { display: none !important; }
+        /* The wrapper adds no box, so the tools center the same way they always have */
+        #adminApp { display: contents; }
+        .lock { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: #1e44b5; }
         .lock-box { display: grid; gap: 10px; width: min(360px, 90vw); padding: 24px; background: #FFFAD5; border-radius: 8px; }
         .lock-box h1 { margin: 0 0 6px; font-size: 1.4em; }
         .lock-box input, .lock-box button { font: inherit; padding: 8px 10px; }
@@ -225,6 +229,8 @@
         .maker-cells label { display: grid; gap: 4px; font-size: 0.85em; font-weight: bold; }
         .maker-cells textarea { width: 100%; box-sizing: border-box; min-height: 110px; font: inherit; font-weight: normal; }
         .answer-add { margin-top: 6px; }
+        .mod-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .mod-row button { flex: none; }
         #toolOutput { white-space: pre-wrap; background: #fff; padding: 8px; border-radius: 4px; min-height: 1.2em; }
     </style>
 </head>
@@ -258,6 +264,10 @@
         <p class="tool-note">People asking to use "From your Spotify top artists". Add each one in the <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">Spotify Developer Dashboard</a> (your app, then User Management) with their name and Spotify email, then mark them added.</p>
         <div class="tool-row"><label><input type="checkbox" id="showAdded"> Show added ones too</label></div>
         <div id="accessQueue">Loading…</div>
+        <h2>Name appeals</h2>
+        <p class="tool-note">Players whose leaderboard name was changed and think it was unfair. Restoring gives every score that used the name its name back, and the name is allowed from then on. Players see your call on the grid.</p>
+        <div class="tool-row"><label><input type="checkbox" id="showReviewed"> Show reviewed ones too</label></div>
+        <div id="nameAppeals">Loading…</div>
         <h2>Next three weeks</h2>
         <p class="tool-note">Each day plays the grid scheduled for it. Days with nothing scheduled rerun an older grid, picked at midnight.</p>
         <div id="calendar">Loading…</div>
@@ -305,6 +315,7 @@
         <div id="answerReport"></div>
         <pre id="toolOutput"></pre>
         <h2>Renamed leaderboard names</h2>
+        <p class="tool-note">Every name the screening changed. Restore one you think was fine; it's allowed from then on.</p>
         <div id="modLog">Loading…</div>
     </div>
     <!-- Grid list data field headers -->

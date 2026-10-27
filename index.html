@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
   <link rel="preconnect" href="https://music-grid-io-42616e204fd3.herokuapp.com" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css?v=2026102708">
+  <link rel="stylesheet" href="/css/mg.css?v=2026102711">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://musicgrid.stevenhester.com/">
@@ -42,6 +42,7 @@
       <h1 class="title" id="gridTitle">Today's grid</h1>
       <p class="next-grid" id="nextGridHead" hidden>Next grid in <b id="nextGridShort"></b></p>
       <p class="subtitle">Name a song for every square that fits both its artist and its category. Deeper cuts score more, up to 11 points a square.</p>
+      <p class="rule-line"><b>No repeats.</b> Every song counts in one square only, so spend your big hits wisely.</p>
       <p class="grid-note" id="gridNote" hidden></p>
     </section>
 
@@ -62,6 +63,7 @@
     </section>
 
     <section class="board-wrap" aria-label="The grid">
+      <p class="sudden-banner" id="suddenBanner" role="alert" hidden><b>Last chance.</b> You're out of hearts, so one more wrong guess ends the game.</p>
       <div class="board" id="board" tabindex="-1"></div>
       <p class="loading-note" id="loadingNote" hidden>Waking up the server. The first load can take a few seconds.</p>
       <div class="board-actions">
@@ -73,11 +75,22 @@
       <h2 id="resultsTitle">Game over</h2>
       <div class="final-score"><b id="finalScore">1</b><span id="finalLabel">points</span></div>
       <p class="summary" id="summary"></p>
-      <div class="mini" id="mini" aria-hidden="true"></div>
-      <div class="flagged" id="flagged" hidden>
-        <h3>Songs players flagged</h3>
-        <ol class="flag-list" id="flagList"></ol>
+      <form class="submit-form" id="submitForm" novalidate>
+        <label for="playerName">Get on the leaderboard</label>
+        <p class="submit-sub">Add a name and see where you rank.</p>
+        <div class="field-row">
+          <input class="field" id="playerName" name="name" maxlength="24" autocomplete="nickname" placeholder="Your name">
+          <button class="btn btn-ink" type="submit" id="submitBtn">Add my score</button>
+        </div>
+        <p class="form-note" id="submitNote" aria-live="polite"></p>
+      </form>
+      <div class="submit-done" id="submitDone" hidden>
+        <span id="submitDoneText">Your score is on the leaderboard.</span>
+        <a class="see-rank" href="#lbTitle">See where you rank</a>
+        <button class="appeal-btn" type="button" id="appealBtn" hidden>Think that's unfair? Ask Steven to review it</button>
+        <span class="appeal-note" id="appealNote" role="status" hidden></span>
       </div>
+      <div class="mini" id="mini" aria-hidden="true"></div>
       <div class="next-grid-panel" id="nextGridPanel" hidden><span>Next grid in</span><b id="nextGridClock" role="timer">--:--:--</b></div>
       <div class="results-actions">
         <button class="btn" type="button" id="shareBtn">
@@ -87,15 +100,12 @@
         <a class="btn-ghost" href="/browse">Play another grid</a>
         <a class="btn-ghost" href="/stats">Your stats</a>
       </div>
-      <form class="submit-form" id="submitForm" novalidate>
-        <label for="playerName">Add your score to the leaderboard</label>
-        <div class="field-row">
-          <input class="field" id="playerName" name="name" maxlength="24" autocomplete="nickname" placeholder="Your name">
-          <button class="btn btn-ink" type="submit" id="submitBtn">Submit score</button>
-        </div>
-        <p class="form-note" id="submitNote" aria-live="polite"></p>
-      </form>
-      <p class="form-note" id="submitDone" hidden>Your score is on the leaderboard.</p>
+    </section>
+
+    <section class="card flagged-card" id="flagged" aria-labelledby="flaggedTitle" hidden>
+      <h2 id="flaggedTitle">Songs players flagged</h2>
+      <p class="lb-sub">Rejected guesses players think should count, and whether each one was approved.</p>
+      <ol class="flag-list" id="flagList"></ol>
     </section>
 
     <aside class="side">
@@ -103,10 +113,14 @@
         <div class="lb-head"><h2 id="lbTitle">Today</h2><span class="lb-count" id="lbCount"></span></div>
         <p class="empty-note" id="leaderboardNote">Loading scores…</p>
         <div class="lb-scroll"><ol class="board-list" id="leaderboardList"></ol></div>
+        <div class="recent-board" id="recentBoard" hidden>
+          <h3 class="lb-subhead">Recent top scores</h3>
+          <div class="lb-scroll"><ol class="board-list" id="recentList"></ol></div>
+        </div>
       </section>
       <section class="card" id="allTimeCard" aria-labelledby="atTitle">
         <div class="lb-head"><span class="lb-title"><h2 id="atTitle">All-time</h2><button class="info-btn" type="button" id="atInfoBtn" aria-expanded="false" aria-controls="atInfo" aria-label="How players are counted">?</button></span><span class="lb-count" id="atCount"></span></div>
-        <p class="lb-info" id="atInfo" hidden>Players are counted by a secret code saved in this browser, not by the name they type. Two players called Sam stay separate, and nobody can claim your scores by using your name. Play on another phone or computer too? <a href="/stats#player-code">Link it from your stats</a> so both count as you.</p>
+        <p class="lb-info" id="atInfo" hidden>Players are counted by a secret code saved in this browser, not by the name they type. Two players called Sam stay separate, and nobody can claim your scores by using your name. Play on another phone or computer too? <a href="/stats#player-code">Set your own code or link it from your stats</a> so both count as you.</p>
         <p class="lb-sub">Each player's best score on every daily grid, added up.</p>
         <p class="empty-note" id="allTimeNote">Loading scores…</p>
         <div class="lb-scroll"><ol class="board-list" id="allTimeList"></ol></div>
@@ -115,7 +129,7 @@
   </main>
 
   <footer class="foot">
-    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song search by Spotify.
+    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a> &amp; Andrew McWhorter. Song search by Spotify.
   </footer>
 
   <dialog class="sheet confirm" id="easyConfirm" aria-labelledby="easyConfirmTitle" aria-describedby="easyConfirmText">
@@ -140,6 +154,7 @@
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
         </button>
       </div>
+      <p class="sheet-warn" id="sheetWarn" hidden>Last chance: a wrong guess ends the game.</p>
       <div class="search">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="guessInput" type="text" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Song title" aria-label="Song title" aria-describedby="sheetMsg">
@@ -157,15 +172,17 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <div class="flag-bar" id="flagBar" role="status" aria-live="polite" hidden>
-    <span id="flagText"></span>
+  <div class="flag-bar" id="flagBar" role="status" aria-live="assertive" hidden>
+    <span class="flag-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M7 7l10 10M17 7 7 17"/></svg></span>
+    <span class="flag-copy"><b id="flagText"></b><span class="flag-extra" id="flagExtra" hidden></span></span>
     <button class="btn-ghost flag-btn" type="button" id="flagBtn">I think it fits</button>
     <button class="flag-close" type="button" id="flagClose" aria-label="Dismiss">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
   </div>
+  <div class="miss-flash" id="missFlash" aria-hidden="true"></div>
   <div class="sr-only" id="announcer" aria-live="assertive"></div>
 
-  <script type="module" src="/js/grid-game.js?v=2026102708"></script>
+  <script type="module" src="/js/grid-game.js?v=2026102711"></script>
 </body>
 </html>

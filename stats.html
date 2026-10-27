@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css?v=2026102708">
+  <link rel="stylesheet" href="/css/mg.css?v=2026102711">
 </head>
 <body>
   <header class="topbar">
@@ -80,29 +80,30 @@
     <section class="card device-card" id="player-code" aria-labelledby="deviceTitle">
       <h2 id="deviceTitle">Your player code</h2>
       <p>Leaderboards know you by a secret code saved in this browser, not by the name you type. That keeps two players called Sam apart, and nobody can claim your scores just by using your name. The code is never shown to other players.</p>
-      <p>Play on another phone or computer too? Open this browser's link there and both count as one player on the all-time leaderboard.</p>
+      <p>Play on another phone or computer too? Open this browser's link there, or make up your own code and type it on each device. Either way they count as one player: one all-time total and one set of stats. If you finished a grid on both, the higher score counts.</p>
       <div class="device-actions">
         <button class="btn" type="button" id="sendLink">Copy link for another device</button>
         <button class="btn-ghost" type="button" id="showCode" aria-expanded="false" aria-controls="codeBox">Show code</button>
       </div>
       <p class="device-code" id="codeBox" hidden><code id="codeText"></code></p>
       <form class="device-form" id="useCodeForm" novalidate>
-        <label for="codeInput">Got a code from another device?</label>
+        <label for="codeInput">Set your code</label>
+        <p class="device-hint" id="codeHint">Make up your own, like a password you'll remember (at least 8 characters), or paste the code from another device. Capitals and extra spaces don't matter.</p>
         <div class="field-row">
-          <input class="field" id="codeInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste the code">
+          <input class="field" id="codeInput" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="100" placeholder="Type a code" aria-describedby="codeHint">
           <button class="btn btn-ink" type="submit">Use code</button>
         </div>
       </form>
       <p class="form-note" id="deviceNote" aria-live="polite"></p>
-      <p class="device-warn">Keep your code and link private. Anyone who has them can post scores as you.</p>
+      <p class="device-warn">Keep your code and link private, and pick a code nobody else would type. Anyone who uses the same code plays as you.</p>
     </section>
 
-    <p class="browse-note stats-foot">Stats on this page are saved in this browser, so each phone or computer keeps its own list of games. Clearing your browser data resets them and gives this browser a new player code.</p>
+    <p class="browse-note stats-foot">Finished games are saved with your player code, so devices you link share stats. Clearing your browser data gives this browser a new code, so type your code or open your link again to get your stats back.</p>
   </main>
 
   <footer class="foot">
-    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
+    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a> &amp; Andrew McWhorter. Song data from Spotify.
   </footer>
-  <script type="module" src="/js/stats.js?v=2026102708"></script>
+  <script type="module" src="/js/stats.js?v=2026102711"></script>
 </body>
 </html>
