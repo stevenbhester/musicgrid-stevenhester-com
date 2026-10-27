@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
   <link rel="preconnect" href="https://music-grid-io-42616e204fd3.herokuapp.com" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css?v=2026102703">
+  <link rel="stylesheet" href="/css/mg.css?v=2026102706">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://musicgrid.stevenhester.com/">
@@ -56,7 +56,7 @@
       <label class="toggle">
         <input type="checkbox" id="easyMode">
         <span class="toggle-track" aria-hidden="true"></span>
-        <span>Easy mode<span class="toggle-note">Adds a song hint to each square</span></span>
+        <span>Easy mode<span class="toggle-note" id="easyNote">Song hints and relaxed search rules, for 3 fewer points a square</span></span>
       </label>
     </section>
 
@@ -112,6 +112,17 @@
     MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song search by Spotify.
   </footer>
 
+  <dialog class="sheet confirm" id="easyConfirm" aria-labelledby="easyConfirmTitle" aria-describedby="easyConfirmText">
+    <div class="confirm-inner">
+      <b id="easyConfirmTitle">Turn on easy mode?</b>
+      <p id="easyConfirmText">You get a song hint for every square and relaxed search rules. Each square you solve from now on scores 3 fewer points, and easy mode stays on for the rest of this grid.</p>
+      <div class="confirm-actions">
+        <button class="btn" type="button" id="easyYes">Turn it on (&minus;3 a square)</button>
+        <button class="btn-ghost" type="button" id="easyNo">Keep it off</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog class="sheet" id="guessSheet" aria-labelledby="sheetArtist">
     <div class="sheet-inner">
       <div class="sheet-head">
@@ -142,6 +153,6 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <div class="sr-only" id="announcer" aria-live="assertive"></div>
 
-  <script type="module" src="/js/grid-game.js?v=2026102703"></script>
+  <script type="module" src="/js/grid-game.js?v=2026102706"></script>
 </body>
 </html>

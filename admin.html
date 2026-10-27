@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>musicgrid.io game of royalty</title>
     <link rel="icon" type="image/x-icon" href="/img/favicon.png">
-    <script src="/js/adminCode.js?v=2026102703"></script>
+    <script src="/js/adminCode.js?v=2026102706"></script>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -198,6 +198,14 @@
         .grid-preview th, .grid-preview td { border: 1px solid #e6dfa8; padding: 4px 8px; text-align: left; }
         .grid-preview td { cursor: help; }
         .grid-warn { color: #8a4b00; margin-top: 4px; }
+        .grid-stop { color: #a3170b; margin-top: 4px; font-weight: bold; }
+        .answer-square { margin: 8px 0; padding: 10px; background: #fff; border-radius: 4px; }
+        .answer-square h3 { margin: 0 0 4px; font-size: 1em; }
+        .clip-ok { color: #1f7a3f; }
+        .clip-missing { color: #a3170b; font-weight: bold; }
+        .answer-chip { display: inline-flex; align-items: center; gap: 4px; margin: 3px; padding: 2px 4px 2px 10px; border: 1px solid #e6dfa8; border-radius: 999px; }
+        .answer-chip button { border: 0; background: none; color: #a3170b; font-size: 1.1em; cursor: pointer; }
+        .grid-preview.is-skipped table { opacity: 0.55; }
         #toolOutput { white-space: pre-wrap; background: #fff; padding: 8px; border-radius: 4px; min-height: 1.2em; }
     </style>
 </head>
@@ -214,7 +222,7 @@
             <span id="keyNote"></span>
         </div>
         <h2>Next three weeks</h2>
-        <p class="tool-note">Each day plays the grid with the latest date on or before it. Faded days repeat an earlier grid, so schedule something for them.</p>
+        <p class="tool-note">Each day plays the grid scheduled for it. Days with nothing scheduled rerun an older grid, picked at midnight.</p>
         <div id="calendar">Loading…</div>
         <h2>Add daily grids</h2>
         <p class="tool-note">Choose a .json file or paste one below, check it, then create. Answers get scored automatically right after.</p>
@@ -230,6 +238,14 @@
             <button type="button" id="retitleBtn">Retitle custom grids with broken titles</button>
             <button type="button" id="screenBtn">Screen existing leaderboard names</button>
         </div>
+        <h2>Answers and song clips</h2>
+        <p class="tool-note">Lists every square's accepted songs and finds an easy-mode clip for each one (found clips are saved, so hints load fast). Remove a wrong answer with its &times;. For a daily grid that also removes it from the grid's reruns.</p>
+        <div class="tool-row">
+            <select id="answerKind"><option value="daily">Daily grid</option><option value="custom">Player-made grid</option></select>
+            <input type="number" id="answerGridId" min="1" placeholder="Grid id">
+            <button type="button" id="checkAnswers">Check answers and clips</button>
+        </div>
+        <div id="answerReport"></div>
         <pre id="toolOutput"></pre>
         <h2>Renamed leaderboard names</h2>
         <div id="modLog">Loading…</div>
