@@ -7,6 +7,27 @@ const SPOTIFY_CLIENT_ID = "1d952129111a45b2b86ea1c08dd9c6ca";
 let builtGridTitle = "";
 let buildStarted = false;
 
+// "spotify" builds from the visitor's top artists (artist-selection.html).
+// "search" lets anyone pick artists by name, no Spotify login (manual-artist-pick.html).
+const BUILD_SOURCE = document.body.dataset.source === "search" ? "search" : "spotify";
+const MIN_PICKS = 3;
+const MAX_PICKS = 10;
+let lastPicked = [];
+
+function setStep(step) {
+  const pick = document.getElementById("stepPick");
+  const build = document.getElementById("stepBuild");
+  if (!pick || !build) return;
+  pick.className = step === "pick" ? "now" : "done";
+  build.className = step === "build" ? "now" : "";
+}
+
+function noGridMessage() {
+  return BUILD_SOURCE === "search"
+    ? "We couldn't find three of these artists with enough songs in common to fill a grid. Try swapping one out, or add a couple more."
+    : "We couldn't find three of these artists with enough songs in common to fill a grid. Try a different listening window, or move other artists to the top.";
+}
+
 function showView(name) {
   document.querySelectorAll("[data-view]").forEach(view => {
     view.hidden = view.dataset.view !== name;
@@ -17,6 +38,9 @@ function showView(name) {
 function showBuildFailure(message, needsReconnect) {
   document.getElementById("failMsg").textContent = message;
   document.getElementById("reconnect").hidden = !needsReconnect;
+  const change = document.getElementById("changeArtists");
+  if (change) change.hidden = BUILD_SOURCE !== "search" || !lastPicked.length;
+  setStep("pick");
   showView("failed");
 }
 
@@ -34,6 +58,12 @@ function builderToast(message) {
 }
 
 function initBuilder() {
+  document.getElementById("startOver").addEventListener("click", () => window.location.reload());
+  document.getElementById("copyLink").addEventListener("click", copyGridLink);
+  if (BUILD_SOURCE === "search") {
+    initArtistSearch();
+    return;
+  }
   if (!localStorage.getItem("access_token")) {
     document.getElementById("noToken").hidden = false;
     document.querySelectorAll("[data-range]").forEach(button => { button.disabled = true; });
@@ -41,8 +71,6 @@ function initBuilder() {
   document.querySelectorAll("[data-range]").forEach(button => {
     button.addEventListener("click", () => buttonPressArtist(button.dataset.range));
   });
-  document.getElementById("startOver").addEventListener("click", () => window.location.reload());
-  document.getElementById("copyLink").addEventListener("click", copyGridLink);
 }
 
 function buttonPressArtist(timeRange) {
@@ -131,6 +159,7 @@ function buildArtistList(topArtistsData) {
 
 const ARROW_UP = "<svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 19V5M6 11l6-6 6 6\"/></svg>";
 const ARROW_DOWN = "<svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 5v14M6 13l6 6 6-6\"/></svg>";
+const REMOVE_ICON = "<svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6 6 18\"/></svg>";
 const GRIP = "<svg class=\"icon\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"9\" cy=\"6\" r=\"1.6\"/><circle cx=\"15\" cy=\"6\" r=\"1.6\"/><circle cx=\"9\" cy=\"12\" r=\"1.6\"/><circle cx=\"15\" cy=\"12\" r=\"1.6\"/><circle cx=\"9\" cy=\"18\" r=\"1.6\"/><circle cx=\"15\" cy=\"18\" r=\"1.6\"/></svg>";
 
 function createArtistItem(id, name, img) {
@@ -138,6 +167,7 @@ function createArtistItem(id, name, img) {
   outerItem.classList.add("item");
   outerItem.setAttribute("draggable", "true");
   outerItem.setAttribute("data-artist-id", id);
+  outerItem.dataset.img = img || "";
 
   const rank = document.createElement("span");
   rank.className = "rank";
@@ -165,6 +195,15 @@ function createArtistItem(id, name, img) {
     button.innerHTML = svg;
     moves.appendChild(button);
   });
+  if (BUILD_SOURCE === "search") {
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "move remove";
+    remove.dataset.remove = "";
+    remove.setAttribute("aria-label", `Remove ${name}`);
+    remove.innerHTML = REMOVE_ICON;
+    moves.appendChild(remove);
+  }
 
   const handle = document.createElement("span");
   handle.className = "handle";
@@ -181,6 +220,7 @@ function renumberArtists() {
     item.querySelector("[data-move='up']").disabled = index === 0;
     item.querySelector("[data-move='down']").disabled = index === items.length - 1;
   });
+  updatePickState();
 }
 
 async function copyGridLink() {
@@ -205,7 +245,6 @@ async function copyGridLink() {
 
 function addEventListeners() {
   const sortableList = document.querySelector(".sortable-list");
-  const items = sortableList.querySelectorAll(".item");
   const proceedButton = document.querySelector(".proceed-button");
 
   proceedButton.addEventListener("click", function () {
@@ -214,6 +253,13 @@ function addEventListeners() {
   });
 
   sortableList.addEventListener("click", event => {
+    const remove = event.target.closest("[data-remove]");
+    if (remove) {
+      remove.closest(".item").remove();
+      renumberArtists();
+      renderArtistResults(artistResults);
+      return;
+    }
     const move = event.target.closest("[data-move]");
     if (!move) return;
     const item = move.closest(".item");
@@ -226,16 +272,20 @@ function addEventListeners() {
     move.focus();
   });
 
-  items.forEach(item => {
-    item.addEventListener("dragstart", () => {
-      setTimeout(() => item.classList.add("dragging"), 0);
-    });
-    item.addEventListener("touchmove", () => {
-      setTimeout(() => item.classList.add("dragging"), 0);
-    });
-    item.addEventListener("dragend", () => { item.classList.remove("dragging"); renumberArtists(); });
-    item.addEventListener("touchend", () => { item.classList.remove("dragging"); renumberArtists(); });
-  });
+  // Delegated so artists added later (search mode) can be dragged too
+  const startDrag = event => {
+    const item = event.target.closest(".item");
+    if (item) setTimeout(() => item.classList.add("dragging"), 0);
+  };
+  const endDrag = event => {
+    const item = event.target.closest(".item");
+    if (item) item.classList.remove("dragging");
+    renumberArtists();
+  };
+  sortableList.addEventListener("dragstart", startDrag);
+  sortableList.addEventListener("touchmove", startDrag);
+  sortableList.addEventListener("dragend", endDrag);
+  sortableList.addEventListener("touchend", endDrag);
 
   const initSortableList = (e) => {
     e.preventDefault();
@@ -714,8 +764,16 @@ function addEventListeners() {
 
 // Once artists are selected, let's build a fkn grid...
 function buildCustomGrid() {
-  if (buildStarted) return;
+  const picked = [...document.querySelectorAll(".sortable-list .item")];
+  if (buildStarted || picked.length < MIN_PICKS) return;
   buildStarted = true;
+  lastPicked = picked.map(item => ({
+    id: item.getAttribute("data-artist-id"),
+    name: item.querySelector(".details").textContent,
+    img: item.dataset.img
+  }));
+  resetBuildState();
+  setStep("build");
   showView("building");
   //Hide the artist list but keep it preserved for our lookup
   const listContainer = document.getElementsByClassName("sortable-list");
@@ -791,7 +849,7 @@ async function buildProgressReport(artists) {
     }
   }  
   if (!gridOutline) {
-    showBuildFailure("We couldn't find three of these artists with enough songs in common to fill a grid. Try a different listening window, or move other artists to the top.");
+    showBuildFailure(noGridMessage());
     return;
   }
   setBuildStatus("Found a grid that works. Giving it a name…");
@@ -1678,6 +1736,186 @@ function linkToGrid(customGridId) {
   document.getElementById("playLink").href = path;
   document.getElementById("shareUrl").value = "https://musicgrid.stevenhester.com" + path;
   showView("done");
+}
+
+// ---------- Pick any artists (search mode) ----------
+
+// The grid-finding code above keeps its state in these globals, so clear
+// them before every build to let people retry with different artists.
+function resetBuildState() {
+  masterArtistDataSumm = {};
+  masterArtistDataDetails = {};
+  masterGridOutline = {};
+  startIndex = 0;
+  builtGridTitle = "";
+  document.getElementById("gridProgressContainer").innerHTML = "";
+  const grid = document.getElementById("grid-container");
+  grid.innerHTML = "";
+  grid.hidden = true;
+  document.getElementById("buildTitle").textContent = "Building your grid";
+  setBuildStatus("Checking which of your artists have enough songs in common. This can take a minute.");
+}
+
+function backToPicking() {
+  const list = document.querySelector(".sortable-list");
+  list.innerHTML = "";
+  list.style.display = "";
+  lastPicked.forEach(artist => list.appendChild(createArtistItem(artist.id, artist.name, artist.img)));
+  buildStarted = false;
+  renumberArtists();
+  setStep("pick");
+  showView("search");
+  document.getElementById("artistSearch").focus();
+}
+
+const artistSearchCache = new Map();
+let artistSearchSeq = 0;
+let artistSearchTimer = null;
+let artistResults = [];
+
+function pickedIds() {
+  return [...document.querySelectorAll(".sortable-list .item")].map(item => item.getAttribute("data-artist-id"));
+}
+
+function setArtistMsg(text) {
+  const node = document.getElementById("artistMsg");
+  if (!node) return;
+  node.textContent = text;
+  node.hidden = !text;
+}
+
+function updatePickState() {
+  if (BUILD_SOURCE !== "search") return;
+  const count = pickedIds().length;
+  document.getElementById("pickCount").textContent = count ? `${count} of ${MAX_PICKS}` : "";
+  document.getElementById("pickEmpty").hidden = count > 0;
+  document.querySelector(".proceed-button").disabled = count < MIN_PICKS || buildStarted;
+  let hint = "We'll try your top three first, then work down the list.";
+  if (count < MIN_PICKS) {
+    const left = MIN_PICKS - count;
+    hint = `Pick ${left} more ${left === 1 ? "artist" : "artists"} to build.`;
+  } else if (count >= MAX_PICKS) {
+    hint = "That's the most you can add. We'll try your top three first.";
+  }
+  document.getElementById("pickHint").textContent = hint;
+}
+
+function initArtistSearch() {
+  const input = document.getElementById("artistSearch");
+  input.addEventListener("input", () => {
+    clearTimeout(artistSearchTimer);
+    const query = input.value.trim();
+    if (query.length < 2) {
+      artistSearchSeq += 1;
+      renderArtistResults([]);
+      setArtistMsg("");
+      return;
+    }
+    artistSearchTimer = setTimeout(() => runArtistSearch(query), 250);
+  });
+  input.addEventListener("keydown", event => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    const first = document.querySelector("#artistResults .result:not([disabled])");
+    if (first) first.click();
+  });
+  document.getElementById("artistResults").addEventListener("click", event => {
+    const button = event.target.closest("[data-add]");
+    if (!button) return;
+    const artist = artistResults.find(result => result.id === button.dataset.add);
+    if (artist) addPick(artist);
+  });
+  document.getElementById("changeArtists").addEventListener("click", backToPicking);
+  addEventListeners();
+  updatePickState();
+}
+
+async function runArtistSearch(query) {
+  const seq = ++artistSearchSeq;
+  const key = query.toLowerCase();
+  let artists = artistSearchCache.get(key);
+  if (!artists) {
+    if (!artistResults.length) setArtistMsg("Searching…");
+    try {
+      const response = await fetch(BUILDER_API + "/search-artists", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query })
+      });
+      if (!response.ok) throw new Error("search-artists returned " + response.status);
+      artists = await response.json();
+      artistSearchCache.set(key, artists);
+    } catch (error) {
+      if (seq === artistSearchSeq) setArtistMsg("Artist search isn't responding. The server might be waking up, so try again in a few seconds.");
+      return;
+    }
+  }
+  if (seq !== artistSearchSeq) return;
+  setArtistMsg(artists.length ? "" : `No artists found for “${query}”.`);
+  renderArtistResults(artists);
+}
+
+function renderArtistResults(artists) {
+  artistResults = artists;
+  const list = document.getElementById("artistResults");
+  if (!list) return;
+  list.innerHTML = "";
+  const picked = pickedIds();
+  const full = picked.length >= MAX_PICKS;
+  artists.forEach(artist => {
+    const added = picked.includes(artist.id);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "result";
+    button.dataset.add = artist.id;
+    button.disabled = added || full;
+
+    let art;
+    if (artist.img) {
+      art = document.createElement("img");
+      art.src = artist.img;
+      art.alt = "";
+      art.loading = "lazy";
+    } else {
+      art = document.createElement("span");
+    }
+    art.className = "art";
+
+    const text = document.createElement("span");
+    text.className = "result-text";
+    const name = document.createElement("b");
+    name.textContent = artist.name;
+    text.appendChild(name);
+    if (artist.genres && artist.genres.length) {
+      const genres = document.createElement("span");
+      genres.textContent = artist.genres.join(", ");
+      text.appendChild(genres);
+    }
+
+    const tag = document.createElement("span");
+    tag.className = "result-add";
+    tag.textContent = added ? "Added" : "Add";
+
+    button.append(art, text, tag);
+    button.setAttribute("aria-label", added ? `${artist.name}, already added` : `Add ${artist.name}`);
+    const item = document.createElement("li");
+    item.appendChild(button);
+    list.appendChild(item);
+  });
+}
+
+function addPick(artist) {
+  const ids = pickedIds();
+  if (ids.includes(artist.id) || ids.length >= MAX_PICKS) return;
+  document.querySelector(".sortable-list").appendChild(createArtistItem(artist.id, artist.name, artist.img));
+  renumberArtists();
+  const input = document.getElementById("artistSearch");
+  input.value = "";
+  artistSearchSeq += 1;
+  renderArtistResults([]);
+  setArtistMsg("");
+  input.focus();
+  builderToast(`Added ${artist.name}`);
 }
 
 initBuilder();
