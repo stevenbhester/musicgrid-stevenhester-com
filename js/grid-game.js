@@ -27,16 +27,29 @@ async function request(path, body, signal) {
 
 const modes = {
   daily: {
-    resolveId: () => request("/latest-grid").then(data => {
+    resolveId: async () => {
+      const requested = params.get("grid");
+      if (requested) {
+        try {
+          const data = await request(`/latest-grid?grid_id=${encodeURIComponent(requested)}`);
+          game.day = data.reportingDay || null;
+          game.past = Boolean(game.day && game.day < chicagoToday());
+          return data.latestGridId;
+        } catch (error) {
+          game.notice = "That grid isn't available, so here's today's.";
+        }
+      }
+      const data = await request("/latest-grid");
       game.day = data.reportingDay || null;
+      game.past = false;
       return data.latestGridId;
-    }),
+    },
     loadGrid: id => request("/grid-data", { grid_id: id }),
     check: (id, song, field) => request("/check-answer", { songGuess: song, fieldGuessed: field, gridId: id }),
     hint: (id, field) => request("/get-cheat-preview-url", { gridId: id, fieldKey: field }),
     leaderboardId: id => id,
-    shareUrl: () => SITE + "/",
-    fallbackTitle: () => "Today's grid",
+    shareUrl: id => (game.past ? `${SITE}/?grid=${encodeURIComponent(id)}` : SITE + "/"),
+    fallbackTitle: () => (game.past ? "Daily grid" : "Today's grid"),
     board: "daily",
     boardTitle: "Today"
   },
@@ -60,6 +73,10 @@ const api = modes[mode];
 // ---------- Small helpers ----------
 
 const $ = selector => document.querySelector(selector);
+
+function chicagoToday() {
+  return new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+}
 
 function el(tag, attrs, children) {
   const node = document.createElement(tag);
@@ -145,6 +162,8 @@ function playerId() {
 const game = {
   id: null,
   day: null,
+  past: false,
+  notice: null,
   title: "",
   artists: [],
   categories: [],
@@ -199,6 +218,8 @@ function parseGrid(data) {
       categories[item.field] = item.field_value;
     } else if (item.field_type === "Artist") {
       artists[item.field] = item.field_value;
+    } else if (item.field_type === "Title") {
+      title = item.field_value;
     }
     if (item.grid_title) title = item.grid_title;
   });
@@ -211,6 +232,11 @@ function parseGrid(data) {
 
 function renderHead() {
   $("#gridTitle").textContent = game.title;
+  if (mode === "daily" && game.past) {
+    $("#lbTitle").textContent = "This grid";
+    const nav = document.querySelector(".topnav a[href='/']");
+    if (nav) nav.removeAttribute("aria-current");
+  }
   const dateLine = $("#gridDate");
   if (dateLine && game.day) {
     const date = new Date(`${game.day}T12:00:00`);
@@ -674,6 +700,9 @@ function endGame(reason) {
   $("#toast").classList.remove("show");
   game.state.over = true;
   game.state.endReason = reason;
+  // Streaks count a daily grid only if it was finished before the next one went live
+  game.state.playedOn = chicagoToday();
+  game.state.finishedAt = new Date().toISOString();
   Object.values(game.state.cells).forEach(cell => {
     if (cell.status === "open") cell.status = "missed";
   });
@@ -717,6 +746,8 @@ function renderEndPanel() {
   panel.hidden = false;
   $("#resultsTitle").textContent = headings[state.endReason] || "Game over";
   $("#finalScore").textContent = state.score;
+  const finalLabel = $("#finalLabel");
+  if (finalLabel) finalLabel.textContent = Number(state.score) === 1 ? "point" : "points";
   let summary = `You filled ${solved} of ${total} squares.`;
   if (solved < total) summary += " Tap play on a missed square to hear a song that fit.";
   $("#summary").textContent = summary;
@@ -726,7 +757,9 @@ function renderEndPanel() {
   mini.style.gridTemplateColumns = `repeat(${game.artists.length}, 22px)`;
   game.categories.forEach(category => {
     game.artists.forEach(artist => {
-      mini.append(el("i", { class: game.state.cells[cellKey(category, artist)].status === "solved" ? "on" : "" }));
+      const cell = game.state.cells[cellKey(category, artist)];
+      const shade = cell.status === "solved" ? (cell.points >= 10 ? "deep" : cell.points >= 8 ? "on" : "easy") : (cell.misses.length ? "miss" : "");
+      mini.append(el("i", { class: shade }));
     });
   });
 
@@ -742,27 +775,56 @@ function renderEndPanel() {
   }
 }
 
+// Share squares: shade by points (deeper cuts score more), red for a square
+// you guessed wrong on, black for one you never tried.
+function shareSquare(cell) {
+  if (cell.status === "solved") {
+    if (cell.points >= 10) return "🟩";
+    if (cell.points >= 8) return "🟨";
+    return "🟧";
+  }
+  return cell.misses.length ? "🟥" : "⬛";
+}
+
+function shareHeadline() {
+  const solved = solvedCount();
+  const total = totalCells();
+  const score = game.state.score;
+  const points = `${score} ${score === 1 ? "point" : "points"}`;
+  if (solved === total) return `Perfect MusicGrid, ${points}. You could never.`;
+  if (solved >= total - 2) return `I scored ${points} on MusicGrid. You could never.`;
+  if (solved >= Math.ceil(total / 2)) return `I scored ${points} on MusicGrid. Your turn.`;
+  if (solved > 0) return `I scored ${points} on MusicGrid. Be nice.`;
+  return "MusicGrid won today. Avenge me.";
+}
+
 function shareText() {
   const rows = game.categories.map(category => game.artists.map(artist => (
-    game.state.cells[cellKey(category, artist)].status === "solved" ? "🟨" : "⬛"
+    shareSquare(game.state.cells[cellKey(category, artist)])
   )).join("")).join("\n");
-  return `I scored ${game.state.score} on MusicGrid. You could never.\n${game.title}\n${rows}`;
+  let label = game.title;
+  if (mode === "daily" && game.day) {
+    const date = new Date(`${game.day}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    label = `${game.title}, ${date}`;
+  }
+  return `${shareHeadline()}\n${label}\n${rows}`;
 }
 
 async function share() {
-  const text = shareText();
-  const url = api.shareUrl(game.id);
+  // The link goes inside the text, after a blank line, so it always lands
+  // on its own line (a separate url field gets glued onto the last line).
+  const text = `${shareText()}\n\n${api.shareUrl(game.id)}`;
   const touch = window.matchMedia("(pointer: coarse)").matches;
   if (navigator.share && touch) {
     try {
-      await navigator.share({ title: "My MusicGrid results", text, url });
+      await navigator.share({ text });
       return;
     } catch (error) {
       if (error.name === "AbortError") return;
     }
   }
   try {
-    await navigator.clipboard.writeText(`${text}\n${url}`);
+    await navigator.clipboard.writeText(text);
     toast("Results copied. Paste them anywhere.");
   } catch (error) {
     toast("Couldn't copy automatically. Your score is " + game.state.score + ".");
@@ -834,7 +896,7 @@ function boardCount(node, players, noun) {
 function renderBoards(grid, allTime) {
   const list = $("#leaderboardList");
   const note = $("#leaderboardNote");
-  boardCount($("#lbCount"), grid.players, mode === "daily" ? "today" : "");
+  boardCount($("#lbCount"), grid.players, mode === "daily" && !game.past ? "today" : "");
   if (grid.entries.length) {
     note.hidden = true;
     boardRows(list, grid.entries, entry => entry.player_score);
@@ -888,6 +950,64 @@ async function loadLeaderboard() {
   }
 }
 
+// ---------- Countdown to the next daily grid (midnight Central) ----------
+
+function secondsToNextGrid() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago", hourCycle: "h23", hour: "2-digit", minute: "2-digit", second: "2-digit"
+  }).formatToParts(new Date());
+  const part = type => Number(parts.find(p => p.type === type).value);
+  return 86400 - (part("hour") * 3600 + part("minute") * 60 + part("second"));
+}
+
+function clock(seconds) {
+  const pad = n => String(n).padStart(2, "0");
+  return `${pad(Math.floor(seconds / 3600))}:${pad(Math.floor((seconds % 3600) / 60))}:${pad(seconds % 60)}`;
+}
+
+function shortClock(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h) return `${h}h ${m}m`;
+  if (m) return `${m}m`;
+  return "less than a minute";
+}
+
+let countdownTimer = null;
+
+async function startCountdown() {
+  if (mode !== "daily" || game.past) return;
+  // Only count down when tomorrow actually has a new grid scheduled
+  try {
+    const data = await request("/grid-calendar?days=2");
+    if (data.calendar && data.calendar[1] && !data.calendar[1].scheduled) return;
+  } catch (error) {
+    // Older server without the calendar: count down anyway
+  }
+  const head = $("#nextGridHead");
+  const panel = $("#nextGridPanel");
+  let last = secondsToNextGrid();
+  const tick = () => {
+    const left = secondsToNextGrid();
+    const wrapped = left > last + 5; // the clock passed midnight
+    last = left;
+    if (wrapped || left <= 0) {
+      window.clearInterval(countdownTimer);
+      head.hidden = false;
+      head.innerHTML = "";
+      head.append("A new grid is live. ", el("a", { href: "/", text: "Play it" }));
+      $("#nextGridClock").textContent = "Now";
+      return;
+    }
+    $("#nextGridShort").textContent = shortClock(left);
+    $("#nextGridClock").textContent = clock(left);
+  };
+  tick();
+  head.hidden = false;
+  panel.hidden = false;
+  countdownTimer = window.setInterval(tick, 1000);
+}
+
 // ---------- Boot ----------
 
 let slowTimer = null;
@@ -921,13 +1041,20 @@ async function boot() {
   }
 
   saveKey = `musicgrid:${mode}:${game.id}`;
+  const hadSave = Boolean(storage.get(saveKey));
   game.state = restoreState();
+  // The stats page reads these back, so a saved game knows what it was
+  game.state.title = game.title;
+  if (mode === "daily" && game.day) game.state.day = game.day;
+  if (hadSave) save();
   shownScore = game.state.score;
   renderHead();
   buildBoard();
   renderHud(false);
   if (game.state.over) renderEndPanel();
   loadLeaderboard();
+  startCountdown();
+  if (game.notice) toast(game.notice);
 }
 
 function wire() {

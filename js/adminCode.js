@@ -32,18 +32,160 @@ function initializeSite() {
     loadModerationLog();
   });
   document.getElementById("retitleBtn").addEventListener("click", retitleCustomGrids);
+  document.getElementById("gridFile").addEventListener("change", loadGridFile);
+  document.getElementById("checkGrids").addEventListener("click", checkGrids);
+  document.getElementById("createGrids").addEventListener("click", createGrids);
+  document.getElementById("gridJson").addEventListener("input", () => { document.getElementById("createGrids").disabled = true; });
   document.getElementById("screenBtn").addEventListener("click", screenLeaderboard);
   loadGridData();
   loadCalendar();
   loadModerationLog();
 }
 
+let calendarData = null;
+let checkedGrids = null;
+
+// ---------- Add daily grids (paste or upload JSON) ----------
+
+function loadGridFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.getElementById("gridJson").value = reader.result;
+    checkGrids();
+  };
+  reader.readAsText(file);
+}
+
+function gridProblems(grid, index) {
+  const where = "Grid " + (index + 1);
+  const problems = [];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(grid.date || "")) problems.push(where + ": date must look like 2026-11-03");
+  ["artists", "categories"].forEach(key => {
+    if (!Array.isArray(grid[key]) || grid[key].length !== 3) problems.push(where + ": needs exactly 3 " + key);
+  });
+  if (!problems.length) {
+    grid.categories.forEach(category => {
+      grid.artists.forEach(artist => {
+        const songs = grid.answers && grid.answers[category] && grid.answers[category][artist];
+        if (!Array.isArray(songs) || !songs.length) problems.push(where + ": no answers for " + artist + " / " + category);
+        else if (songs.some(song => String(song).includes("\""))) problems.push(where + ": an answer for " + artist + " / " + category + " contains a double quote");
+      });
+    });
+  }
+  return problems;
+}
+
+function checkGrids() {
+  const preview = document.getElementById("gridPreview");
+  const createButton = document.getElementById("createGrids");
+  createButton.disabled = true;
+  checkedGrids = null;
+  preview.innerHTML = "";
+  let parsed;
+  try {
+    parsed = JSON.parse(document.getElementById("gridJson").value);
+  } catch (error) {
+    preview.textContent = "That isn't valid JSON: " + error.message;
+    return;
+  }
+  const grids = Array.isArray(parsed) ? parsed : parsed.grids;
+  if (!Array.isArray(grids) || !grids.length) {
+    preview.textContent = "Expected { \"grids\": [ ... ] } with at least one grid.";
+    return;
+  }
+  const problems = [].concat(...grids.map(gridProblems));
+  if (problems.length) {
+    preview.textContent = problems.join("\n");
+    return;
+  }
+  const today = calendarData ? calendarData.today : "";
+  grids.forEach(grid => {
+    const box = document.createElement("div");
+    box.className = "grid-preview";
+    const date = new Date(grid.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+    const taken = calendarData && calendarData.calendar.find(day => day.date === grid.date && day.scheduled);
+    const heading = document.createElement("b");
+    heading.textContent = date + ": " + (grid.title || "Untitled grid");
+    box.appendChild(heading);
+    const notes = [];
+    if (today && grid.date < today) notes.push("this date is in the past");
+    if (taken) notes.push("grid " + taken.grid_id + " is already scheduled that day; the new one will win");
+    if (notes.length) {
+      const warn = document.createElement("div");
+      warn.className = "grid-warn";
+      warn.textContent = "Heads up: " + notes.join(", ");
+      box.appendChild(warn);
+    }
+    const table = document.createElement("table");
+    const head = document.createElement("tr");
+    head.appendChild(document.createElement("th"));
+    grid.artists.forEach(artist => {
+      const th = document.createElement("th");
+      th.textContent = artist;
+      head.appendChild(th);
+    });
+    table.appendChild(head);
+    grid.categories.forEach(category => {
+      const row = document.createElement("tr");
+      const th = document.createElement("th");
+      th.textContent = category;
+      row.appendChild(th);
+      grid.artists.forEach(artist => {
+        const songs = grid.answers[category][artist];
+        const td = document.createElement("td");
+        td.textContent = songs.length + (songs.length === 1 ? " answer" : " answers");
+        td.title = songs.join(", ");
+        row.appendChild(td);
+      });
+      table.appendChild(row);
+    });
+    box.appendChild(table);
+    preview.appendChild(box);
+  });
+  checkedGrids = grids;
+  createButton.disabled = false;
+  toolOutput(grids.length + (grids.length === 1 ? " grid looks good." : " grids look good.") + " Hover a count to see the answers.");
+}
+
+async function createGrids() {
+  if (!checkedGrids) return;
+  const createButton = document.getElementById("createGrids");
+  createButton.disabled = true;
+  try {
+    const data = await adminFetch("/admin/create-grids", { method: "POST", body: JSON.stringify({ grids: checkedGrids }) });
+    const lines = data.created.map(grid => "Created grid " + grid.grid_id + " for " + grid.date + (grid.title ? " (" + grid.title + ")" : ""));
+    toolOutput(lines.join("\n") + "\nScoring answers now. This takes a minute or two per grid, so leave this tab open.");
+    loadGridData();
+    loadCalendar();
+    for (let i = 0; i < data.created.length; i++) {
+      const grid = data.created[i];
+      lines.push("Scoring grid " + grid.grid_id + " (" + (i + 1) + " of " + data.created.length + ")…");
+      toolOutput(lines.join("\n"));
+      const ok = await encodeAnswers(grid.grid_id);
+      lines[lines.length - 1] = ok ? "Scored grid " + grid.grid_id : "Scoring grid " + grid.grid_id + " failed; use its Encode button to retry";
+      toolOutput(lines.join("\n"));
+    }
+    lines.push("All done.");
+    toolOutput(lines.join("\n"));
+    document.getElementById("gridJson").value = "";
+    document.getElementById("gridPreview").innerHTML = "";
+    checkedGrids = null;
+    loadGridData();
+  } catch (error) {
+    toolOutput(error.message);
+    createButton.disabled = false;
+  }
+}
+
 // Which grid plays on each of the next three weeks
 async function loadCalendar() {
   const holder = document.getElementById("calendar");
   try {
-    const response = await fetch(ADMIN_API + "/grid-calendar?days=21");
+    const response = await fetch(ADMIN_API + "/grid-calendar?days=21", { headers: adminHeaders() });
     const data = await response.json();
+    calendarData = data;
     holder.innerHTML = "";
     data.calendar.forEach(day => {
       const row = document.createElement("div");
@@ -51,7 +193,7 @@ async function loadCalendar() {
       const date = new Date(day.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
       const what = day.grid_id === null
         ? "Nothing scheduled"
-        : (day.scheduled ? "Grid " + day.grid_id : "Repeats grid " + day.grid_id) + (day.artists ? ": " + day.artists : "");
+        : (day.scheduled ? "Grid " + day.grid_id : "Repeats grid " + day.grid_id) + (day.title ? ": " + day.title : "") + (day.artists ? " (" + day.artists + ")" : "");
       row.textContent = date + (day.date === data.today ? " (today)" : "") + " \u2014 " + what;
       holder.appendChild(row);
     });
@@ -192,7 +334,7 @@ function createLoadCell(className, calledFunction, text = "", params = "") {
 function fetchGridData(gridId) {
   fetch("https://music-grid-io-42616e204fd3.herokuapp.com/grid-data", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify({ grid_id: gridId })
   })
     .then(response => response.json())
@@ -283,14 +425,15 @@ async function encodeAnswers(gridId) {
   try {
     const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/grid-data", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders(),
       body: JSON.stringify({ grid_id: gridId })
     });
 
     const data = await response.json();
-    await answerEncoder(data, gridId);
+    return await answerEncoder(data, gridId);
   } catch (error) {
     console.error("Error encoding answers for grid:", error);
+    return false;
   }
 }
 
@@ -342,7 +485,7 @@ async function answerEncoder(data, gridId) {
   }
 
   console.log("Encoded answers ready for update:", answerPops);
-  calculateAnswerScores(answerPops, gridId);
+  return calculateAnswerScores(answerPops, gridId);
 }
 
 // TODO: Check for all matching song names by artist (bypass track limitation) and pick most popular version
@@ -396,7 +539,7 @@ async function calculateAnswerScores(answersUnscored, gridId) {
     }
   }
 
-  await updateEncodedAnswers(answersWithScores);
+  return updateEncodedAnswers(answersWithScores);
 }
 
 
@@ -413,8 +556,10 @@ async function updateEncodedAnswers(encodedAnswers) {
     }
 
     console.log("Encoded answers updated successfully");
+    return true;
   } catch (error) {
     console.error("Error updating encoded answers:", error);
+    return false;
   }
 }
 
