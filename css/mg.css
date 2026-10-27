@@ -641,3 +641,14 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
 .card .picked-head span { color: var(--muted); font-size: 14px; font-weight: 600; }
 .card .sheet-msg { margin: 12px 0 0; }
 .move.remove { color: var(--miss-ink); }
+
+/* Two leaderboards */
+.lb-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.card .lb-head h2 { margin: 0; }
+.lb-count { color: var(--muted); font-size: 14px; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.card .lb-sub { margin: -6px 0 12px; font-size: 14px; }
+.board-list .who small { display: block; color: var(--muted); font-size: 12px; font-weight: 500; }
+.board-list li.me .who small { color: inherit; opacity: 0.75; }
+.board-list li.gap { display: block; padding: 2px 0; border-top: 0; color: var(--muted); text-align: center; }
+.board-list li.gap + li { border-top-color: transparent; }
+.grid-date { margin: 0 0 10px; color: var(--stage-soft); font-weight: 650; }
