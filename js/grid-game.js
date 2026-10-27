@@ -8,6 +8,7 @@ const SITE = "https://musicgrid.stevenhester.com";
 const HEARTS = 3; // three hearts, then one sudden-death miss
 const MAX_MISSES = HEARTS + 1;
 const MIN_SEARCH = 3;
+const EASY_PENALTY = 3; // points off each square solved with easy mode on
 const SEARCH_DELAY = 220;
 
 const mode = document.body.dataset.mode === "custom" ? "custom" : "daily";
@@ -294,9 +295,40 @@ function renderLives(popIndex) {
 function renderHud(animateScore, popIndex) {
   renderScore(animateScore);
   renderLives(popIndex);
-  $("#easyMode").checked = game.state.easy;
-  $("#easyMode").disabled = game.state.over;
+  renderEasyToggle();
   $("#giveUp").hidden = game.state.over;
+}
+
+// Easy mode costs points, so it asks first and then stays on for the grid
+// (otherwise you could play a hint, switch it off and answer for full points)
+function renderEasyToggle() {
+  const box = $("#easyMode");
+  box.checked = game.state.easy;
+  box.disabled = game.state.over || game.state.easy;
+  const note = $("#easyNote");
+  if (note) {
+    note.textContent = game.state.easy
+      ? `On for the rest of this grid. Squares score ${EASY_PENALTY} fewer points.`
+      : `Song hints and relaxed search rules, for ${EASY_PENALTY} fewer points a square`;
+  }
+}
+
+function askForEasyMode() {
+  const dialog = $("#easyConfirm");
+  if (dialog && dialog.showModal) {
+    dialog.showModal();
+    $("#easyYes").focus();
+  } else if (window.confirm(`Easy mode gives you song hints and relaxed search rules, but every square you solve from now on scores ${EASY_PENALTY} fewer points. Turn it on?`)) {
+    turnOnEasyMode();
+  }
+}
+
+function turnOnEasyMode() {
+  if (!game.state || game.state.over || game.state.easy) return;
+  game.state.easy = true;
+  save();
+  renderEasyToggle();
+  toast(`Easy mode on. Squares now score ${EASY_PENALTY} fewer points.`);
 }
 
 // ---------- Rendering: board ----------
@@ -349,9 +381,9 @@ function renderCell(key, effect) {
       el("span", { class: "spinner" })
     ]);
   } else if (cell.status === "solved") {
-    node = el("div", { class: "cell", "data-state": "solved", role: "img", "aria-label": `${where}: ${cell.song}, ${cell.points} points` }, [
+    node = el("div", { class: "cell", "data-state": "solved", role: "img", "aria-label": `${where}: ${cell.song}, ${cell.points} points${cell.easy ? " in easy mode" : ""}` }, [
       el("span", { class: "cell-song", text: cell.song }),
-      el("span", { class: "cell-points", text: `+${cell.points}` })
+      el("span", { class: "cell-points", text: cell.easy ? `+${cell.points} easy` : `+${cell.points}` })
     ]);
   } else if (cell.status === "missed") {
     node = el("div", { class: "cell", "data-state": "missed" }, [
@@ -697,14 +729,21 @@ async function submitGuess(key, songName) {
   }
 
   if (points > 0) {
+    const earned = game.state.easy ? Math.max(0, points - EASY_PENALTY) : points;
     cell.status = "solved";
     cell.song = songName;
-    cell.points = points;
-    game.state.score += points;
+    cell.points = earned;
+    if (game.state.easy) {
+      cell.easy = true;
+      cell.base = points;
+    }
+    game.state.score += earned;
     save();
     renderCell(key, "flip");
     renderHud(true);
-    announce(`Correct. ${songName} scores ${points} points.`);
+    announce(game.state.easy
+      ? `Correct. ${songName} scores ${earned} points, ${points} minus ${EASY_PENALTY} for easy mode.`
+      : `Correct. ${songName} scores ${points} points.`);
   } else {
     cell.misses.push(songName);
     game.state.livesLost += 1;
@@ -778,6 +817,8 @@ function renderEndPanel() {
   const finalLabel = $("#finalLabel");
   if (finalLabel) finalLabel.textContent = Number(state.score) === 1 ? "point" : "points";
   let summary = `You filled ${solved} of ${total} squares.`;
+  const easyCost = Object.values(state.cells).reduce((sum, cell) => sum + (cell.easy ? (Number(cell.base) || 0) - (Number(cell.points) || 0) : 0), 0);
+  if (easyCost > 0) summary += ` Easy mode cost you ${easyCost} ${easyCost === 1 ? "point" : "points"}.`;
   if (solved < total) summary += " Tap play on a missed square to hear a song that fit.";
   $("#summary").textContent = summary;
 
@@ -820,10 +861,11 @@ function shareHeadline() {
   const total = totalCells();
   const score = game.state.score;
   const points = `${score} ${score === 1 ? "point" : "points"}`;
-  if (solved === total) return `Perfect MusicGrid, ${points}. You could never.`;
-  if (solved >= total - 2) return `I scored ${points} on MusicGrid. You could never.`;
-  if (solved >= Math.ceil(total / 2)) return `I scored ${points} on MusicGrid. Your turn.`;
-  if (solved > 0) return `I scored ${points} on MusicGrid. Be nice.`;
+  const where = game.state.easy ? "MusicGrid in easy mode" : "MusicGrid";
+  if (solved === total) return `Perfect ${where}, ${points}. You could never.`;
+  if (solved >= total - 2) return `I scored ${points} on ${where}. You could never.`;
+  if (solved >= Math.ceil(total / 2)) return `I scored ${points} on ${where}. Your turn.`;
+  if (solved > 0) return `I scored ${points} on ${where}. Be nice.`;
   return "MusicGrid won today. Avenge me.";
 }
 
@@ -1123,10 +1165,21 @@ function wire() {
 
   $("#easyMode").addEventListener("change", event => {
     if (!game.state) return;
-    game.state.easy = event.target.checked;
-    save();
-    toast(game.state.easy ? "Easy mode on. Each square now has a song hint." : "Easy mode off");
+    // Nothing changes until they confirm in the dialog
+    event.target.checked = game.state.easy;
+    if (!game.state.easy && !game.state.over) askForEasyMode();
   });
+  const easyDialog = $("#easyConfirm");
+  if (easyDialog) {
+    $("#easyYes").addEventListener("click", () => {
+      easyDialog.close();
+      turnOnEasyMode();
+    });
+    $("#easyNo").addEventListener("click", () => easyDialog.close());
+    easyDialog.addEventListener("click", event => {
+      if (event.target === easyDialog) easyDialog.close();
+    });
+  }
   $("#giveUp").addEventListener("click", () => giveUp.click());
   $("#shareBtn").addEventListener("click", share);
   $("#submitForm").addEventListener("submit", submitScore);

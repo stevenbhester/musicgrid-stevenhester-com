@@ -37,6 +37,7 @@ function initializeSite() {
   document.getElementById("createGrids").addEventListener("click", createGrids);
   document.getElementById("gridJson").addEventListener("input", () => { document.getElementById("createGrids").disabled = true; });
   document.getElementById("screenBtn").addEventListener("click", screenLeaderboard);
+  document.getElementById("checkAnswers").addEventListener("click", checkAnswers);
   loadGridData();
   loadCalendar();
   loadModerationLog();
@@ -257,6 +258,8 @@ async function loadCalendar() {
     const response = await fetch(ADMIN_API + "/grid-calendar?days=21", { headers: adminHeaders() });
     const data = await response.json();
     calendarData = data;
+    const idBox = document.getElementById("answerGridId");
+    if (idBox && !idBox.value && data.calendar[0] && data.calendar[0].grid_id) idBox.value = data.calendar[0].grid_id;
     holder.innerHTML = "";
     data.calendar.forEach(day => {
       const row = document.createElement("div");
@@ -638,3 +641,75 @@ async function updateEncodedAnswers(encodedAnswers) {
   }
 }
 
+
+// ---------- Answers and song clips for one grid ----------
+
+async function checkAnswers() {
+  const kind = document.getElementById("answerKind").value;
+  const gridId = document.getElementById("answerGridId").value.trim();
+  const report = document.getElementById("answerReport");
+  if (!gridId) {
+    report.textContent = "Enter a grid id (today's is filled in from the calendar).";
+    return;
+  }
+  report.textContent = "Checking each square. Finding clips can take a few seconds…";
+  try {
+    const data = await adminFetch("/admin/grid-answers", { method: "POST", body: JSON.stringify({ kind, grid_id: gridId }) });
+    report.innerHTML = "";
+    if (!data.squares.length) {
+      report.textContent = "That grid has no scored answers.";
+      return;
+    }
+    data.squares.forEach(square => {
+      const box = document.createElement("div");
+      box.className = "answer-square";
+      const head = document.createElement("h3");
+      head.textContent = square.artist + " \u00d7 " + square.category + " (" + square.field + ")";
+      box.appendChild(head);
+      const clip = document.createElement("div");
+      if (square.clip) {
+        clip.className = "clip-ok";
+        clip.append("Hint clip found (" + square.clip.source + "): ");
+        const link = document.createElement("a");
+        link.href = square.clip.url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = "listen";
+        clip.appendChild(link);
+      } else {
+        clip.className = "clip-missing";
+        const tried = square.tried.map(item => item.song).join(", ");
+        clip.textContent = "No hint clip found" + (tried ? " (tried " + tried + ")" : "") + ". Easy mode can't hint this square.";
+      }
+      box.appendChild(clip);
+      const list = document.createElement("div");
+      square.answers.forEach(answer => {
+        const chip = document.createElement("span");
+        chip.className = "answer-chip";
+        chip.append(answer.song + " \u00b7 " + answer.points);
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "\u00d7";
+        remove.setAttribute("aria-label", "Remove " + answer.song);
+        remove.addEventListener("click", () => removeAnswer(kind, gridId, square.field, answer.song, chip));
+        chip.appendChild(remove);
+        list.appendChild(chip);
+      });
+      box.appendChild(list);
+      report.appendChild(box);
+    });
+  } catch (error) {
+    report.textContent = error.message;
+  }
+}
+
+async function removeAnswer(kind, gridId, field, song, chip) {
+  if (!window.confirm("Remove \"" + song + "\" as an answer for this square?")) return;
+  try {
+    const data = await adminFetch("/admin/remove-answer", { method: "POST", body: JSON.stringify({ kind, grid_id: gridId, field, song }) });
+    chip.remove();
+    toolOutput("Removed \"" + song + "\" from " + (data.grids.length === 1 ? "grid " : "grids ") + data.grids.join(", "));
+  } catch (error) {
+    toolOutput(error.message);
+  }
+}
