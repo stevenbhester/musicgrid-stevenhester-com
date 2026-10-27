@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css?v=2026102703">
+  <link rel="stylesheet" href="/css/mg.css?v=2026102704">
 </head>
 <body data-source="search">
   <header class="topbar">
@@ -44,6 +44,11 @@
         <h2 class="picked-head">Your artists <span id="pickCount"></span></h2>
         <p class="empty-note" id="pickEmpty">Search above and add the artists you want in your grid.</p>
         <ul class="sortable-list" aria-label="Your artists, in order"></ul>
+        <label class="toggle on-card clip-opt">
+          <input type="checkbox" id="clipsOnly" checked>
+          <span class="toggle-track" aria-hidden="true"></span>
+          <span>Only artists with song clips<span class="toggle-note">Leaves out artists whose songs can't play as easy-mode hints</span></span>
+        </label>
         <div class="sticky-go">
           <p id="pickHint">Pick 3 more artists to build.</p>
           <button class="btn proceed-button" type="button" disabled>Build my grid</button>
@@ -91,6 +96,6 @@
   <footer class="foot">
     MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
   </footer>
-  <script src="/js/gb-artistSelect.js?v=2026102703"></script>
+  <script src="/js/gb-artistSelect.js?v=2026102704"></script>
 </body>
 </html>

@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css?v=2026102703">
+  <link rel="stylesheet" href="/css/mg.css?v=2026102704">
 </head>
 <body>
   <header class="topbar">
@@ -52,6 +52,11 @@
       <p class="subtitle">Put the artists you most want in your grid at the top. We'll use the highest-ranked three that work together.</p>
       <div class="card" style="margin-top: 24px">
         <ul class="sortable-list" aria-label="Your top artists, in order"></ul>
+        <label class="toggle on-card clip-opt">
+          <input type="checkbox" id="clipsOnly" checked>
+          <span class="toggle-track" aria-hidden="true"></span>
+          <span>Only artists with song clips<span class="toggle-note">Leaves out artists whose songs can't play as easy-mode hints</span></span>
+        </label>
         <div class="sticky-go">
           <p>Drag, or use the arrows, to reorder.</p>
           <button class="btn proceed-button" type="button">Build my grid</button>
@@ -99,6 +104,6 @@
   <footer class="foot">
     MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
   </footer>
-  <script src="/js/gb-artistSelect.js?v=2026102703"></script>
+  <script src="/js/gb-artistSelect.js?v=2026102704"></script>
 </body>
 </html>
