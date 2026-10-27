@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>musicgrid.io game of royalty</title>
     <link rel="icon" type="image/x-icon" href="/img/favicon.png">
-    <script src="/js/adminCode.js?v=2026102706"></script>
+    <script src="/js/adminCode.js?v=2026102708"></script>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -206,10 +206,40 @@
         .answer-chip { display: inline-flex; align-items: center; gap: 4px; margin: 3px; padding: 2px 4px 2px 10px; border: 1px solid #e6dfa8; border-radius: 999px; }
         .answer-chip button { border: 0; background: none; color: #a3170b; font-size: 1.1em; cursor: pointer; }
         .grid-preview.is-skipped table { opacity: 0.55; }
+        .lock { min-height: 100vh; display: grid; place-items: center; background: #1e44b5; }
+        .lock-box { display: grid; gap: 10px; width: min(360px, 90vw); padding: 24px; background: #FFFAD5; border-radius: 8px; }
+        .lock-box h1 { margin: 0 0 6px; font-size: 1.4em; }
+        .lock-box input, .lock-box button { font: inherit; padding: 8px 10px; }
+        #lockNote { margin: 0; color: #a3170b; font-weight: bold; min-height: 1.2em; }
+        .queue-item { margin: 8px 0; padding: 10px; background: #fff; border-radius: 4px; }
+        .queue-item .meta { font-size: 0.9em; color: #555; }
+        .queue-item details { margin: 4px 0; font-size: 0.9em; }
+        .queue-status { font-weight: bold; }
+        .queue-status.approved { color: #1f7a3f; }
+        .queue-status.rejected { color: #a3170b; }
+        .maker-table { border-collapse: collapse; margin: 8px 0; background: #fff; font-size: 0.92em; }
+        .maker-table th, .maker-table td { border: 1px solid #e6dfa8; padding: 4px 8px; text-align: left; }
+        .maker-table tr.off { color: #999; }
+        .kind { font-size: 0.75em; font-weight: bold; padding: 1px 6px; border-radius: 999px; background: #eee; }
+        .maker-cells { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 8px 0; }
+        .maker-cells label { display: grid; gap: 4px; font-size: 0.85em; font-weight: bold; }
+        .maker-cells textarea { width: 100%; box-sizing: border-box; min-height: 110px; font: inherit; font-weight: normal; }
+        .answer-add { margin-top: 6px; }
         #toolOutput { white-space: pre-wrap; background: #fff; padding: 8px; border-radius: 4px; min-height: 1.2em; }
     </style>
 </head>
 <body>
+    <div class="lock" id="lock">
+        <form class="lock-box" id="lockForm">
+            <h1>MusicGrid admin</h1>
+            <label for="lockKey">Password</label>
+            <input type="password" id="lockKey" autocomplete="current-password" required>
+            <button type="submit" id="lockBtn">Unlock</button>
+            <p id="lockNote" role="alert"></p>
+            <p class="tool-note">It's the ADMIN_KEY config var from Heroku.</p>
+        </form>
+    </div>
+    <div id="adminApp" hidden>
     <div class="header">
         <div class="title">musicgrid.io Administration</div>
         <br>
@@ -217,14 +247,41 @@
     <br>
     <div class="admin-tools">
         <div class="tool-row">
-            <label>Admin key <input type="password" id="adminKey" placeholder="ADMIN_KEY from Heroku config vars" autocomplete="off"></label>
-            <button type="button" id="saveKey">Save key</button>
-            <span id="keyNote"></span>
+            <span class="tool-note">Unlocked in this browser.</span>
+            <button type="button" id="lockAgain">Lock admin page</button>
         </div>
+        <h2>Flagged answers</h2>
+        <p class="tool-note">Songs players think should count. Approving adds the song as an answer and re-scores that square (for a daily grid, its reruns too). Players see your verdict after they finish.</p>
+        <div class="tool-row"><label><input type="checkbox" id="showDecided"> Show decided ones too</label></div>
+        <div id="complaintQueue">Loading…</div>
+        <h2>Spotify sign-in requests</h2>
+        <p class="tool-note">People asking to use "From your Spotify top artists". Add each one in the <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">Spotify Developer Dashboard</a> (your app, then User Management) with their name and Spotify email, then mark them added.</p>
+        <div class="tool-row"><label><input type="checkbox" id="showAdded"> Show added ones too</label></div>
+        <div id="accessQueue">Loading…</div>
         <h2>Next three weeks</h2>
         <p class="tool-note">Each day plays the grid scheduled for it. Days with nothing scheduled rerun an older grid, picked at midnight.</p>
         <div id="calendar">Loading…</div>
-        <h2>Add daily grids</h2>
+        <h2>Make a daily grid</h2>
+        <p class="tool-note">Pick 3 artists and it checks every category (Spotify facts, plus AI-checked and opinion ones if ticked). Pick 3 categories, review the answers, then create.</p>
+        <div class="tool-row">
+            <input type="text" id="makerSearch" placeholder="Search for an artist" autocomplete="off">
+            <span id="makerPicks"></span>
+        </div>
+        <div class="tool-row" id="makerResults"></div>
+        <div class="tool-row">
+            <label><input type="checkbox" id="makerAi" checked> AI-checked</label>
+            <label><input type="checkbox" id="makerOpinion" checked> Opinion</label>
+            <button type="button" id="makerCheck" disabled>Find categories</button>
+        </div>
+        <div id="makerCategories"></div>
+        <div id="makerAnswers"></div>
+        <div class="tool-row" id="makerFinish" hidden>
+            <label>Title <input type="text" id="makerTitle" maxlength="60" size="28"></label>
+            <button type="button" id="makerSuggest">Suggest a title</button>
+            <label>Date <input type="date" id="makerDate"></label>
+            <button type="button" id="makerCreate">Create grid</button>
+        </div>
+        <h2>Add daily grids from a file</h2>
         <p class="tool-note">Choose a .json file or paste one below, check it, then create. Answers get scored automatically right after.</p>
         <div class="tool-row"><input type="file" id="gridFile" accept=".json,application/json"></div>
         <textarea id="gridJson" rows="8" spellcheck="false" placeholder='{ "grids": [ { "date": "2026-11-03", "title": "...", "artists": [...], "categories": [...], "answers": { ... } } ] }'></textarea>
@@ -308,6 +365,7 @@
                 "A3C3"
             </div>
         </div>
+    </div>
     </div>
 </body>
 </html>

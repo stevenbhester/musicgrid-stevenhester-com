@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css?v=2026102706">
+  <link rel="stylesheet" href="/css/mg.css?v=2026102708">
 </head>
 <body>
   <header class="topbar">
@@ -26,6 +26,16 @@
   <main class="stats" id="main">
     <h1 class="title">Your stats</h1>
     <p class="subtitle">Every grid you've finished in this browser.</p>
+
+    <section class="card link-confirm" id="linkConfirm" aria-labelledby="linkConfirmTitle" hidden>
+      <h2 id="linkConfirmTitle">Use this player code here?</h2>
+      <p>This browser will count as the same player as the device that sent the link. Any scores from this browser join that player's all-time total.</p>
+      <div class="device-actions">
+        <button class="btn" type="button" id="linkYes">Use this code</button>
+        <button class="btn-ghost" type="button" id="linkNo">Not now</button>
+      </div>
+      <p class="form-note" id="linkConfirmNote" aria-live="polite"></p>
+    </section>
 
     <div class="browse-tabs" id="statsFilter" role="group" aria-label="Which grids to count" hidden>
       <button type="button" data-view="daily" aria-pressed="true">Daily grids</button>
@@ -67,12 +77,32 @@
       </section>
     </div>
 
-    <p class="browse-note stats-foot">Stats are saved in this browser, so each phone or computer keeps its own. Clearing your browser data resets them.</p>
+    <section class="card device-card" id="player-code" aria-labelledby="deviceTitle">
+      <h2 id="deviceTitle">Your player code</h2>
+      <p>Leaderboards know you by a secret code saved in this browser, not by the name you type. That keeps two players called Sam apart, and nobody can claim your scores just by using your name. The code is never shown to other players.</p>
+      <p>Play on another phone or computer too? Open this browser's link there and both count as one player on the all-time leaderboard.</p>
+      <div class="device-actions">
+        <button class="btn" type="button" id="sendLink">Copy link for another device</button>
+        <button class="btn-ghost" type="button" id="showCode" aria-expanded="false" aria-controls="codeBox">Show code</button>
+      </div>
+      <p class="device-code" id="codeBox" hidden><code id="codeText"></code></p>
+      <form class="device-form" id="useCodeForm" novalidate>
+        <label for="codeInput">Got a code from another device?</label>
+        <div class="field-row">
+          <input class="field" id="codeInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste the code">
+          <button class="btn btn-ink" type="submit">Use code</button>
+        </div>
+      </form>
+      <p class="form-note" id="deviceNote" aria-live="polite"></p>
+      <p class="device-warn">Keep your code and link private. Anyone who has them can post scores as you.</p>
+    </section>
+
+    <p class="browse-note stats-foot">Stats on this page are saved in this browser, so each phone or computer keeps its own list of games. Clearing your browser data resets them and gives this browser a new player code.</p>
   </main>
 
   <footer class="foot">
     MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
   </footer>
-  <script type="module" src="/js/stats.js?v=2026102706"></script>
+  <script type="module" src="/js/stats.js?v=2026102708"></script>
 </body>
 </html>

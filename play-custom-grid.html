@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
   <link rel="preconnect" href="https://music-grid-io-42616e204fd3.herokuapp.com" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css?v=2026102706">
+  <link rel="stylesheet" href="/css/mg.css?v=2026102708">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://musicgrid.stevenhester.com/play-custom-grid">
@@ -40,7 +40,9 @@
     <section class="game-head">
       <p class="grid-date" id="gridDate" hidden></p>
       <h1 class="title" id="gridTitle">Custom grid</h1>
-      <p class="subtitle">A custom grid built from someone's Spotify favorites. Name a song for every square that fits both its artist and its category. Deeper cuts score more.</p>
+      <button class="btn-ghost edit-btn" type="button" id="editAnswers" hidden>Edit answers</button>
+      <p class="subtitle">A grid built by another player. Name a song for every square that fits both its artist and its category. Deeper cuts score more.</p>
+      <p class="grid-note" id="gridNote" hidden></p>
     </section>
 
     <section class="hud" aria-label="Game status">
@@ -72,6 +74,10 @@
       <div class="final-score"><b id="finalScore">1</b><span id="finalLabel">points</span></div>
       <p class="summary" id="summary"></p>
       <div class="mini" id="mini" aria-hidden="true"></div>
+      <div class="flagged" id="flagged" hidden>
+        <h3>Songs players flagged</h3>
+        <ol class="flag-list" id="flagList"></ol>
+      </div>
       <div class="results-actions">
         <button class="btn" type="button" id="shareBtn">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>
@@ -98,7 +104,8 @@
         <div class="lb-scroll"><ol class="board-list" id="leaderboardList"></ol></div>
       </section>
       <section class="card" id="allTimeCard" aria-labelledby="atTitle">
-        <div class="lb-head"><h2 id="atTitle">All-time</h2><span class="lb-count" id="atCount"></span></div>
+        <div class="lb-head"><span class="lb-title"><h2 id="atTitle">All-time</h2><button class="info-btn" type="button" id="atInfoBtn" aria-expanded="false" aria-controls="atInfo" aria-label="How players are counted">?</button></span><span class="lb-count" id="atCount"></span></div>
+        <p class="lb-info" id="atInfo" hidden>Players are counted by a secret code saved in this browser, not by the name they type. Two players called Sam stay separate, and nobody can claim your scores by using your name. Play on another phone or computer too? <a href="/stats#player-code">Link it from your stats</a> so both count as you.</p>
         <p class="lb-sub">Each player's best score on every daily grid, added up.</p>
         <p class="empty-note" id="allTimeNote">Loading scores…</p>
         <div class="lb-scroll"><ol class="board-list" id="allTimeList"></ol></div>
@@ -117,6 +124,25 @@
       <div class="confirm-actions">
         <button class="btn" type="button" id="easyYes">Turn it on (&minus;3 a square)</button>
         <button class="btn-ghost" type="button" id="easyNo">Keep it off</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="sheet editor" id="editSheet" aria-labelledby="editTitle">
+    <div class="sheet-inner">
+      <div class="sheet-head">
+        <div class="sheet-title">
+          <b id="editTitle">Edit answers</b>
+          <span>Add or remove songs, then save. Scores update automatically.</span>
+        </div>
+        <button class="close" type="button" id="closeEdit" aria-label="Close">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div class="sheet-body editor-body" id="editBody"></div>
+      <div class="editor-foot">
+        <p id="editNote"></p>
+        <button class="btn" type="button" id="saveEdit" disabled>Save changes</button>
       </div>
     </div>
   </dialog>
@@ -149,8 +175,15 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="flag-bar" id="flagBar" role="status" aria-live="polite" hidden>
+    <span id="flagText"></span>
+    <button class="btn-ghost flag-btn" type="button" id="flagBtn">I think it fits</button>
+    <button class="flag-close" type="button" id="flagClose" aria-label="Dismiss">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
   <div class="sr-only" id="announcer" aria-live="assertive"></div>
 
-  <script type="module" src="/js/grid-game.js?v=2026102706"></script>
+  <script type="module" src="/js/grid-game.js?v=2026102708"></script>
 </body>
 </html>
