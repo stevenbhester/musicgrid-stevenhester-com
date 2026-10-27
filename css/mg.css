@@ -1112,3 +1112,28 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
 .appeal-note { flex-basis: 100%; font-size: 14px; font-weight: 650; color: var(--muted); }
 .appeal-note.restored { color: #1f7a3f; }
 @media (prefers-color-scheme: dark) { .appeal-note.restored { color: #8fe0a8; } }
+
+/* ---------- Phones: get the whole board on the first screen ---------- */
+@media (max-width: 599px) {
+  .topbar { padding-top: 10px; padding-bottom: 6px; }
+  .game { gap: 14px; padding-top: 4px; }
+  /* Title and countdown share a line */
+  .game-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .game-head > * { flex: 1 1 100%; }
+  .game-head > .title, .game-head > .next-grid { flex: 0 1 auto; }
+  .grid-date { margin: 0; font-size: 14px; }
+  .title { font-size: 30px; }
+  .next-grid { margin: 0; padding: 5px 10px; font-size: 13px; }
+  .subtitle { margin: 2px 0 0; font-size: 15px; }
+  .rule-line { margin: 0; font-size: 14px; }
+  .grid-note { margin: 0; }
+  /* Players who've played before know the rules: keep only the no-repeats line */
+  .returning .game-head .subtitle { display: none; }
+  .hud { gap: 8px 12px; }
+  .hud-num { font-size: 40px; }
+  .life { width: 24px; height: 24px; }
+  .toggle-note { font-size: 12px; }
+  .sudden-banner { margin-bottom: 10px; padding: 8px 12px; border-radius: 12px; font-size: 14px; }
+  .board-wrap.danger .board { outline-offset: 5px; }
+  .board-actions { margin-top: 14px; }
+}
