@@ -627,3 +627,17 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
   .item .handle { display: none; }
   .move { width: 34px; height: 34px; }
 }
+
+/* Pick any artists */
+.card .search { margin: 0; }
+.artist-results { margin: 8px -10px 0; }
+.artist-results .art { border-radius: 50%; }
+.result-add {
+  margin-left: auto; flex: none; padding: 6px 12px; border-radius: 999px;
+  background: var(--gold); color: var(--gold-ink); font-size: 13px; font-weight: 750;
+}
+.result[disabled] .result-add { background: var(--surface-2); color: var(--muted); }
+.card .picked-head { display: flex; align-items: baseline; gap: 10px; margin: 24px 0 10px; font-size: 18px; }
+.card .picked-head span { color: var(--muted); font-size: 14px; font-weight: 600; }
+.card .sheet-msg { margin: 12px 0 0; }
+.move.remove { color: var(--miss-ink); }
