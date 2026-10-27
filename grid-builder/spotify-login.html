@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css?v=2026102706">
+  <link rel="stylesheet" href="/css/mg.css?v=2026102708">
 </head>
 <body>
   <header class="topbar">
@@ -42,6 +42,22 @@
       </div>
     </template>
 
+    <section class="card access-card" id="request-access" aria-labelledby="accessTitle" hidden>
+      <h2 id="accessTitle">Approved Spotify accounts only</h2>
+      <p>Spotify now lets small apps like MusicGrid connect only a handful of Spotify accounts, and Steven has to add each one by hand. If yours isn't on the list yet, ask below. Spaces are limited, so it may take a while. <a href="/grid-builder/manual-artist-pick">Pick any artists</a> works for everyone in the meantime.</p>
+      <form class="access-form" id="accessForm" novalidate>
+        <div class="access-fields">
+          <label>Your name<input class="field" name="name" maxlength="60" autocomplete="name" required></label>
+          <label>Email on your Spotify account<input class="field" name="email" type="email" maxlength="120" autocomplete="email" required></label>
+          <label class="hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
+        </div>
+        <button class="btn btn-ink" type="submit" id="accessSend">Ask Steven to add me</button>
+        <p class="form-note" id="accessNote" aria-live="polite"></p>
+      </form>
+      <p class="fine">Your email is only used to add you in Spotify's developer dashboard. Spotify needs the address your Spotify account uses.</p>
+      <p class="access-spotify">Think indie developers deserve better? <a href="https://community.spotify.com/forum/en/discussion/7330564/february-2026-spotify-for-developers-update-thread" target="_blank" rel="noopener">Tell Spotify on its developer forum</a> that small projects need room to grow. Here's <a href="https://developer.spotify.com/blog/2026-02-06-update-on-developer-access-and-platform-security" target="_blank" rel="noopener">what Spotify changed in February 2026</a>.</p>
+    </section>
+
     <template id="working">
       <h1 class="title">Connecting…</h1>
       <div class="card" style="margin-top: 24px"><p class="lede" style="margin:0">Finishing up with Spotify.</p></div>
@@ -66,6 +82,6 @@
   <footer class="foot">
     MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
   </footer>
-  <script src="/js/gb-spotifyLogin.js?v=2026102706" type="module"></script>
+  <script src="/js/gb-spotifyLogin.js?v=2026102708" type="module"></script>
 </body>
 </html>

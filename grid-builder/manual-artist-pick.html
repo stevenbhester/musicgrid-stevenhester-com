@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css?v=2026102706">
+  <link rel="stylesheet" href="/css/mg.css?v=2026102708">
 </head>
 <body data-source="search">
   <header class="topbar">
@@ -26,12 +26,12 @@
   <main class="builder" id="main">
     <ol class="steps" aria-label="Progress">
       <li class="now" id="stepPick"><span class="num">1</span>Pick artists</li>
-      <li id="stepBuild"><span class="num">2</span>Build your grid</li>
+      <li id="stepBuild"><span class="num">2</span>Pick categories</li>
     </ol>
 
     <section data-view="search">
       <h1 class="title">Pick your artists</h1>
-      <p class="subtitle">Choose at least three. Adding a few more gives us room to find three that share enough songs to fill a grid.</p>
+      <p class="subtitle">Pick 3 to 10. We'll check every category for each one, then you choose the final 3 artists and 3 categories.</p>
       <div class="card" style="margin-top: 24px">
         <label class="sr-only" for="artistSearch">Search for an artist</label>
         <div class="search">
@@ -44,11 +44,23 @@
         <h2 class="picked-head">Your artists <span id="pickCount"></span></h2>
         <p class="empty-note" id="pickEmpty">Search above and add the artists you want in your grid.</p>
         <ul class="sortable-list" aria-label="Your artists, in order"></ul>
-        <label class="toggle on-card clip-opt">
-          <input type="checkbox" id="clipsOnly" checked>
-          <span class="toggle-track" aria-hidden="true"></span>
-          <span>Only artists with song clips<span class="toggle-note">Leaves out artists whose songs can't play as easy-mode hints</span></span>
-        </label>
+        <div class="build-options">
+          <label class="toggle on-card">
+            <input type="checkbox" id="useAi">
+            <span class="toggle-track" aria-hidden="true"></span>
+            <span>AI-checked categories<span class="toggle-note">Like Top 10 hits. AI decides which songs count, so a few answers may be off.</span></span>
+          </label>
+          <label class="toggle on-card">
+            <input type="checkbox" id="useOpinion">
+            <span class="toggle-track" aria-hidden="true"></span>
+            <span>Opinion categories<span class="toggle-note">Like Breakup songs. Judgment calls, so players may disagree with some answers.</span></span>
+          </label>
+          <label class="toggle on-card">
+            <input type="checkbox" id="clipsOnly" checked>
+            <span class="toggle-track" aria-hidden="true"></span>
+            <span>Only artists with song clips<span class="toggle-note">Leaves out artists whose songs can't play as easy-mode hints</span></span>
+          </label>
+        </div>
         <div class="sticky-go">
           <p id="pickHint">Pick 3 more artists to build.</p>
           <button class="btn proceed-button" type="button" disabled>Build my grid</button>
@@ -57,11 +69,36 @@
     </section>
 
     <section data-view="building" hidden>
-      <h1 class="title" id="buildTitle">Building your grid</h1>
-      <div class="card" style="margin-top: 24px" aria-live="polite">
-        <p class="progress-copy" id="buildStatus">Checking which of your artists have enough songs in common. This can take a minute.</p>
-        <div id="gridProgressContainer" class="progressContainer"></div>
-        <div class="build-grid" id="grid-container" hidden></div>
+      <h1 class="title" id="buildTitle">Checking categories</h1>
+      <p class="subtitle" id="buildStatus" aria-live="polite">Reading each artist's songs from Spotify.</p>
+      <p class="build-keep">Keep this page open until the checks finish. Nothing is saved until you build the grid.</p>
+      <div class="card check-card" style="margin-top: 24px">
+        <div class="check-legend" aria-hidden="true">
+          <span><i class="dot ok"></i>2 or more songs</span>
+          <span><i class="dot no"></i>Not enough</span>
+          <span><i class="dot wait"></i>Checking</span>
+        </div>
+        <div class="check-scroll"><table class="check-matrix" id="checkMatrix"></table></div>
+      </div>
+    </section>
+
+    <section data-view="choose" hidden>
+      <h1 class="title">Pick your grid</h1>
+      <p class="subtitle">Choose 3 artists and 3 categories. A category needs at least 2 songs for each artist you pick, so ones that don't work are greyed out.</p>
+      <div class="card" style="margin-top: 24px">
+        <h2 class="choose-head">Artists <span class="lb-count" id="artistCount"></span></h2>
+        <div class="choose-artists" id="chooseArtists"></div>
+        <h2 class="choose-head">Categories <span class="lb-count" id="categoryCount"></span></h2>
+        <p class="choose-note">The numbers are how many songs fit, for each artist you picked.</p>
+        <div id="chooseCategories"></div>
+        <h2 class="choose-head">Preview</h2>
+        <div class="choose-preview" id="choosePreview"></div>
+        <p class="choose-note" id="previewSongs" hidden></p>
+        <div class="sticky-go">
+          <button class="btn-ghost" type="button" id="chooseBack">Back</button>
+          <p id="chooseHint">Pick 3 artists and 3 categories.</p>
+          <button class="btn" type="button" id="buildGrid" disabled>Build this grid</button>
+        </div>
       </div>
     </section>
 
@@ -74,6 +111,10 @@
         <div class="share-link">
           <input class="field" id="shareUrl" readonly>
           <button class="btn btn-ink" type="button" id="copyLink">Copy link</button>
+        </div>
+        <div class="done-edit" hidden>
+          <a class="btn-ghost" id="editLink" href="/play-custom-grid">Edit answers</a>
+          <p class="form-note">Add or remove songs anytime. Only this browser can edit your grid.</p>
         </div>
       </div>
     </section>
@@ -96,6 +137,6 @@
   <footer class="foot">
     MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
   </footer>
-  <script src="/js/gb-artistSelect.js?v=2026102706"></script>
+  <script src="/js/gb-artistSelect.js?v=2026102708"></script>
 </body>
 </html>
