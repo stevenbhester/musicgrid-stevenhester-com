@@ -1431,9 +1431,13 @@ function boardRows(list, entries, valueOf, detailOf) {
 // A quiet day shouldn't look like an empty room: player counts only show
 // once a board is busy, and a thin daily board shows recent top scores
 // from other daily grids under it. Every name and score shown is real.
-const COUNT_FROM = 25; // show "N players" from this many players
+const COUNT_FROM = 25; // show "N players" on a grid's board from this many players
 const THIN_BOARD = 5; // fewer players than this on today's grid: add recent top scores
+const ALL_TIME_FIRST = 25; // names on the all-time board before "Show more"
+const ALL_TIME_MORE = 50; // names each "Show more" adds
 let lastBoards = null;
+// The all-time board in pages: rows in order, plus your own row if it's further down
+const allTime = { rows: [], me: null, hasMore: false, loading: false };
 
 function boardCount(node, players, noun) {
   node.textContent = players >= COUNT_FROM ? `${players} players${noun ? " " + noun : ""}` : "";
@@ -1443,8 +1447,8 @@ function shortDay(day) {
   return day ? new Date(`${day}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
 }
 
-function renderBoards(grid, allTime, recent) {
-  lastBoards = { grid, allTime, recent };
+function renderBoards(grid, allTimeBoard, recent) {
+  lastBoards = { grid, allTime: allTimeBoard, recent };
   const list = $("#leaderboardList");
   const note = $("#leaderboardNote");
   const isToday = mode === "daily" && !game.past;
@@ -1472,22 +1476,72 @@ function renderBoards(grid, allTime, recent) {
     }
   }
 
-  const atList = $("#allTimeList");
-  const atNote = $("#allTimeNote");
-  if (!allTime) {
+  if (!allTimeBoard) {
     $("#allTimeCard").hidden = true;
     return;
   }
   $("#allTimeCard").hidden = false;
-  boardCount($("#atCount"), allTime.players, "");
-  if (allTime.entries.length) {
+  // No player count here: the list itself shows how many people have played
+  $("#atCount").textContent = "";
+  allTime.rows = [];
+  allTime.me = null;
+  addAllTime(allTimeBoard, 0, ALL_TIME_FIRST);
+  renderAllTime();
+}
+
+// Merge one page of all-time rows (positions offset+1 .. offset+limit). Your
+// own row comes with every page; outside the page it waits at the bottom.
+// Older servers send no positions: their rows count as the first page.
+function addAllTime(page, offset, limit) {
+  const seen = new Set(allTime.rows.map(entry => entry.pos));
+  (page.entries || []).forEach((entry, i) => {
+    const pos = Number.isFinite(entry.pos) ? entry.pos : offset + i + 1;
+    if (pos > offset && pos <= offset + limit) {
+      if (!seen.has(pos)) allTime.rows.push({ ...entry, pos });
+      seen.add(pos);
+    } else if (entry.me) {
+      allTime.me = { ...entry, pos };
+    }
+  });
+  allTime.rows.sort((a, b) => a.pos - b.pos);
+  if (allTime.rows.some(entry => entry.me)) allTime.me = null;
+  allTime.hasMore = Boolean(page.hasMore);
+}
+
+function renderAllTime() {
+  const atList = $("#allTimeList");
+  const atNote = $("#allTimeNote");
+  const more = $("#atMore");
+  const rows = allTime.me ? [...allTime.rows, allTime.me] : allTime.rows;
+  if (rows.length) {
     atNote.hidden = true;
-    boardRows(atList, allTime.entries, entry => entry.total);
+    boardRows(atList, rows, entry => entry.total);
   } else {
     atList.innerHTML = "";
     atNote.hidden = false;
     atNote.textContent = "All-time totals show up after the first daily scores.";
   }
+  if (more) {
+    more.hidden = !allTime.hasMore;
+    more.disabled = allTime.loading;
+    more.textContent = allTime.loading ? "Loading…" : "Show more";
+  }
+}
+
+async function loadMoreAllTime() {
+  if (allTime.loading || !allTime.hasMore) return;
+  allTime.loading = true;
+  renderAllTime();
+  try {
+    const offset = allTime.rows.length;
+    const page = await request("/leaderboards/all-time", { player_id: playerId(), offset, limit: ALL_TIME_MORE });
+    allTime.loading = false;
+    addAllTime(page, offset, ALL_TIME_MORE);
+  } catch (error) {
+    allTime.loading = false;
+    toast("Couldn't load more names right now.");
+  }
+  renderAllTime();
 }
 
 // The game just ended: show the board that was held back
@@ -1499,7 +1553,7 @@ async function loadLeaderboard() {
   const lbId = api.leaderboardId(game.id);
   try {
     const recent = mode === "daily" && !game.past;
-    const data = await request("/leaderboards", { lb_id: lbId, board: api.board, player_id: playerId(), recent });
+    const data = await request("/leaderboards", { lb_id: lbId, board: api.board, player_id: playerId(), recent, all_time_limit: ALL_TIME_FIRST });
     renderBoards(data.grid, data.allTime, data.recent || null);
     return;
   } catch (error) {
@@ -1687,6 +1741,15 @@ function wire() {
   if ($("#flagBtn")) $("#flagBtn").addEventListener("click", flagFromBar);
   if ($("#flagClose")) $("#flagClose").addEventListener("click", hideFlagBar);
   if ($("#appealBtn")) $("#appealBtn").addEventListener("click", sendAppeal);
+  if ($("#atMore")) $("#atMore").addEventListener("click", loadMoreAllTime);
+  // Scrolling to the bottom of the all-time list loads the next names
+  if ($("#atSentinel") && window.IntersectionObserver) {
+    const box = $("#atScroll");
+    new IntersectionObserver(entries => {
+      const scrolled = box.scrollTop > 0 && box.scrollHeight > box.clientHeight;
+      if (entries.some(entry => entry.isIntersecting) && scrolled) loadMoreAllTime();
+    }, { root: box, rootMargin: "0px 0px 160px 0px" }).observe($("#atSentinel"));
+  }
   if ($("#atInfoBtn")) {
     $("#atInfoBtn").addEventListener("click", () => {
       const info = $("#atInfo");

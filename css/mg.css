@@ -1138,3 +1138,5 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
   .board-wrap.danger .board { outline-offset: 5px; }
   .board-actions { margin-top: 14px; }
 }
+.lb-more { width: 100%; justify-content: center; margin-top: 12px; }
+.lb-sentinel { height: 1px; }
