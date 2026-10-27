@@ -1,103 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pick Your Grid</title>
-    <link rel="stylesheet" href="/css/gb-artistSelect.css">
-    <link rel="icon" 
-          type="image/png" 
-          href="/img/favicon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pick your artists | MusicGrid</title>
+  <meta name="description" content="Pick any artists and build a custom MusicGrid to send to your friends. No Spotify account needed.">
+  <meta name="theme-color" content="#1e44b5">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="/css/mg.css">
 </head>
-<body>
-    <header>
-        <nav class="navbar">
-            <div class="nav-logo">
-                <img src="/img/musicgrid-logo.png" alt="MusicGrid Logo" class="header-logo">
-                MusicGrid
-            </div>
-            <div class="hamburger-menu">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-            </div>
-            <ul class="nav-links">
-                <li><a href="/index">Home</a></li>
-                <li><a href="/grid-builder/spotify-login">Build Your Own Grid</a></li>
-<!--                 <li><a href="#leaderboard">Leaderboard</a></li> -->
-                <li><a href="#settings">Settings</a></li>
-            </ul>
-        </nav>
-        <div class="mobile-nav">
-            <ul class="mobile-nav-links">
-                <li><a href="/index">Home</a></li>
-                <li><a href="/grid-builder/spotify-login">Build Your Own Grid</a></li>
-<!--                 <li><a href="#leaderboard">Leaderboard</a></li> -->
-                <li><a href="#settings">Settings</a></li>
-            </ul>
+<body data-source="search">
+  <header class="topbar">
+    <a class="brand" href="/"><img src="/img/logo-96.png" width="32" height="33" alt="">MusicGrid</a>
+    <nav class="topnav" aria-label="Main">
+      <a href="/">Daily grid</a>
+      <a href="/grid-builder/" aria-current="page">Build a grid</a>
+    </nav>
+  </header>
+
+  <main class="builder" id="main">
+    <ol class="steps" aria-label="Progress">
+      <li class="now" id="stepPick"><span class="num">1</span>Pick artists</li>
+      <li id="stepBuild"><span class="num">2</span>Build your grid</li>
+    </ol>
+
+    <section data-view="search">
+      <h1 class="title">Pick your artists</h1>
+      <p class="subtitle">Choose at least three. Adding a few more gives us room to find three that share enough songs to fill a grid.</p>
+      <div class="card" style="margin-top: 24px">
+        <label class="sr-only" for="artistSearch">Search for an artist</label>
+        <div class="search">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="artistSearch" type="text" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search for an artist">
         </div>
-    </header>
-    <main>
-        <section class="hero">
-            <div class="overlay"></div>
-            <div class="artist-content">
-                <div class="hero-content">
-                    <h1>Search and select at least 3 artists you want to include in your grid.</h1>
-                    <p>We'll pick the first three artists that work in a grid together.</p>
-                  <br>
-                    <input type="text" oninput="liveSearch(this, 'C1 A1')" placeholder="Search Artists...">
-                <div class="proceedButtonWrapper invisible">
-                    <button class="proceed-button">Finalize Artists</button>  
-                </div>
-                <div class="artists-container" id="artists-container">
-                   <ul class="sortable-list ">
-                      <li class="item" draggable="true">
-                        <div class="details">
-                          <img src="/img/noArtist.png">
-                          <span>Top Artist 1</span>
-                        </div>
-                        <i class="uil uil-draggabledots"></i>
-                      </li>
-                      <li class="item" draggable="true">
-                        <div class="details">
-                          <img src="/img/noArtist.png">
-                          <span>Top Artist 2</span>
-                        </div>
-                        <i class="uil uil-draggabledots"></i>
-                      </li>
-                      <li class="item" draggable="true">
-                        <div class="details">
-                          <img src="/img/noArtist.png">
-                          <span>Top Artist 3</span>
-                        </div>
-                        <i class="uil uil-draggabledots"></i>
-                      </li>
-                      <li class="item" draggable="true">
-                        <div class="details">
-                          <img src="/img/noArtist.png">
-                          <span>Top Artist 4</span>
-                        </div>
-                        <i class="uil uil-draggabledots"></i>
-                      </li>
-                      <li class="item" draggable="true">
-                        <div class="details">
-                          <img src="/img/noArtist.png">
-                          <span>Top Artist 5</span>
-                        </div>
-                        <i class="uil uil-draggabledots"></i>
-                      </li>
-                    </ul>
-                </div>
-                <br>
-            </div>
-            <div id = "gridProgressContainer" class = "progressContainer"></div>
-            <div class="grid-container" id="grid-container" style="display:none"></div>
+        <p class="sheet-msg" id="artistMsg" aria-live="polite" hidden></p>
+        <ul class="results-list artist-results" id="artistResults" aria-label="Artist search results"></ul>
+
+        <h2 class="picked-head">Your artists <span id="pickCount"></span></h2>
+        <p class="empty-note" id="pickEmpty">Search above and add the artists you want in your grid.</p>
+        <ul class="sortable-list" aria-label="Your artists, in order"></ul>
+        <div class="sticky-go">
+          <p id="pickHint">Pick 3 more artists to build.</p>
+          <button class="btn proceed-button" type="button" disabled>Build my grid</button>
         </div>
-        </section>
-    </main>
-    <footer class="footer">
-        <p>&copy; 2024 MusicGrid</p>
-    </footer>
-    <script src="/js/gb-manualArtistSelect.js"></script>
+      </div>
+    </section>
+
+    <section data-view="building" hidden>
+      <h1 class="title" id="buildTitle">Building your grid</h1>
+      <div class="card" style="margin-top: 24px" aria-live="polite">
+        <p class="progress-copy" id="buildStatus">Checking which of your artists have enough songs in common. This can take a minute.</p>
+        <div id="gridProgressContainer" class="progressContainer"></div>
+        <div class="build-grid" id="grid-container" hidden></div>
+      </div>
+    </section>
+
+    <section data-view="done" hidden>
+      <h1 class="title" id="doneTitle">Your grid is ready</h1>
+      <p class="subtitle">Play it yourself first, then send it to someone who thinks they know your music better than you do.</p>
+      <div class="card" style="margin-top: 24px">
+        <a class="btn" id="playLink" href="/play-custom-grid">Play your grid</a>
+        <label class="sr-only" for="shareUrl">Link to your grid</label>
+        <div class="share-link">
+          <input class="field" id="shareUrl" readonly>
+          <button class="btn btn-ink" type="button" id="copyLink">Copy link</button>
+        </div>
+      </div>
+    </section>
+
+    <section data-view="failed" hidden>
+      <h1 class="title">That grid didn't come together</h1>
+      <div class="card" style="margin-top: 24px">
+        <p class="lede" id="failMsg"></p>
+        <div class="row-actions">
+          <button class="btn" type="button" id="changeArtists" hidden>Change artists</button>
+          <button class="btn-ghost" type="button" id="startOver">Start over</button>
+          <a class="btn-ghost" id="reconnect" href="/grid-builder/spotify-login" hidden>Reconnect Spotify</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <footer class="foot">
+    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
+  </footer>
+  <script src="/js/gb-artistSelect.js"></script>
 </body>
 </html>
