@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Connect Apple Music | MusicGrid</title>
+  <meta name="description" content="Connect Apple Music to build a MusicGrid from the artists you listen to most.">
+  <meta name="theme-color" content="#1e44b5">
+  <link rel="icon" type="image/svg+xml" href="/img/logo.svg">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="/css/mg.css?v=2026102711">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><img src="/img/logo.svg" width="32" height="32" alt=""><span>MusicGrid</span></a>
+    <nav class="topnav" aria-label="Main">
+      <a href="/">Today</a>
+      <a href="/browse">Browse</a>
+      <a href="/grid-builder/" aria-current="page">Build</a>
+      <a href="/stats">Stats</a>
+    </nav>
+  </header>
+
+  <main class="builder" id="main">
+    <ol class="steps" aria-label="Progress">
+      <li class="now"><span class="num">1</span>Connect Apple Music</li>
+      <li><span class="num">2</span>Build your grid</li>
+    </ol>
+    <h1 class="title">Connect Apple Music</h1>
+    <p class="subtitle">We'll find the artists you've been playing most, and you can change them before we build.</p>
+    <div class="card" style="margin-top: 24px">
+      <p class="notice" id="appleNotice" hidden></p>
+      <button class="btn" id="appleConnect" type="button" disabled>Getting ready…</button>
+      <p class="fine" id="appleStatus" aria-live="polite"></p>
+      <p class="fine">Apple asks you to sign in and allow access. MusicGrid only reads your heavy rotation, recently played music and library artists to pick artists for your grid, and doesn't save them. You need an Apple Music subscription for this.</p>
+    </div>
+    <p class="builder-alt"><a href="/grid-builder/manual-artist-pick">Pick artists by hand instead</a></p>
+  </main>
+
+  <footer class="foot">
+    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a> &amp; Andrew McWhorter. Song data from Spotify. Apple Music is a trademark of Apple Inc.
+  </footer>
+  <script src="/js/gb-appleMusic.js?v=2026102711" type="module"></script>
+</body>
+</html>

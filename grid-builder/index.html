@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css?v=2026102708">
+  <link rel="stylesheet" href="/css/mg.css?v=2026102711">
 </head>
 <body>
   <header class="topbar">
@@ -36,6 +36,10 @@
         <span>Connect Spotify and we'll find three of your favorite artists that make a good grid together.</span>
         <span class="tag">Approved Spotify accounts only</span>
       </a>
+      <a class="choice wide" href="/grid-builder/apple-music" id="appleChoice" hidden>
+        <b>From your Apple Music</b>
+        <span>Sign in with Apple Music and we'll start with the artists you've been playing most. Works for any Apple Music subscriber.</span>
+      </a>
     </div>
 
     <section class="card spotify-note" aria-labelledby="spotifyNoteTitle">
@@ -44,9 +48,18 @@
       <p>Think indie developers deserve better? <a href="https://community.spotify.com/forum/en/discussion/7330564/february-2026-spotify-for-developers-update-thread" target="_blank" rel="noopener">Tell Spotify on its developer forum</a> that small projects need room to grow. Here's <a href="https://developer.spotify.com/blog/2026-02-06-update-on-developer-access-and-platform-security" target="_blank" rel="noopener">what Spotify changed in February 2026</a>.</p>
     </section>
   </main>
+  <script type="module">
+    // Show Apple Music only once the server has a MusicKit key
+    try {
+      const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/apple-music/status");
+      if (response.ok && (await response.json()).enabled) document.getElementById("appleChoice").hidden = false;
+    } catch (error) {
+      // Leave it hidden
+    }
+  </script>
 
   <footer class="foot">
-    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
+    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a> &amp; Andrew McWhorter. Song data from Spotify.
   </footer>
 </body>
 </html>
