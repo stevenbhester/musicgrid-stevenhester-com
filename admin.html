@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>musicgrid.io game of royalty</title>
     <link rel="icon" type="image/x-icon" href="/img/favicon.png">
-    <script src="/js/adminCode.js?v=20261027"></script>
+    <script src="/js/adminCode.js?v=2026102703"></script>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -191,6 +191,13 @@
         #data-dump .row { min-width: 1500px; }
         #data-dump .cell { font-size: 1em; padding: 10px 8px; }
         #data-dump input[type=date] { margin-right: 6px; }
+        #gridJson { width: 100%; box-sizing: border-box; font-family: ui-monospace, Menlo, monospace; font-size: 0.85em; margin: 8px 0; }
+        #gridPreview { white-space: pre-wrap; }
+        .grid-preview { margin: 10px 0; padding: 10px; background: #fff; border-radius: 4px; }
+        .grid-preview table { border-collapse: collapse; margin-top: 6px; font-size: 0.9em; }
+        .grid-preview th, .grid-preview td { border: 1px solid #e6dfa8; padding: 4px 8px; text-align: left; }
+        .grid-preview td { cursor: help; }
+        .grid-warn { color: #8a4b00; margin-top: 4px; }
         #toolOutput { white-space: pre-wrap; background: #fff; padding: 8px; border-radius: 4px; min-height: 1.2em; }
     </style>
 </head>
@@ -209,6 +216,15 @@
         <h2>Next three weeks</h2>
         <p class="tool-note">Each day plays the grid with the latest date on or before it. Faded days repeat an earlier grid, so schedule something for them.</p>
         <div id="calendar">Loading…</div>
+        <h2>Add daily grids</h2>
+        <p class="tool-note">Choose a .json file or paste one below, check it, then create. Answers get scored automatically right after.</p>
+        <div class="tool-row"><input type="file" id="gridFile" accept=".json,application/json"></div>
+        <textarea id="gridJson" rows="8" spellcheck="false" placeholder='{ "grids": [ { "date": "2026-11-03", "title": "...", "artists": [...], "categories": [...], "answers": { ... } } ] }'></textarea>
+        <div class="tool-row">
+            <button type="button" id="checkGrids">Check grids</button>
+            <button type="button" id="createGrids" disabled>Create grids and score answers</button>
+        </div>
+        <div id="gridPreview"></div>
         <h2>Cleanups</h2>
         <div class="tool-row">
             <button type="button" id="retitleBtn">Retitle custom grids with broken titles</button>

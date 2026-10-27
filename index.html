@@ -6,11 +6,12 @@
   <title>MusicGrid | The daily music trivia grid</title>
   <meta name="description" content="A daily music trivia game. Name a song for every square that fits both its artist and its category. Deeper cuts score more.">
   <meta name="theme-color" content="#1e44b5">
+  <link rel="icon" type="image/svg+xml" href="/img/logo.svg">
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
   <link rel="preconnect" href="https://music-grid-io-42616e204fd3.herokuapp.com" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css?v=20261027">
+  <link rel="stylesheet" href="/css/mg.css?v=2026102703">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://musicgrid.stevenhester.com/">
@@ -26,10 +27,12 @@
   <a class="skip" href="#board">Skip to the grid</a>
 
   <header class="topbar">
-    <a class="brand" href="/"><img src="/img/logo-96.png" width="32" height="33" alt="">MusicGrid</a>
+    <a class="brand" href="/"><img src="/img/logo.svg" width="32" height="32" alt=""><span>MusicGrid</span></a>
     <nav class="topnav" aria-label="Main">
-      <a href="/" aria-current="page">Daily grid</a>
-      <a href="/grid-builder/">Build a grid</a>
+      <a href="/" aria-current="page">Today</a>
+      <a href="/browse">Browse</a>
+      <a href="/grid-builder/">Build</a>
+      <a href="/stats">Stats</a>
     </nav>
   </header>
 
@@ -37,6 +40,7 @@
     <section class="game-head">
       <p class="grid-date" id="gridDate" hidden></p>
       <h1 class="title" id="gridTitle">Today's grid</h1>
+      <p class="next-grid" id="nextGridHead" hidden>Next grid in <b id="nextGridShort"></b></p>
       <p class="subtitle">Name a song for every square that fits both its artist and its category. Deeper cuts score more, up to 11 points a square.</p>
     </section>
 
@@ -66,15 +70,17 @@
 
     <section class="results card" id="results" aria-labelledby="resultsTitle" hidden>
       <h2 id="resultsTitle">Game over</h2>
-      <div class="final-score"><b id="finalScore">1</b><span>points</span></div>
+      <div class="final-score"><b id="finalScore">1</b><span id="finalLabel">points</span></div>
       <p class="summary" id="summary"></p>
       <div class="mini" id="mini" aria-hidden="true"></div>
+      <div class="next-grid-panel" id="nextGridPanel" hidden><span>Next grid in</span><b id="nextGridClock" role="timer">--:--:--</b></div>
       <div class="results-actions">
         <button class="btn" type="button" id="shareBtn">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>
           Share results
         </button>
-        <a class="btn-ghost" href="/grid-builder/">Build your own grid</a>
+        <a class="btn-ghost" href="/browse">Play another grid</a>
+        <a class="btn-ghost" href="/stats">Your stats</a>
       </div>
       <form class="submit-form" id="submitForm" novalidate>
         <label for="playerName">Add your score to the leaderboard</label>
@@ -136,6 +142,6 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <div class="sr-only" id="announcer" aria-live="assertive"></div>
 
-  <script type="module" src="/js/grid-game.js?v=20261027"></script>
+  <script type="module" src="/js/grid-game.js?v=2026102703"></script>
 </body>
 </html>

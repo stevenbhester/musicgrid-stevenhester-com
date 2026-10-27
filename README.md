@@ -9,14 +9,19 @@ Static site on GitHub Pages. All data comes from the MusicGrid API on Heroku (`m
 | URL | File | Script |
 | --- | --- | --- |
 | `/` | `index.html` | `js/grid-game.js` (daily mode) |
+| `/?grid=N` | `index.html` | `js/grid-game.js` (a past daily grid) |
 | `/play-custom-grid?custom_grid_id=N` | `play-custom-grid.html` | `js/grid-game.js` (custom mode) |
+| `/browse` | `browse.html` | `js/browse.js` (past daily grids and player-made grids) |
+| `/stats` | `stats.html` | `js/stats.js` (streaks, averages, score chart, game history) |
 | `/grid-builder/` | `grid-builder/index.html` | none |
 | `/grid-builder/spotify-login` | `grid-builder/spotify-login.html` | `js/gb-spotifyLogin.js` |
 | `/grid-builder/artist-selection` | `grid-builder/artist-selection.html` | `js/gb-artistSelect.js` |
+| `/grid-builder/manual-artist-pick` | `grid-builder/manual-artist-pick.html` | `js/gb-artistSelect.js` (pick any artists) |
+| `/admin.html` | `admin.html` | `js/adminCode.js` (scheduling, grid uploads, leaderboard screening) |
 
 All of these share one stylesheet, `css/mg.css`, and the self-hosted Archivo font in `fonts/` (SIL Open Font License, see `fonts/ARCHIVO-OFL.txt`).
 
-Older pages (`old.html`, `v2.html`, `admin.html`, `grid-builder/manual-artist-pick.html`, `grid-builder/interactTest.html`) still use their original CSS and scripts.
+Older pages (`old.html`, `v2.html`, `grid-builder/interactTest.html`) still use their original CSS and scripts.
 
 ## How the game talks to the API
 
@@ -32,7 +37,7 @@ Older pages (`old.html`, `v2.html`, `admin.html`, `grid-builder/manual-artist-pi
 
 Search (`POST /search`), scores (`POST /scores`) and score submission (`POST /submit-score`) are shared.
 
-Game progress is saved in `localStorage` under `musicgrid:<mode>:<gridId>`, so a refresh doesn't lose a game in progress.
+Game progress is saved in `localStorage` under `musicgrid:<mode>:<gridId>`, so a refresh doesn't lose a game in progress. Each saved game also records its grid's date, title and the day it was finished (`playedOn`). The stats page reads every saved game back, so stats are per browser. A daily grid counts toward a streak when it was finished before the next daily grid went live, so days with no new grid don't break a streak.
 
 ## Local development
 

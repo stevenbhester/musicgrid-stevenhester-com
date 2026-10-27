@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Browse grids | MusicGrid</title>
+  <meta name="description" content="Play past MusicGrid daily grids and grids built by other players.">
+  <meta name="theme-color" content="#1e44b5">
+  <link rel="icon" type="image/svg+xml" href="/img/logo.svg">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="/css/mg.css?v=2026102703">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><img src="/img/logo.svg" width="32" height="32" alt=""><span>MusicGrid</span></a>
+    <nav class="topnav" aria-label="Main">
+      <a href="/">Today</a>
+      <a href="/browse" aria-current="page">Browse</a>
+      <a href="/grid-builder/">Build</a>
+      <a href="/stats">Stats</a>
+    </nav>
+  </header>
+
+  <main class="browse" id="main">
+    <h1 class="title">More grids</h1>
+    <p class="subtitle">Catch up on daily grids you missed, or play one another player built.</p>
+
+    <div class="browse-tabs" role="tablist" aria-label="Grid type">
+      <button type="button" role="tab" id="dailyTab" aria-controls="dailySection" aria-selected="true">Daily grids</button>
+      <button type="button" role="tab" id="customTab" aria-controls="customSection" aria-selected="false">Player-made</button>
+    </div>
+
+    <section id="dailySection" role="tabpanel" aria-labelledby="dailyTab">
+      <p class="browse-note">The official grid from each day. Your scores count toward the all-time leaderboard.</p>
+      <p class="empty-note on-stage" id="dailyNote" hidden></p>
+      <div class="grid-cards" id="dailyList"></div>
+      <button class="btn-ghost more" type="button" id="dailyMore" hidden>Show more</button>
+    </section>
+
+    <section id="customSection" role="tabpanel" aria-labelledby="customTab" hidden>
+      <p class="browse-note">Built by players from artists they picked. These have their own leaderboards and don't count toward all-time. <a href="/grid-builder/">Build your own</a></p>
+      <p class="empty-note on-stage" id="customNote" hidden></p>
+      <div class="grid-cards" id="customList"></div>
+      <button class="btn-ghost more" type="button" id="customMore" hidden>Show more</button>
+    </section>
+  </main>
+
+  <footer class="foot">
+    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
+  </footer>
+  <script type="module" src="/js/browse.js?v=2026102703"></script>
+</body>
+</html>

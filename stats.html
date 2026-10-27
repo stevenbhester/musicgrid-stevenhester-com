@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Your stats | MusicGrid</title>
+  <meta name="description" content="Your MusicGrid streak, best score, perfect squares and every grid you've played.">
+  <meta name="theme-color" content="#1e44b5">
+  <link rel="icon" type="image/svg+xml" href="/img/logo.svg">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="/css/mg.css?v=2026102703">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><img src="/img/logo.svg" width="32" height="32" alt=""><span>MusicGrid</span></a>
+    <nav class="topnav" aria-label="Main">
+      <a href="/">Today</a>
+      <a href="/browse">Browse</a>
+      <a href="/grid-builder/">Build</a>
+      <a href="/stats" aria-current="page">Stats</a>
+    </nav>
+  </header>
+
+  <main class="stats" id="main">
+    <h1 class="title">Your stats</h1>
+    <p class="subtitle">Every grid you've finished in this browser.</p>
+
+    <div class="browse-tabs" id="statsFilter" role="group" aria-label="Which grids to count" hidden>
+      <button type="button" data-view="daily" aria-pressed="true">Daily grids</button>
+      <button type="button" data-view="custom" aria-pressed="false">Player-made</button>
+      <button type="button" data-view="all" aria-pressed="false">All</button>
+    </div>
+
+    <section class="card stats-empty" id="statsEmpty" hidden>
+      <h2>No finished grids yet</h2>
+      <p>Finish a grid and your scores, streak and perfect squares show up here.</p>
+      <div class="results-actions">
+        <a class="btn" href="/">Play today's grid</a>
+        <a class="btn-ghost" href="/browse">Browse grids</a>
+      </div>
+    </section>
+
+    <div id="statsBody" hidden>
+      <div class="stat-tiles" id="statTiles"></div>
+
+      <section class="card chart-card" id="chartCard" aria-labelledby="chartTitle">
+        <div class="lb-head">
+          <h2 id="chartTitle">Score over time</h2>
+          <p class="chart-sub" id="chartSub"></p>
+        </div>
+        <div class="chart" id="chart" tabindex="0" aria-describedby="chartHelp">
+          <div class="chart-tip" id="chartTip" role="status" aria-live="polite" hidden></div>
+        </div>
+        <p class="sr-only" id="chartHelp">Use the left and right arrow keys to step through your games. Every score is also listed under Your games.</p>
+        <p class="chart-note" id="chartNote" hidden>Finish a few more grids to see a trend.</p>
+      </section>
+
+      <section class="card history-card" aria-labelledby="historyTitle">
+        <div class="lb-head">
+          <h2 id="historyTitle">Your games</h2>
+          <span class="lb-count" id="historyCount"></span>
+        </div>
+        <ol class="history" id="historyList"></ol>
+        <button class="btn-ghost more" type="button" id="historyMore" hidden>Show more</button>
+      </section>
+    </div>
+
+    <p class="browse-note stats-foot">Stats are saved in this browser, so each phone or computer keeps its own. Clearing your browser data resets them.</p>
+  </main>
+
+  <footer class="foot">
+    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
+  </footer>
+  <script type="module" src="/js/stats.js?v=2026102703"></script>
+</body>
+</html>
