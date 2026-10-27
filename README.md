@@ -13,6 +13,7 @@ Static site on GitHub Pages. All data comes from the MusicGrid API on Heroku (`m
 | `/play-custom-grid?custom_grid_id=N` | `play-custom-grid.html` | `js/grid-game.js` (custom mode) |
 | `/browse` | `browse.html` | `js/browse.js` (past daily grids and player-made grids) |
 | `/stats` | `stats.html` | `js/stats.js` (streaks, averages, score chart, game history) |
+| `/about` | `about.html` | none (how the game plays and scores; linked from every footer and the game intro) |
 | `/grid-builder/` | `grid-builder/index.html` | none |
 | `/grid-builder/spotify-login` | `grid-builder/spotify-login.html` | `js/gb-spotifyLogin.js` |
 | `/grid-builder/artist-selection` | `grid-builder/artist-selection.html` | `js/gb-artistSelect.js` |
@@ -40,7 +41,7 @@ Older pages (`old.html`, `v2.html`, `grid-builder/interactTest.html`) still use 
 
 Search (`POST /search`), scores (`POST /scores`) and score submission (`POST /submit-score`) are shared.
 
-On phones (under 600px) the header is compact so the whole board fits on the first screen, and once a browser has played a grid (`returning` on `<body>`) the intro sentence is hidden, leaving the no-repeats line. The share text shades each square by points (🟩 🟨 🟧, 🟥 missed, ⬛ untried); a square solved in easy mode is a circle of the same color (🟢 🟡 🟠). The results panel and the Stats history draw their little grids the same way (`.mini i.ez` is round).
+On phones (under 600px) the header is compact so the whole board fits on the first screen, and once a browser has played a grid (`returning` on `<body>`) the intro sentence is hidden, leaving the no-repeats line. The share text shades each square by points (🟩 🟨 🟧, 🟥 missed, ⬛ untried); a square solved in easy mode is a circle of the same color (🟢 🟡 🟠), and the headline says how many squares used it ("(2 squares in easy mode)"). The results panel and the Stats history draw their little grids the same way (`.mini i.ez` is round).
 
 Game progress is saved in `localStorage` under `musicgrid:<mode>:<gridId>`, so a refresh doesn't lose a game in progress. Each saved game also records its grid's date, title and the day it was finished (`playedOn`). The stats page reads every saved game back, so stats are per browser. A daily grid counts toward a streak when it was finished before the next daily grid went live, so days with no new grid don't break a streak.
 

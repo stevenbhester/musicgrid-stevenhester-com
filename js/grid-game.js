@@ -948,11 +948,13 @@ function shareHeadline() {
   const total = totalCells();
   const score = game.state.score;
   const points = `${score} ${score === 1 ? "point" : "points"}`;
-  const where = game.state.easy ? "MusicGrid in easy mode" : "MusicGrid";
-  if (solved === total) return `Perfect ${where}, ${points}. You could never.`;
-  if (solved >= total - 2) return `I scored ${points} on ${where}. You could never.`;
-  if (solved >= Math.ceil(total / 2)) return `I scored ${points} on ${where}. Your turn.`;
-  if (solved > 0) return `I scored ${points} on ${where}. Be nice.`;
+  // Say how many squares used easy mode, not just that it was on
+  const easy = Object.values(game.state.cells).filter(cell => cell.status === "solved" && cell.easy).length;
+  const note = easy ? ` (${easy} ${easy === 1 ? "square" : "squares"} in easy mode)` : "";
+  if (solved === total) return `Perfect MusicGrid, ${points}${note}. You could never.`;
+  if (solved >= total - 2) return `I scored ${points} on MusicGrid${note}. You could never.`;
+  if (solved >= Math.ceil(total / 2)) return `I scored ${points} on MusicGrid${note}. Your turn.`;
+  if (solved > 0) return `I scored ${points} on MusicGrid${note}. Be nice.`;
   return "MusicGrid won today. Avenge me.";
 }
 

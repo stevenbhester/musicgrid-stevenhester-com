@@ -95,7 +95,9 @@ button { cursor: pointer; }
   font-weight: 800; font-stretch: 112%; font-size: 19px; letter-spacing: -0.01em;
   text-decoration: none;
 }
-.brand img { width: 32px; height: 32px; filter: drop-shadow(0 3px 0 var(--stage-deep)); }
+.brand img { width: 32px; height: 32px; filter: drop-shadow(0 3px 0 var(--stage-deep)); transition: transform 0.12s ease; }
+.brand:hover img { transform: translateY(-2px) rotate(-4deg); }
+.brand:active img { transform: translateY(1px); }
 .topnav { display: flex; gap: 4px; }
 .topnav a {
   padding: 8px 12px; border-radius: 10px;
@@ -1140,3 +1142,23 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
 }
 .lb-more { width: 100%; justify-content: center; margin-top: 12px; }
 .lb-sentinel { height: 1px; }
+
+/* ---------- About ---------- */
+.about { width: 100%; max-width: 760px; margin: 0 auto; padding: 8px var(--gutter) 0; }
+.about-card { margin-top: 16px; }
+.about .subtitle { margin-bottom: 8px; }
+.about-card p { margin: 0 0 10px; line-height: 1.55; }
+.about-card p:last-child { margin-bottom: 0; }
+.about-card a { color: var(--stage); font-weight: 650; }
+.score-table { margin: 4px 0 14px; padding: 0; }
+.score-table div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 9px 0; border-top: 1px solid var(--line); }
+.score-table div:first-child { border-top: 0; }
+.score-table dt { color: var(--muted); }
+.score-table dd { margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink); }
+.score-table .total dt { color: var(--ink); font-weight: 700; }
+.score-table .total dd { font-size: 20px; }
+.legend { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; color: var(--muted); }
+.legend span { display: inline-block; min-width: 3.6em; color: var(--ink); }
+.about-cta { margin: 24px 0 0; text-align: center; }
+.foot .foot-about { display: inline-block; margin-left: 4px; }
+.subtitle a { color: var(--gold); font-weight: 700; text-underline-offset: 3px; white-space: nowrap; }

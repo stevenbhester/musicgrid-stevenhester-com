@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>How it works | MusicGrid</title>
+  <meta name="description" content="How MusicGrid works: the grid, scoring from 6 to 11 points a square, hearts, easy mode, leaderboards and sharing.">
+  <meta name="theme-color" content="#1e44b5">
+  <link rel="icon" href="/favicon.ico?v=2" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/img/logo.svg?v=2">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png?v=2">
+  <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="/css/mg.css?v=2026102715">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><img src="/img/logo.svg?v=2" width="32" height="32" alt=""><span>MusicGrid</span></a>
+    <nav class="topnav" aria-label="Main">
+      <a href="/">Today</a>
+      <a href="/browse">Browse</a>
+      <a href="/grid-builder/">Build</a>
+      <a href="/stats">Stats</a>
+    </nav>
+  </header>
+
+  <main class="about" id="main">
+    <h1 class="title">How it works</h1>
+    <p class="subtitle">MusicGrid is a daily music trivia grid. Here's how it plays and how every point is scored.</p>
+
+    <section class="card about-card" aria-labelledby="aGrid">
+      <h2 id="aGrid">The grid</h2>
+      <p>Three artists run across the top and three categories run down the side. For each square, name a song by that column's artist that fits that row's category.</p>
+      <p>You search for songs right from Spotify, so you're always picking a real track. A new daily grid goes live at midnight Central. On a day without a new one, an older grid comes back as a rerun.</p>
+    </section>
+
+    <section class="card about-card" aria-labelledby="aScore">
+      <h2 id="aScore">Scoring</h2>
+      <p>You get 1 point just for playing. Every square you fill is worth 6 to 11 points, and deeper cuts score more.</p>
+      <dl class="score-table">
+        <div><dt>Showing up</dt><dd>1</dd></div>
+        <div><dt>The biggest hit that fits a square</dt><dd>6</dd></div>
+        <div><dt>Everything in between, in half points</dt><dd>6.5 to 10.5</dd></div>
+        <div><dt>The deepest cut that fits</dt><dd>11</dd></div>
+        <div><dt>Each square solved in easy mode</dt><dd>&minus;3</dd></div>
+        <div class="total"><dt>A perfect grid: 1 + 9 squares &times; 11</dt><dd>100</dd></div>
+      </dl>
+      <p>Points are set square by square. The best-known song that fits a square is worth 6 and the least-known is worth 11, with the rest spread out between them. If only one song fits, it's worth the full 11.</p>
+      <p>"Best-known" comes from Spotify: how high the song ranks among that artist's top 100 tracks. Anything outside the top 100 counts as a deep cut.</p>
+    </section>
+
+    <section class="card about-card" aria-labelledby="aHearts">
+      <h2 id="aHearts">Hearts</h2>
+      <p>You have three hearts, and every wrong guess costs one. Once they're gone you're in sudden death: one more wrong guess ends the game.</p>
+      <p>You can give up at any point and keep what you've scored. After the game, tap play on a missed square to hear a song that would have fit.</p>
+    </section>
+
+    <section class="card about-card" aria-labelledby="aRepeats">
+      <h2 id="aRepeats">No repeats</h2>
+      <p>Each song counts in one square only, so spend your big hits wisely. Every grid can be filled with nine different songs.</p>
+    </section>
+
+    <section class="card about-card" aria-labelledby="aEasy">
+      <h2 id="aEasy">Easy mode</h2>
+      <p>Easy mode gives you a hint for every square (a preview of a song that fits) and looser search. Each square you solve with it on scores 3 fewer points, so an 11 becomes an 8. Once it's on, it stays on for the rest of that grid.</p>
+      <p>Squares solved in easy mode show up as circles in your results and in the grid you share.</p>
+    </section>
+
+    <section class="card about-card" aria-labelledby="aCats">
+      <h2 id="aCats">Categories and flags</h2>
+      <p>Most categories are checked against Spotify: things like debut albums, title tracks, words in a song's title and release years. A category tagged <b>AI</b> is a fact like a chart peak or an award, where AI sorted the artist's real Spotify songs. One tagged <b>Opinion</b> is a judgment call.</p>
+      <p>Think a guess should have counted? Tap "I think it fits" after the miss. Flagged songs get reviewed, and approved ones are added to the square.</p>
+    </section>
+
+    <section class="card about-card" aria-labelledby="aBoards">
+      <h2 id="aBoards">Leaderboards and stats</h2>
+      <p>Add your name after a game to get on the leaderboard. Each grid's board keeps your best score on it, and the all-time board adds up your best score on every daily grid.</p>
+      <p>The leaderboards know you by a private player code saved in your browser, not by your name. Set your own code on the <a href="/stats#player-code">Stats page</a> to play as the same person on every device.</p>
+      <p>Stats also tracks your streak (daily grids finished before the next one goes live), your averages and every grid you've played.</p>
+    </section>
+
+    <section class="card about-card" aria-labelledby="aShare">
+      <h2 id="aShare">Your shared grid</h2>
+      <ul class="legend">
+        <li><span aria-hidden="true">🟩</span> 10 to 11 points</li>
+        <li><span aria-hidden="true">🟨</span> 8 to 9.5 points</li>
+        <li><span aria-hidden="true">🟧</span> under 8 points</li>
+        <li><span aria-hidden="true">🟥</span> missed after a wrong guess</li>
+        <li><span aria-hidden="true">⬛</span> never tried</li>
+        <li><span aria-hidden="true">🟢🟡🟠</span> solved in easy mode</li>
+      </ul>
+    </section>
+
+    <section class="card about-card" aria-labelledby="aMore">
+      <h2 id="aMore">More grids</h2>
+      <p><a href="/browse">Browse</a> has every past daily grid plus grids other players made. <a href="/grid-builder/">Build</a> makes your own from your Spotify or Apple Music listening, or from any artists you pick, with a link to send to friends.</p>
+    </section>
+
+    <p class="about-cta"><a class="btn" href="/">Play today's grid</a></p>
+  </main>
+
+  <footer class="foot">
+    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a> &amp; Andrew McWhorter. Song data from Spotify.
+  </footer>
+</body>
+</html>
