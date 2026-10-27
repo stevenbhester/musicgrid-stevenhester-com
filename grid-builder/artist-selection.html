@@ -1,118 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pick Your Grid</title>
-    <link rel="stylesheet" href="/css/gb-artistSelect.css">
-    <link rel="icon" 
-          type="image/png" 
-          href="/img/favicon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Build your grid | MusicGrid</title>
+  <meta name="description" content="Rank your Spotify top artists and build a custom MusicGrid.">
+  <meta name="theme-color" content="#1e44b5">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="/css/mg.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="nav-logo">
-                <img src="/img/musicgrid-logo.png" alt="MusicGrid Logo" class="header-logo">
-                MusicGrid
-            </div>
-            <div class="hamburger-menu">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-            </div>
-            <ul class="nav-links">
-                <li><a href="/index">Home</a></li>
-                <li><a href="/grid-builder/spotify-login">Build Your Own Grid</a></li>
-<!--                 <li><a href="#leaderboard">Leaderboard</a></li> -->
-                <li><a href="#settings">Settings</a></li>
-            </ul>
-        </nav>
-        <div class="mobile-nav">
-            <ul class="mobile-nav-links">
-                <li><a href="/index">Home</a></li>
-                <li><a href="/grid-builder/spotify-login">Build Your Own Grid</a></li>
-<!--                 <li><a href="#leaderboard">Leaderboard</a></li> -->
-                <li><a href="#settings">Settings</a></li>
-            </ul>
+  <header class="topbar">
+    <a class="brand" href="/"><img src="/img/logo-96.png" width="32" height="33" alt="">MusicGrid</a>
+    <nav class="topnav" aria-label="Main">
+      <a href="/">Daily grid</a>
+      <a href="/grid-builder/" aria-current="page">Build a grid</a>
+    </nav>
+  </header>
+
+  <main class="builder" id="main">
+    <ol class="steps" aria-label="Progress">
+      <li class="done"><span class="num">1</span>Connect Spotify</li>
+      <li class="now"><span class="num">2</span>Build your grid</li>
+    </ol>
+
+    <section data-view="range">
+      <h1 class="title">Pick a listening window</h1>
+      <p class="subtitle">We'll pull your top artists from Spotify for the stretch of time you choose.</p>
+      <div class="card" style="margin-top: 24px">
+        <p class="notice" id="noToken" hidden>Connect Spotify first, then come back here. <a href="/grid-builder/spotify-login">Go to step 1</a></p>
+        <div class="segmented">
+          <button class="seg" type="button" data-range="short_term"><b>Past 4 weeks</b><span>What you're into right now</span></button>
+          <button class="seg" type="button" data-range="medium_term"><b>Past 6 months</b><span>Your recent rotation</span></button>
+          <button class="seg" type="button" data-range="long_term"><b>Past year</b><span>Your long-time favorites</span></button>
         </div>
-    </header>
-    <main>
-        <section class="hero">
-            <div class="overlay"></div>
-            <div class="artist-content">
-                <div class="preload-hero-content">
-                    <h1>Build my grid using my top artists from my last few:</h1>
-                    <div class ="time-length-select">
-                        <button class="window-btn" onclick="buttonPressArtist('short_term')">Weeks of activity</button>
-                        <button class="window-btn" onclick="buttonPressArtist('medium_term')">Months of activity</button>
-                        <button class="window-btn" onclick="buttonPressArtist('long_term')">Years of activity</button>
-                    </div>
-                </div>
-                <div class="hero-content invisible">
-                    <h1>Pick Your Artists</h1><br>
-                    <p>Prioritize artists by dragging, then click "Finalize Artists".
-                        We'll use the highest placement artists that work in a grid together.</p>
-                </div>
-                <div class="proceedButtonWrapper invisible">
-                    <button class="proceed-button">Finalize Artists</button>  
-                </div>
-                <div class="artists-container" id="artists-container">
-                   <ul class="sortable-list invisible">
-                      <li class="item" draggable="true">
-                        <div class="details">
-                          <img src="/img/noArtist.png">
-                          <span>Top Artist 1</span>
-                        </div>
-                        <i class="uil uil-draggabledots"></i>
-                      </li>
-                      <li class="item" draggable="true">
-                        <div class="details">
-                          <img src="/img/noArtist.png">
-                          <span>Top Artist 2</span>
-                        </div>
-                        <i class="uil uil-draggabledots"></i>
-                      </li>
-                      <li class="item" draggable="true">
-                        <div class="details">
-                          <img src="/img/noArtist.png">
-                          <span>Top Artist 3</span>
-                        </div>
-                        <i class="uil uil-draggabledots"></i>
-                      </li>
-                      <li class="item" draggable="true">
-                        <div class="details">
-                          <img src="/img/noArtist.png">
-                          <span>Top Artist 4</span>
-                        </div>
-                        <i class="uil uil-draggabledots"></i>
-                      </li>
-                      <li class="item" draggable="true">
-                        <div class="details">
-                          <img src="/img/noArtist.png">
-                          <span>Top Artist 5</span>
-                        </div>
-                        <i class="uil uil-draggabledots"></i>
-                      </li>
-                      <li class="item" draggable="true">
-                        <div class="details">
-                          <img src="/img/noArtist.png">
-                          <span>Top Artist 6</span>
-                        </div>
-                        <i class="uil uil-draggabledots"></i>
-                      </li>
-                    </ul>
-                </div>
-                <br>
-            </div>
-            <div id = "gridProgressContainer" class = "progressContainer"></div>
-            <div class="grid-container" id="grid-container" style="display:none"></div>
+      </div>
+    </section>
+
+    <section data-view="loading" hidden>
+      <h1 class="title">Getting your top artists…</h1>
+      <div class="card" style="margin-top: 24px"><span class="spinner" role="img" aria-label="Loading"></span></div>
+    </section>
+
+    <section data-view="pick" hidden>
+      <h1 class="title">Rank your artists</h1>
+      <p class="subtitle">Put the artists you most want in your grid at the top. We'll use the highest-ranked three that work together.</p>
+      <div class="card" style="margin-top: 24px">
+        <ul class="sortable-list" aria-label="Your top artists, in order"></ul>
+        <div class="sticky-go">
+          <p>Drag, or use the arrows, to reorder.</p>
+          <button class="btn proceed-button" type="button">Build my grid</button>
         </div>
-        </section>
-    </main>
-    <footer class="footer">
-        <p>&copy; 2024 MusicGrid</p>
-    </footer>
-    <script src="/js/gb-artistSelect.js"></script>
+      </div>
+    </section>
+
+    <section data-view="building" hidden>
+      <h1 class="title" id="buildTitle">Building your grid</h1>
+      <div class="card" style="margin-top: 24px" aria-live="polite">
+        <p class="progress-copy" id="buildStatus">Checking which of your artists have enough songs in common. This can take a minute.</p>
+        <div id="gridProgressContainer" class="progressContainer"></div>
+        <div class="build-grid" id="grid-container" hidden></div>
+      </div>
+    </section>
+
+    <section data-view="done" hidden>
+      <h1 class="title" id="doneTitle">Your grid is ready</h1>
+      <p class="subtitle">Play it yourself first, then send it to someone who thinks they know your music better than you do.</p>
+      <div class="card" style="margin-top: 24px">
+        <a class="btn" id="playLink" href="/play-custom-grid">Play your grid</a>
+        <label class="sr-only" for="shareUrl">Link to your grid</label>
+        <div class="share-link">
+          <input class="field" id="shareUrl" readonly>
+          <button class="btn btn-ink" type="button" id="copyLink">Copy link</button>
+        </div>
+      </div>
+    </section>
+
+    <section data-view="failed" hidden>
+      <h1 class="title">That grid didn't come together</h1>
+      <div class="card" style="margin-top: 24px">
+        <p class="lede" id="failMsg"></p>
+        <div class="row-actions">
+          <button class="btn" type="button" id="startOver">Start over</button>
+          <a class="btn-ghost" id="reconnect" href="/grid-builder/spotify-login" hidden>Reconnect Spotify</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <footer class="foot">
+    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
+  </footer>
+  <script src="/js/gb-artistSelect.js"></script>
 </body>
 </html>

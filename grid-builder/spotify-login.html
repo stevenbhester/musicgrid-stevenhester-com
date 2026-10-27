@@ -1,99 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BuildaMusicGrid - Login</title>
-    <link rel="stylesheet" href="/css/gb-spotifyLogin.css">
-    <link rel="icon" 
-          type="image/png" 
-          href="/img/favicon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Connect Spotify | MusicGrid</title>
+  <meta name="description" content="Connect Spotify to build a MusicGrid from your top artists.">
+  <meta name="theme-color" content="#1e44b5">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="/css/mg.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="nav-logo">
-                <img src="/img/musicgrid-logo.png" alt="MusicGrid Logo" class="header-logo">
-                MusicGrid
-            </div>
-            <div class="hamburger-menu">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-            </div>
-            <ul class="nav-links">
-                <li><a href="/index">Home</a></li>
-                <li><a href="/grid-builder/spotify-login">Build Your Own Grid</a></li>
-<!--                 <li><a href="#leaderboard">Leaderboard</a></li> -->
-                <li><a href="#settings">Settings</a></li>
-            </ul>
-        </nav>
-        <div class="mobile-nav">
-            <ul class="mobile-nav-links">
-                <li><a href="/index">Home</a></li>
-                <li><a href="/grid-builder/spotify-login">Build Your Own Grid</a></li>
-<!--                 <li><a href="#leaderboard">Leaderboard</a></li> -->
-                <li><a href="#settings">Settings</a></li>
-            </ul>
+  <header class="topbar">
+    <a class="brand" href="/"><img src="/img/logo-96.png" width="32" height="33" alt="">MusicGrid</a>
+    <nav class="topnav" aria-label="Main">
+      <a href="/">Daily grid</a>
+      <a href="/grid-builder/" aria-current="page">Build a grid</a>
+    </nav>
+  </header>
+
+  <main class="builder" id="main-wrap">
+    <ol class="steps" aria-label="Progress">
+      <li class="now"><span class="num">1</span>Connect Spotify</li>
+      <li><span class="num">2</span>Build your grid</li>
+    </ol>
+    <div id="main">
+      <div class="card"><p class="lede" style="margin:0">Checking your Spotify connection…</p></div>
+    </div>
+
+    <template id="login">
+      <h1 class="title">Connect Spotify</h1>
+      <p class="subtitle">We'll look at your top artists and find three that make a good grid together.</p>
+      <div class="card" style="margin-top: 24px">
+        <p class="notice" hidden></p>
+        <button class="btn" id="login-button" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7 9.6c3.3-1 7-.7 10 1M7.6 12.7c2.7-.8 5.6-.5 8 .9M8.3 15.5c2.1-.6 4.3-.4 6.2.7" fill="none" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round"/></svg>Connect Spotify</button>
+        <p class="fine">Sign-in uses Spotify's PKCE flow, and MusicGrid only asks to see your top artists. You can disconnect any time.</p>
+      </div>
+    </template>
+
+    <template id="working">
+      <h1 class="title">Connecting…</h1>
+      <div class="card" style="margin-top: 24px"><p class="lede" style="margin:0">Finishing up with Spotify.</p></div>
+    </template>
+
+    <template id="logged-in-template">
+      <h1 class="title">You're connected</h1>
+      <p class="subtitle">Next, pick a listening window and rank your artists.</p>
+      <div class="card" style="margin-top: 24px">
+        <div class="account">
+          <img data-slot="avatar" alt="" width="56" height="56">
+          <div><span>Connected as</span><b data-slot="name"></b></div>
         </div>
-    </header>
-    <main>
-        <section class="hero">
-          <div class="overlay"></div>
-          <div class="spotify-content">
-            <div id="main"></div>
-            <div id="oauth"></div>
-          
-            <template id="login">
-              <div class="hero-content">
-                  <h1>Build Your Grid</h1>
-                  <p>Log in to Spotify to generate a custom grid with your top artists.</p>
-                  <button id="login-button" data-bind-onclick="loginWithSpotifyClick();"> Log in with Spotify </button>
-                  <br>
-                  <sh1>Access uses Spotify OAUTH flow with PKCE best practice.<br>Only top artists are shared.</sh1>
-              </div>
-            </template>
-          
-            <template id="logged-in-template">
-              <div class="hero-content">
-                <h1>Spotify login complete</h1>
-                  <p><b>Proceed to <a href="/grid-builder/artist-selection">Step 2</a> to Build Your Grid!</b></p>
-                <br>
-                <a href="/grid-builder/artist-selection"><button id="proceed-button">Build My Custom Grid</button></a>
-<!--                 <h1>Logged in as <span data-bind="display_name"></span></h1> -->
-<!--                 <img width="150" data-bind-src="images[0].url" data-bind-alt="display_name" /> -->
-                  <br>
-                <button id="refresh-token-button" data-bind-onclick="refreshTokenClick();">Refresh Token</button>
-                <button id="logout-button" data-bind-onclick="logoutClick();">Log out</button>
-              </div>
-            </template>
-          
-            <template id="oauth-template">
-<!--               <div class="hero-content" display="none">
-                  <h2>oAuth info</h2>
-                  <table>
-                    <tr>
-                      <td>Access token</td>
-                      <td data-bind="access_token"></td>
-                    </tr>
-                    <tr>
-                      <td>Refresh token</td>
-                      <td data-bind="refresh_token"></td>
-                    </tr>
-                    <tr>
-                      <td>Expiration at</td>
-                      <td data-bind="expires">${getExpirationDate(expires_in)}</td>
-                    </tr>
-                  </table>
-              </div> -->
-            </template>
-          </div>
-            
-        </section>
-    </main>
-    <footer class="footer">
-        <p>&copy; 2024 MusicGrid</p>
-    </footer>
+        <div class="row-actions">
+          <a class="btn" href="/grid-builder/artist-selection" id="proceed-button">Continue to step 2</a>
+          <button class="text-btn" type="button" id="logout-button">Use a different account</button>
+        </div>
+      </div>
+    </template>
+  </main>
+
+  <footer class="foot">
+    MusicGrid is made by <a href="https://www.stevenhester.com">Steven Hester</a>. Song data from Spotify.
+  </footer>
   <script src="/js/gb-spotifyLogin.js" type="module"></script>
 </body>
 </html>
