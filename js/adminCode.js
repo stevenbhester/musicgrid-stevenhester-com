@@ -3,11 +3,114 @@ window.onload = function() {
   initializeSite();
 };
 
+const ADMIN_API = "https://music-grid-io-42616e204fd3.herokuapp.com";
+
+// Admin-only endpoints need the ADMIN_KEY config var from Heroku, sent as a header
+function adminHeaders() {
+  return { "Content-Type": "application/json", "x-admin-key": localStorage.getItem("musicgrid:adminKey") || "" };
+}
+
+async function adminFetch(path, options) {
+  const response = await fetch(ADMIN_API + path, Object.assign({ headers: adminHeaders() }, options || {}));
+  if (response.status === 401) throw new Error("Admin key is missing or wrong. Paste ADMIN_KEY from your Heroku config vars above.");
+  if (!response.ok) throw new Error(path + " failed with " + response.status);
+  return response.json();
+}
+
+function toolOutput(text) {
+  document.getElementById("toolOutput").textContent = text;
+}
+
 // Log functionality and ask to fetch grid summary
 function initializeSite() {
   console.log("Initializing Site");
-  console.log("Loading grid");
+  const keyInput = document.getElementById("adminKey");
+  keyInput.value = localStorage.getItem("musicgrid:adminKey") || "";
+  document.getElementById("saveKey").addEventListener("click", () => {
+    localStorage.setItem("musicgrid:adminKey", keyInput.value.trim());
+    document.getElementById("keyNote").textContent = "Saved in this browser";
+    loadModerationLog();
+  });
+  document.getElementById("retitleBtn").addEventListener("click", retitleCustomGrids);
+  document.getElementById("screenBtn").addEventListener("click", screenLeaderboard);
   loadGridData();
+  loadCalendar();
+  loadModerationLog();
+}
+
+// Which grid plays on each of the next three weeks
+async function loadCalendar() {
+  const holder = document.getElementById("calendar");
+  try {
+    const response = await fetch(ADMIN_API + "/grid-calendar?days=21");
+    const data = await response.json();
+    holder.innerHTML = "";
+    data.calendar.forEach(day => {
+      const row = document.createElement("div");
+      row.className = "cal-row" + (day.scheduled ? "" : " cal-repeat");
+      const date = new Date(day.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+      const what = day.grid_id === null
+        ? "Nothing scheduled"
+        : (day.scheduled ? "Grid " + day.grid_id : "Repeats grid " + day.grid_id) + (day.artists ? ": " + day.artists : "");
+      row.textContent = date + (day.date === data.today ? " (today)" : "") + " \u2014 " + what;
+      holder.appendChild(row);
+    });
+  } catch (error) {
+    holder.textContent = "Calendar didn't load: " + error.message;
+  }
+}
+
+async function scheduleGrid(gridId, day) {
+  try {
+    await adminFetch("/schedule-grid", { method: "POST", body: JSON.stringify({ grid_id: gridId, reporting_day: day }) });
+    toolOutput("Grid " + gridId + " scheduled for " + day);
+    loadGridData();
+    loadCalendar();
+  } catch (error) {
+    toolOutput(error.message);
+  }
+}
+
+async function retitleCustomGrids() {
+  toolOutput("Retitling custom grids, this can take a minute…");
+  try {
+    const data = await adminFetch("/admin/retitle-custom-grids", { method: "POST", body: JSON.stringify({ limit: 20 }) });
+    const lines = data.updated.map(grid => "#" + grid.custom_grid_id + ": " + grid.title);
+    toolOutput((lines.length ? lines.join("\n") : "No grids needed new titles.") + (data.remaining ? "\n" + data.remaining + " left, click again to keep going." : ""));
+  } catch (error) {
+    toolOutput(error.message);
+  }
+}
+
+async function screenLeaderboard() {
+  toolOutput("Screening leaderboard names…");
+  try {
+    const data = await adminFetch("/admin/screen-leaderboard", { method: "POST", body: "{}" });
+    toolOutput("Checked " + data.scanned + " names, renamed " + data.renamed.length + ".");
+    loadModerationLog();
+  } catch (error) {
+    toolOutput(error.message);
+  }
+}
+
+async function loadModerationLog() {
+  const holder = document.getElementById("modLog");
+  try {
+    const rows = await adminFetch("/admin/moderation-log");
+    holder.innerHTML = "";
+    if (!rows.length) {
+      holder.textContent = "No names have been changed.";
+      return;
+    }
+    rows.forEach(entry => {
+      const row = document.createElement("div");
+      row.className = "cal-row";
+      row.textContent = entry.original_name + " \u2192 " + entry.player_name + " (" + entry.moderation_reason + ", grid " + entry.owning_grid_id + ")";
+      holder.appendChild(row);
+    });
+  } catch (error) {
+    holder.textContent = error.message;
+  }
 }
 
 // Grab summary of all grids entered from Heroku
@@ -39,7 +142,8 @@ function displayGridsSumm(data) {
   summRow.appendChild(createCell("cellheader","Num Field W Encoded Answer"));
   summRow.appendChild(createCell("cellheader","Load Grid"));
   summRow.appendChild(createCell("cellheader","Encode Answers"));
-  summRow.appendChild(createCell("cellheader","Set Live"));
+  summRow.appendChild(createCell("cellheader","Play Today"));
+  summRow.appendChild(createCell("cellheader","Schedule"));
   gridContainer.appendChild(summRow);
   
   data.forEach(item => {
@@ -48,9 +152,9 @@ function displayGridsSumm(data) {
     const summRow = document.createElement("div");
     summRow.classList.add("row");
     summRow.appendChild(createCell("genre-header",item.grid_id));
-    summRow.appendChild(createCell("summCell",item.create_date));
-    summRow.appendChild(createCell("summCell",item.post_date));
-    summRow.appendChild(createCell("summCell",item.answers_last_updated_pst));
+    summRow.appendChild(createCell("summCell",String(item.create_date || "").slice(0, 10)));
+    summRow.appendChild(createCell("summCell",String(item.post_date || "").slice(0, 10)));
+    summRow.appendChild(createCell("summCell",String(item.answers_last_updated_pst || "").slice(0, 16).replace("T", " ")));
     summRow.appendChild(createCell("summCell",item.num_artist_cells));
     summRow.appendChild(createCell("summCellLong",item.num_category_cells));
     summRow.appendChild(createCell("summCell",item.num_raw_answer_cells));
@@ -58,7 +162,8 @@ function displayGridsSumm(data) {
     summRow.appendChild(createCell("summCell",item.num_fields_w_encoded_answers));
     summRow.appendChild(createLoadCell("loadCell","fetchGridData","Load grid id "+item.grid_id,item.grid_id));
     summRow.appendChild(createLoadCell("loadCell","encodeAnswers","Encode grid id "+item.grid_id,item.grid_id));
-    summRow.appendChild(createLoadCell("loadCell","setLive","Set grid id "+item.grid_id+" live",item.grid_id));
+    summRow.appendChild(createLoadCell("loadCell","setLive","Play grid "+item.grid_id+" today",item.grid_id));
+    summRow.appendChild(createScheduleCell(item.grid_id, item.post_date));
     gridContainer.appendChild(summRow);
   });
 }
@@ -95,14 +200,32 @@ function fetchGridData(gridId) {
     .catch(error => console.error("Error fetching grid data:", error));
 }
 
-// Get data to populate a selected MusicGrid
-function setLive(gridId) {
-  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/set-grid-live", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ grid_id: gridId })
-  })
-    .catch(error => console.error("Error setting grid live:", error));
+// Date picker + save button for a grid's play date
+function createScheduleCell(gridId, postDate) {
+  const cell = document.createElement("div");
+  cell.classList.add("cell", "song-cell");
+  const input = document.createElement("input");
+  input.type = "date";
+  if (postDate) input.value = String(postDate).slice(0, 10);
+  const button = document.createElement("input");
+  button.type = "button";
+  button.value = "Save date";
+  button.addEventListener("click", () => scheduleGrid(gridId, input.value));
+  cell.appendChild(input);
+  cell.appendChild(button);
+  return cell;
+}
+
+// Play a grid today. Grids scheduled for later days still take over then.
+async function setLive(gridId) {
+  try {
+    await adminFetch("/set-grid-live", { method: "POST", body: JSON.stringify({ grid_id: gridId }) });
+    toolOutput("Grid " + gridId + " is playing today");
+    loadGridData();
+    loadCalendar();
+  } catch (error) {
+    toolOutput(error.message);
+  }
 }
 
 function buildGrid(data) {
@@ -281,7 +404,7 @@ async function updateEncodedAnswers(encodedAnswers) {
   try {
     const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/update-encoded-answers", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders(),
       body: JSON.stringify({ encodedAnswers })
     });
 

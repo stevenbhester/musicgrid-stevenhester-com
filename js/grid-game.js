@@ -27,13 +27,18 @@ async function request(path, body, signal) {
 
 const modes = {
   daily: {
-    resolveId: () => request("/latest-grid").then(data => data.latestGridId),
+    resolveId: () => request("/latest-grid").then(data => {
+      game.day = data.reportingDay || null;
+      return data.latestGridId;
+    }),
     loadGrid: id => request("/grid-data", { grid_id: id }),
     check: (id, song, field) => request("/check-answer", { songGuess: song, fieldGuessed: field, gridId: id }),
     hint: (id, field) => request("/get-cheat-preview-url", { gridId: id, fieldKey: field }),
     leaderboardId: id => id,
     shareUrl: () => SITE + "/",
-    fallbackTitle: () => "Today's grid"
+    fallbackTitle: () => "Today's grid",
+    board: "daily",
+    boardTitle: "Today"
   },
   custom: {
     resolveId: () => Promise.resolve(params.get("custom_grid_id") || 1),
@@ -45,7 +50,9 @@ const modes = {
     // leaderboards are stored under those ids.
     leaderboardId: id => id + 100,
     shareUrl: id => `${SITE}/play-custom-grid?custom_grid_id=${encodeURIComponent(id)}`,
-    fallbackTitle: () => "Custom grid"
+    fallbackTitle: () => "Custom grid",
+    board: "custom",
+    boardTitle: "This grid"
   }
 };
 const api = modes[mode];
@@ -120,10 +127,24 @@ const storage = {
   }
 };
 
+// Anonymous per-device id. All-time totals follow this instead of the typed
+// name, so two people called "Sam" don't share a score. Never shown.
+function playerId() {
+  let id = storage.get("musicgrid:player");
+  if (typeof id !== "string" || !/^[A-Za-z0-9-]{8,64}$/.test(id)) {
+    id = window.crypto && window.crypto.randomUUID
+      ? window.crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+    storage.set("musicgrid:player", id);
+  }
+  return id;
+}
+
 // ---------- Game state ----------
 
 const game = {
   id: null,
+  day: null,
   title: "",
   artists: [],
   categories: [],
@@ -190,6 +211,12 @@ function parseGrid(data) {
 
 function renderHead() {
   $("#gridTitle").textContent = game.title;
+  const dateLine = $("#gridDate");
+  if (dateLine && game.day) {
+    const date = new Date(`${game.day}T12:00:00`);
+    dateLine.textContent = date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    dateLine.hidden = false;
+  }
   document.title = `${game.title} | MusicGrid`;
 }
 
@@ -707,6 +734,9 @@ function renderEndPanel() {
   const done = $("#submitDone");
   form.hidden = state.submitted;
   done.hidden = !state.submitted;
+  done.textContent = state.renamed
+    ? `That name isn't allowed on the leaderboard, so you're on it as ${state.name}.`
+    : "Your score is on the leaderboard.";
   if (!state.submitted) {
     $("#playerName").value = state.name || storage.get("musicgrid:name") || "";
   }
@@ -752,13 +782,21 @@ async function submitScore(event) {
   button.disabled = true;
   button.textContent = "Submitting…";
   try {
-    await request("/submit-score", { name, score: game.state.score, lb_id: api.leaderboardId(game.id) });
+    const result = await request("/submit-score", {
+      name,
+      score: game.state.score,
+      lb_id: api.leaderboardId(game.id),
+      player_id: playerId(),
+      board: api.board
+    });
+    const finalName = result && result.name ? result.name : name;
     game.state.submitted = true;
-    game.state.name = name;
-    storage.set("musicgrid:name", name);
+    game.state.name = finalName;
+    game.state.renamed = Boolean(result && result.renamed);
+    if (!game.state.renamed) storage.set("musicgrid:name", finalName);
     save();
     renderEndPanel();
-    toast("Score submitted");
+    toast(game.state.renamed ? "Score submitted under a new name" : "Score submitted");
     loadLeaderboard();
   } catch (error) {
     $("#submitNote").textContent = "Couldn't submit right now. Try again in a moment.";
@@ -768,32 +806,83 @@ async function submitScore(event) {
   }
 }
 
-// ---------- Leaderboard ----------
+// ---------- Leaderboards ----------
 
-async function loadLeaderboard() {
+function boardRows(list, entries, valueOf, detailOf) {
+  list.innerHTML = "";
+  let lastRank = 0;
+  entries.forEach(entry => {
+    if (entry.me && entry.rank > lastRank + 1 && lastRank > 0) {
+      list.append(el("li", { class: "gap", "aria-hidden": "true", text: "…" }));
+    }
+    lastRank = entry.rank;
+    const who = el("span", { class: "who" }, [entry.player_name]);
+    const detail = detailOf ? detailOf(entry) : null;
+    if (detail) who.append(el("small", { text: detail }));
+    list.append(el("li", { class: entry.me ? "me" : "" }, [
+      el("span", { class: "rank", text: `${entry.rank}` }),
+      who,
+      el("span", { class: "pts", text: `${valueOf(entry)}` })
+    ]));
+  });
+}
+
+function boardCount(node, players, noun) {
+  node.textContent = players ? `${players} ${players === 1 ? "player" : "players"}${noun ? " " + noun : ""}` : "";
+}
+
+function renderBoards(grid, allTime) {
   const list = $("#leaderboardList");
   const note = $("#leaderboardNote");
-  try {
-    const scores = await request("/scores", { lb_id: api.leaderboardId(game.id) });
-    list.innerHTML = "";
-    if (!Array.isArray(scores) || !scores.length) {
-      note.hidden = false;
-      note.textContent = "No scores yet. Finish the grid to claim the top spot.";
-      return;
-    }
+  boardCount($("#lbCount"), grid.players, mode === "daily" ? "today" : "");
+  if (grid.entries.length) {
     note.hidden = true;
+    boardRows(list, grid.entries, entry => entry.player_score);
+  } else {
+    list.innerHTML = "";
+    note.hidden = false;
+    note.textContent = "No scores yet. Finish the grid to claim the top spot.";
+  }
+
+  const atList = $("#allTimeList");
+  const atNote = $("#allTimeNote");
+  if (!allTime) {
+    $("#allTimeCard").hidden = true;
+    return;
+  }
+  $("#allTimeCard").hidden = false;
+  boardCount($("#atCount"), allTime.players, "");
+  if (allTime.entries.length) {
+    atNote.hidden = true;
+    boardRows(atList, allTime.entries, entry => entry.total, entry => `${entry.grids} ${entry.grids === 1 ? "grid" : "grids"}`);
+  } else {
+    atList.innerHTML = "";
+    atNote.hidden = false;
+    atNote.textContent = "All-time totals show up after the first daily scores.";
+  }
+}
+
+async function loadLeaderboard() {
+  const lbId = api.leaderboardId(game.id);
+  try {
+    const data = await request("/leaderboards", { lb_id: lbId, board: api.board, player_id: playerId() });
+    renderBoards(data.grid, data.allTime);
+    return;
+  } catch (error) {
+    // Older server without /leaderboards: fall back to the single board.
+  }
+  try {
+    const scores = await request("/scores", { lb_id: lbId });
     const me = game.state && game.state.submitted ? { name: game.state.name, score: game.state.score } : null;
     let marked = false;
-    scores.forEach(({ rank, player_name, player_score }) => {
+    const entries = (Array.isArray(scores) ? scores : []).map(({ rank, player_name, player_score }) => {
       const isMe = !marked && me && player_name === me.name && Number(player_score) === Number(me.score);
       if (isMe) marked = true;
-      list.append(el("li", { class: isMe ? "me" : "" }, [
-        el("span", { class: "rank", text: `${rank}` }),
-        el("span", { class: "who", text: player_name }),
-        el("span", { class: "pts", text: `${player_score}` })
-      ]));
+      return { rank: Number(rank), player_name, player_score, me: Boolean(isMe) };
     });
+    renderBoards({ players: entries.length, entries }, null);
   } catch (error) {
+    const note = $("#leaderboardNote");
     note.hidden = false;
     note.textContent = "The leaderboard didn't load.";
   }

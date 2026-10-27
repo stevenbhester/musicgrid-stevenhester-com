@@ -1468,8 +1468,9 @@ async function genAiTitle(gridOutline) {
     console.log("Suggested name: "+titleSuggestion);
     return titleSuggestion;
   } catch (error) {
-    console.error("Error encoding answers for grid:", error.message);
-    return "AI Error, No Fun Name";
+    console.error("Error generating grid title:", error.message);
+    // Same fallback the server uses: the artists themselves
+    return artists.length >= 3 ? `${artists[0]}, ${artists[1]} & ${artists[2]}` : artists.join(" & ") || "Custom MusicGrid";
   }
 }
 
