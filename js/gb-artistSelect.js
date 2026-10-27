@@ -15,17 +15,11 @@ const MAX_PICKS = 10;
 let lastPicked = [];
 
 function setStep(step) {
-  const pick = document.getElementById("stepPick");
-  const build = document.getElementById("stepBuild");
-  if (!pick || !build) return;
-  pick.className = step === "pick" ? "now" : "done";
-  build.className = step === "build" ? "now" : "";
-}
-
-function noGridMessage() {
-  return BUILD_SOURCE === "search"
-    ? "We couldn't find three of these artists with enough songs in common to fill a grid. Try swapping one out, or add a couple more."
-    : "We couldn't find three of these artists with enough songs in common to fill a grid. Try a different listening window, or move other artists to the top.";
+  const pickStep = document.getElementById("stepPick");
+  const buildStep = document.getElementById("stepBuild");
+  if (!pickStep || !buildStep) return;
+  pickStep.className = step === "pick" ? "now" : "done";
+  buildStep.className = step === "build" ? "now" : step === "done" ? "done" : "";
 }
 
 function showView(name) {
@@ -59,6 +53,9 @@ function builderToast(message) {
 
 function initBuilder() {
   document.getElementById("startOver").addEventListener("click", () => window.location.reload());
+  document.getElementById("buildGrid").addEventListener("click", saveBuiltGrid);
+  const back = document.getElementById("chooseBack");
+  if (back) back.addEventListener("click", () => (BUILD_SOURCE === "search" ? backToPicking() : window.location.reload()));
   document.getElementById("copyLink").addEventListener("click", copyGridLink);
   if (BUILD_SOURCE === "search") {
     initArtistSearch();
@@ -762,7 +759,66 @@ function addEventListeners() {
 
 }
 
-// Once artists are selected, let's build a fkn grid...
+// ---------- Build: check every category, then pick 3 artists and 3 categories ----------
+
+const MAX_CHECK_ARTISTS = 10;
+const MIN_SONGS = 2;
+const KIND_ORDER = ["spotify", "decade", "ai", "opinion"];
+const KIND_INFO = {
+  spotify: { title: "Checked with Spotify data", note: "Always right: these come straight from each artist's releases." },
+  decade: { title: "Release decade", note: "" },
+  ai: { title: "AI-checked", note: "AI decides which songs count, so a few answers may be off." },
+  opinion: { title: "Opinion", note: "Judgment calls. Players may disagree with some answers." }
+};
+const build = { artists: [], results: {}, order: [], labels: {}, kinds: {}, chosenArtists: [], chosenCats: [], preview: null };
+const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// Posts to the API and rides out slow work and short outages. 202 means the
+// server is still working (asking again joins the same work). A dropped
+// connection or a 502-504 (a phone waking from sleep, a server restart) is
+// retried a few times.
+async function postSlow(path, body, maxWaitMs = 4 * 60000) {
+  const started = Date.now();
+  let failures = 0;
+  for (;;) {
+    let response = null;
+    try {
+      response = await fetch(BUILDER_API + path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+    } catch (error) {
+      response = null;
+    }
+    if (response && response.status === 202) {
+      if (Date.now() - started > maxWaitMs) throw new Error(path + " is taking too long");
+      await pause(1000);
+      continue;
+    }
+    if (!response || [502, 503, 504].includes(response.status)) {
+      failures += 1;
+      if (failures > 4) throw new Error(path + " failed: " + (response ? response.status : "no connection"));
+      await pause(1500 * failures);
+      continue;
+    }
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || path + " returned " + response.status);
+    return data;
+  }
+}
+
+function optionOn(id) {
+  const box = document.getElementById(id);
+  return Boolean(box && box.checked);
+}
+
+function kindOf(id) {
+  if (id.startsWith("decade-")) return "decade";
+  return build.kinds[id] || "spotify";
+}
+
 function buildCustomGrid() {
   const picked = [...document.querySelectorAll(".sortable-list .item")];
   if (buildStarted || picked.length < MIN_PICKS) return;
@@ -775,48 +831,27 @@ function buildCustomGrid() {
   resetBuildState();
   setStep("build");
   showView("building");
-  //Hide the artist list but keep it preserved for our lookup
-  const listContainer = document.getElementsByClassName("sortable-list");
-  listContainer[0].style.display = "none";
-  
-  //Transpose the artist preference to an array
-  const artistRankings = document.getElementsByClassName("item");
-  let artistsRankedArr = [];
-  
-  for (let i = 0; i < artistRankings.length; i++) {
-    let artistRankElem = artistRankings[i];
-    artistsRankedArr.push({artistName: artistRankElem.querySelector(".details").textContent, artistId: artistRankElem.getAttribute("data-artist-id")});
-  }
-
-  buildProgressReport(artistsRankedArr).catch(error => {
-    console.error("Grid build failed:", error);
-    showBuildFailure("Something went wrong while building your grid. Try again in a moment.");
+  runChecks(lastPicked.slice(0, MAX_CHECK_ARTISTS)).catch(error => {
+    console.error("Checks failed:", error);
+    showBuildFailure("Something went wrong while checking your artists. Try again in a moment.");
   });
 }
 
-// Tell the users how we're doing building their grid
 // Easy-mode hints need song clips. With the toggle on, leave out artists
 // that have none (checked by the server against iTunes and Deezer).
 async function artistsWithClips(artists) {
-  const box = document.getElementById("clipsOnly");
-  if (!box || !box.checked) return { kept: artists, dropped: [] };
+  if (!optionOn("clipsOnly")) return { kept: artists, dropped: [] };
   setBuildStatus("Checking which artists have song clips for easy mode…");
   const clips = {};
   for (let i = 0; i < artists.length; i += 12) {
     try {
-      const response = await fetch(BUILDER_API + "/artist-clips", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ artists: artists.slice(i, i + 12).map(artist => artist.artistName) })
-      });
-      if (!response.ok) continue;
-      const data = await response.json();
+      const data = await postSlow("/artist-clips", { artists: artists.slice(i, i + 12).map(artist => artist.name) }, 90000);
       (data.artists || []).forEach(item => { clips[String(item.name).trim().toLowerCase()] = item.clips; });
     } catch (error) {
       // Couldn't check: keep everyone rather than block the build
     }
   }
-  const dropped = artists.filter(artist => clips[artist.artistName.trim().toLowerCase()] === false);
+  const dropped = artists.filter(artist => clips[artist.name.trim().toLowerCase()] === false);
   return { kept: artists.filter(artist => !dropped.includes(artist)), dropped };
 }
 
@@ -825,960 +860,452 @@ function joinNames(names) {
   return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
 }
 
-async function buildProgressReport(artists) {
-  // Delete the frontend artist list now that we're done with it
-  const listContainer = document.getElementsByClassName("sortable-list");
-  listContainer[0].innerHTML = "";
+async function loadCategoryList() {
+  try {
+    const response = await fetch(BUILDER_API + "/categories");
+    if (!response.ok) return;
+    const data = await response.json();
+    (data.categories || []).forEach(category => {
+      if (category.id === "decade-*") return;
+      build.labels[category.id] = category.label;
+      build.kinds[category.id] = category.kind;
+      build.order.push(category.id);
+    });
+  } catch (error) {
+    // Rows get added as results arrive instead
+  }
+}
 
+function fetchCategories(artist, kinds) {
+  return postSlow("/artist-categories", { artistId: artist.id, artistName: artist.name, kinds });
+}
+
+async function runChecks(artists) {
+  const kinds = ["spotify"];
+  if (optionOn("useAi")) kinds.push("ai");
+  if (optionOn("useOpinion")) kinds.push("opinion");
   const { kept, dropped } = await artistsWithClips(artists);
   if (dropped.length) {
-    const names = joinNames(dropped.map(artist => artist.artistName));
+    const names = joinNames(dropped.map(artist => artist.name));
     const verb = dropped.length === 1 ? "has" : "have";
     if (kept.length < 3) {
       showBuildFailure(`${names} ${verb} no song clips, so easy-mode hints wouldn't work for them, and that leaves fewer than three artists. Add a few more, or turn off "Only artists with song clips".`);
       return;
     }
     builderToast(`Left out ${names}: no song clips for easy mode`);
-    artists = kept;
   }
-  setBuildStatus("Checking which of your artists have enough songs in common. This can take a minute.");
+  build.artists = kept;
+  await loadCategoryList();
+  renderMatrix(kinds);
+  setBuildStatus(`Reading each artist's songs from Spotify. 0 of ${kept.length} done.`);
 
-  // Build our progress reporter container
-  const progressContainer = document.getElementById("gridProgressContainer");
-  progressContainer.innerHTML = "";
-
-  // Fetch the current list of automated categories
-  const categoriesArr = fetchValidCategories();
-  
-  // Build our progress headers
-  const headerRow = document.createElement("div");
-  headerRow.classList.add("row");
-  headerRow.appendChild(createHeader("artist","Artists"));
-  categoriesArr.forEach( category => {
-    headerRow.appendChild(createHeader("category",category.head));
-  });
-  progressContainer.appendChild(headerRow);
-
-  // Build our artist rows
-  //TODO: Only generate rows for further artists if no match found in artists already returned
-  artists.forEach(artist => {
-    let artistRow = document.createElement("div");
-    artistRow.classList.add("row");
-    artistRow.appendChild(createProgressCell("artist",artist.artistName,artist.artistId));
-    categoriesArr.forEach( category => {
-      artistRow.appendChild(createProgressCell("progress",category.className,null));
-    });
-    progressContainer.appendChild(artistRow);
-  });
-  
-  //Once we're done with building progress, move to parsing
-  let numArtists = artists.length;
-  let gridOutlineFound = false;
-  let gridOutline = null;
-  
-  for(let q = 3; q<=numArtists; q++) {
-    if(!gridOutlineFound) {
-      console.log("Running parseArtists at loop #"+q);
-      console.log("Checking subsets of first "+q+" artists");
-      gridOutline = await parseArtists(progressContainer,q).then(() =>  validateGroups(q));
-      if(gridOutline) { 
-        gridOutlineFound = true;
-        console.log("Found valid match for below grid!");
-        console.log(gridOutline);
-        console.dir(gridOutline);
-      } else {
-        console.log("No valid match found, incrementing search");
-      }
+  let done = 0;
+  const queue = [...kept];
+  const worker = async () => {
+    while (queue.length) {
+      const artist = queue.shift();
+      await checkArtist(artist, kinds);
+      done += 1;
+      setBuildStatus(done < kept.length
+        ? `Reading each artist's songs from Spotify. ${done} of ${kept.length} done.`
+        : "All checked. Now pick your grid.");
     }
-  }  
-  if (!gridOutline) {
-    showBuildFailure(noGridMessage());
+  };
+  await Promise.all([worker(), worker()]);
+
+  const readable = kept.filter(artist => build.results[artist.id]);
+  if (readable.length < 3) {
+    showBuildFailure(`We could only read ${readable.length} of your artists from Spotify, and a grid needs three. Try again in a moment, or swap in other artists.`);
     return;
   }
-  setBuildStatus("Found a grid that works. Giving it a name…");
-  let aiTitle = await genAiTitle(gridOutline);
-  builtGridTitle = aiTitle;
-  setBuildStatus("Saving your grid…");
-  saveCustomGrid(gridOutline, aiTitle);
+  await pause(reduceMotion ? 0 : 500);
+  showChoose();
 }
 
-function createHeader(headerType, headerText) {
-  const headerCell = document.createElement("div");
-  const cellClass = headerType+"-header";
-  headerCell.classList.add("cell", "progress-header", cellClass);
-  headerCell.textContent = headerText;
-  return headerCell;
+// ---------- The live check matrix: a row per category, a column per artist ----------
+
+function renderMatrix(kinds) {
+  const table = document.getElementById("checkMatrix");
+  table.innerHTML = "";
+  const head = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  headRow.appendChild(document.createElement("th"));
+  build.artists.forEach((artist, index) => {
+    const th = document.createElement("th");
+    th.scope = "col";
+    th.className = "cm-artist";
+    th.dataset.col = String(index);
+    th.title = artist.name;
+    const face = document.createElement(artist.img ? "img" : "span");
+    face.className = "cm-face";
+    if (artist.img) {
+      face.src = artist.img;
+      face.alt = "";
+    } else {
+      face.textContent = artist.name.slice(0, 1).toUpperCase();
+    }
+    const name = document.createElement("span");
+    name.className = "cm-name";
+    name.textContent = artist.name;
+    th.append(face, name);
+    headRow.appendChild(th);
+  });
+  head.appendChild(headRow);
+  table.appendChild(head);
+  const body = document.createElement("tbody");
+  table.appendChild(body);
+  build.order
+    .filter(id => kinds.includes(build.kinds[id] || "spotify"))
+    .forEach(id => addMatrixRow(id));
 }
 
-function createProgressCell(cellType, cellContent, idEmbed) {
-  const progressCell = document.createElement("div");
-  let cellClass = cellType+"-cell";
-  let cellDataEmbed = idEmbed||"no-data";
-  let cellStatus = "unstarted";
-  if ( cellType == "artist" ){
-    progressCell.textContent = cellContent;
-    cellStatus = "noStatus";
-    progressCell.setAttribute("data-artist-id",cellDataEmbed);
+function addMatrixRow(id) {
+  const body = document.querySelector("#checkMatrix tbody");
+  if (!body || document.getElementById(`cm-${id}`)) return;
+  const row = document.createElement("tr");
+  row.id = `cm-${id}`;
+  row.dataset.kind = kindOf(id);
+  const label = document.createElement("th");
+  label.scope = "row";
+  label.textContent = build.labels[id] || id;
+  if (row.dataset.kind === "ai" || row.dataset.kind === "opinion") {
+    const tag = document.createElement("span");
+    tag.className = `kind-tag ${row.dataset.kind}`;
+    tag.textContent = row.dataset.kind === "ai" ? "AI" : "Opinion";
+    label.append(" ", tag);
+  }
+  row.appendChild(label);
+  build.artists.forEach((artist, index) => {
+    const cell = document.createElement("td");
+    const dot = document.createElement("i");
+    // Columns already checked don't have this category (a decade, say)
+    dot.className = build.results[artist.id] && build.results[artist.id].checked.includes(row.dataset.kind) ? "dot no" : "dot";
+    dot.dataset.col = String(index);
+    cell.appendChild(dot);
+    row.appendChild(cell);
+  });
+  // Decades go in order after the Spotify rows
+  if (row.dataset.kind === "decade") {
+    const decades = [...body.querySelectorAll("tr[data-kind='decade']")];
+    const after = decades.filter(other => other.id < row.id).pop();
+    const firstLater = body.querySelector("tr[data-kind='ai'], tr[data-kind='opinion']");
+    if (after) after.after(row);
+    else if (firstLater) body.insertBefore(row, firstLater);
+    else body.appendChild(row);
   } else {
-    progressCell.setAttribute("data-progress-type",cellContent);
-  }
-  progressCell.classList.add("cell", cellClass, cellStatus);
-  return progressCell;
-}
-
-function fetchValidCategories() {
-  let validCategories = [];
-  validCategories.push({head: "Check Release Dates", endpoint: "/list-songs-by-dates", className: "release-date"});
-  validCategories.push({head: "Check Song Lengths", endpoint: "/list-songs-by-duration", className: "song-length"});
-  validCategories.push({head: "Check Title Lengths", endpoint: "/list-songs-by-wordcount", className: "title-length"});
-  validCategories.push({head: "Check Cheats Access", endpoint: "/get-cheat-preview-url", className: "cheats-available"});
-  validCategories.push({head: "Looking for Group", endpoint: "fakeEndpoint", className: "group-compare"});
-  return(validCategories);
-}
-
-//Next steps: Go through valid artist rows, check each cell, change class based on status, get good gif for loading, add missing-artist gif, add warning if no cheat button, build custom grid data structure and handle
-//Long term: Add more categories with further APIs then let users select the categories they want.
-
-let masterArtistDataSumm = {};
-let masterArtistDataDetails = {};
-let masterGridOutline = {};
-let startIndex = 0;
-
-async function parseArtists(progressContainer, endIndex = 3) {
-  let debug = true;
-  if(debug) { console.log("parsing Artist progress");}
-  let progressRowsHTMLObj = progressContainer.getElementsByClassName("row");
-  let progressRowsArr = [];
-  if(debug) { console.log("Setting progressRowArr:");}
-  for (let j = 1; j < progressRowsHTMLObj.length; j++) { //We start at 1 to ignore header row
-    let progressRowElem = progressRowsHTMLObj[j];
-    progressRowsArr.push(progressRowElem);
-  }
-  if(debug) { console.dir(progressRowsArr);}
-  let progressRowsSlice = progressRowsArr.slice(startIndex, endIndex);
-  startIndex = endIndex;
-  for (var row of progressRowsSlice) {
-    let artistSummObj = {};
-    let artistName = row.getElementsByClassName("artist-cell")[0].textContent;
-    let artistId = row.getElementsByClassName("artist-cell")[0].getAttribute("data-artist-id");
-    let categoryCellsHTMLObj = row.getElementsByClassName("progress-cell");
-    let categoryCellsObj = [];
-    if(debug) { console.log(`Observing artist name: "${artistName}", id: "${artistId}"`);}
-  
-    for (let i = 0; i < categoryCellsHTMLObj.length; i++) {
-      let categoryCellsElem = categoryCellsHTMLObj[i];
-      let keyValue = categoryCellsElem.getAttribute("data-progress-type");
-      if(debug) { console.log(`Setting categoryCellsObj[${keyValue}]:`); console.dir(categoryCellsElem);}
-      categoryCellsObj[categoryCellsElem.getAttribute("data-progress-type")] = categoryCellsElem;
-    }
-    let xa = await checkArtistData(artistId, artistName, categoryCellsObj["release-date"], categoryCellsObj["title-length"], categoryCellsObj["song-length"]);
+    body.appendChild(row);
   }
 }
 
-async function checkArtistData(artistId, artistName, releaseDateCell, wordCountCell, durationCell) {
-  releaseDateCell.classList.remove("finished");
-  releaseDateCell.classList.remove("unstarted");
-  releaseDateCell.classList.add("in-progress");
-  wordCountCell.classList.remove("finished");
-  wordCountCell.classList.remove("unstarted");
-  wordCountCell.classList.add("in-progress");
-  durationCell.classList.remove("finished");
-  durationCell.classList.remove("unstarted");
-  durationCell.classList.add("in-progress");
-  
-  let xo = await countReleasesByCat(artistId,artistName,releaseDateCell,wordCountCell,durationCell);
-  return true;
-}
-
-async function countReleasesByCat(artistId, artistName, releaseDateCell, wordCountcell, durationCell) { 
-  let durations = [60000, 120000, 180000, 240000, 300000, 360000];
-  let wordCounts = [1, 2, 3, 4, 5];
-  console.log("Fetching heroku for artist: "+artistName);
-  await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/rich-artist-lookup-v2", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ artistId, durations, wordCounts })
-  })
-    .then(response => response.json())
-    .then(data => {
-      leaf(masterArtistDataSumm,[artistName,"releaseDate"], data.summary.releasedate);
-      leaf(masterArtistDataDetails,[artistName,"releaseDate"], data.details.releasedate);
-      releaseDateCell.classList.remove("unstarted");
-      releaseDateCell.classList.remove("in-progress");
-      releaseDateCell.classList.add("finished");
-      
-      leaf(masterArtistDataSumm,[artistName,"wordCount"], data.summary.wordcount);
-      leaf(masterArtistDataDetails,[artistName,"wordCount"], data.details.wordcount);
-      wordCountcell.classList.remove("unstarted");
-      wordCountcell.classList.remove("in-progress");
-      wordCountcell.classList.add("finished");
-      
-      leaf(masterArtistDataSumm,[artistName,"duration"], data.summary.duration);
-      leaf(masterArtistDataDetails,[artistName,"duration"], data.details.duration);
-      durationCell.classList.remove("unstarted");
-      durationCell.classList.remove("in-progress");
-      durationCell.classList.add("finished");
-      return true;
-    })
-    .catch(error => console.error("Error fetching grid data:", error));
-}
-
-function leaf(obj, keyPath, value) {
-  let lastKeyIndex = keyPath.length-1;
-  for (var i = 0; i < lastKeyIndex; ++ i) {
-    let key = keyPath[i];
-    if (!(key in obj)){
-      obj[key] = {};
-    }
-    obj = obj[key];
-  }
-  obj[keyPath[lastKeyIndex]] = value;
-}
-
-async function validateGroups(groupSize = 3) {
-  let debug = true;
-  let artists = Object.keys(masterArtistDataSumm);
-  if(debug) {console.log("Groups to compare registered as:");console.log(artists);}
-  if(debug) {console.dir(masterArtistDataSumm);}
-  if(debug) {console.dir(masterArtistDataDetails);}
-  if(debug) {console.log("Checking group configs now");}
-
-  //Check group iterations, we'll start with just the top 4 and add looping logic later- 
-  let iterations = findIterations(groupSize);
-  console.log("iterations returned:");
-  console.log(iterations);
-  console.dir(iterations);
-
-  let yearRange = null;
-  let wordCount = null;
-  let songLength = null;
-  let currIteration = null;
-  let matchFound = false;
-  
-  for(var x = 0; x < iterations.length; x++) { //TODO: Sort by score instead of at random
-    if(!matchFound) {
-      yearRange = null;
-      wordCount = null;
-      songLength = null;
-      let currIterationObj = iterations[x];
-      currIteration = currIterationObj.perm; 
-      console.log("Checking years for "+currIteration);
-      yearRange = await processDateRanges(currIteration).then(yearRangeData => selectDateRange(yearRangeData));
-      if(yearRange) { console.log("found year range starting "+yearRange);}
-      console.log("Checking wordcounts for "+currIteration);
-      wordCount = selectWordCounts(currIteration, [1,3]); //Just one and three word titles to start
-      if(wordCount) { console.log("found word count match for "+wordCount);}
-      console.log("Checking durations for "+currIteration);
-      songLength = selectSongLength(currIteration, [{type: "under", durmin: 2},{type: "over", durmin: 5}]); //Just under 2 mins, over 5 mins to start
-      if(songLength) { console.log("found duration match for "+songLength);}
-      if(wordCount && songLength && yearRange) { 
-        matchFound = true;
-        console.log("Found complete match on iteration "+currIteration);
-      } else {
-        let missingElements = [];
-        if(!wordCount){missingElements.push("Word Count");}
-        if(!songLength){missingElements.push("Song Length");}
-        if(!yearRange){missingElements.push("Year Range");}
-        console.log("Missing "+missingElements.join(", ")+" for match on iteration "+currIteration);
-      }
-    } else {console.log("Skipping iteration as all criteria already found");}
-  }
-  if(matchFound) {
-    let categoriesObj = {yearRange: yearRange, wordCount: wordCount, songLength: songLength };
-    console.log("Final categories determined as:");
-    console.log(categoriesObj);
-    console.dir(categoriesObj);
-    console.log("For iteration:"+currIteration);
-    return {iteration: currIteration, categories: categoriesObj};
-  } else{
-    console.log("No valid categories found for iterations");
-    return null;
+function setColumn(index, state) {
+  const head = document.querySelector(`#checkMatrix th[data-col="${index}"]`);
+  if (head) head.dataset.state = state;
+  if (state === "checking") {
+    document.querySelectorAll(`#checkMatrix i.dot[data-col="${index}"]:not(.ok):not(.no)`).forEach(dot => dot.classList.add("wait"));
   }
 }
 
-function findIterations(groupSize) {
-  let numVariations = findFreshVariations(groupSize);
-  console.log(numVariations+" possible variations of group size "+groupSize+" found.");
-  
-  let permutations = [];
-  let emptyPerm = [];
-  for(var n = 0; n<groupSize - 1; n++) {
-    emptyPerm.push(0);
-  }
-  emptyPerm.push(1);
-  console.log("Empty perm built for group size "+groupSize+" as:");
-  console.dir(emptyPerm);
-  //Take in number of iterations, remove already checked, rank by lowest sum of parts
-  //return sorted array with highest prio groupings at top
-  let currPerm = emptyPerm;
-  console.log("building Iterations, starting at: ["+currPerm.join(",")+"]");
-
-  for(var l=0; l<groupSize-2; l++){ // Var l will count the location of the first 1
-    currPerm[l] = 1;
-    console.log("setting "+l+" value to first 1: ["+currPerm.join(",")+"]");
-    for(var m=l+1; m<groupSize-1; m++){ // Var m will count the location of the second 1
-      currPerm[m] = 1;
-      console.log("setting"+m+"value to second 1: ["+currPerm.join(",")+"]");
-      let currScore = m+l;
-      console.log("Setting score of current perm to "+currScore+" and appending to Permutations");
-      permutations.push({perm: currPerm.join(","), score: currScore});
-      currPerm[m] = 0;
-    }
-    currPerm[l] = 0;
-  }
-  for(var x = 0; x < permutations.length; x++) {
-    let obsPerms = permutations[x];
-    let obsPerm = obsPerms.perm;
-    let obsScore = obsPerms.score;
-    console.log("Permutation #"+x+" is "+obsPerm+" with score "+obsScore);
-  }
-  return permutations;
-}
-
-function findFreshVariations(groupSize) {  
-  let newVars = 1;
-  if(groupSize > 3) {
-    newVars = (groupSize-2)+findFreshVariations(groupSize-1);}
-  return newVars;
-}
-
-async function progressFailure() {
-  let debug = true;
-  if(debug) {console.log("Groups failed to update");}
-  //Here is where we look for specific groups, decide which date ranges/number of words to use, then pass over to the encoder!
-}
-
-
-async function processDateRanges(currIteration) {
-  let fullArtists = Object.keys(masterArtistDataSumm);
-  let currPattern = currIteration.split(",");
-  // console.log("Checking years for current iteration: ");
-  console.log(currPattern);
-
-  let artists = [];
-  for(let y = 0; y<currPattern.length; y++) {
-    if(currPattern[y] == 1) { 
-      artists.push(fullArtists[y]); 
-      console.log("Adding "+fullArtists[y]+" to list of artists to compare");
-    } else {
-      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
-    }
-  }
-  
-  let artistYearsBucketObj = {};
-  for (let x = 0; x < artists.length; x++) {
-    let artistName = artists[x];
-    // console.log("Checking date ranges for "+artistName+" of years:");
-    let releaseSummObj = masterArtistDataSumm[artistName]["releaseDate"];
-    let artistYearsArr = Object.keys(releaseSummObj);
-    // console.dir(artistYearsArr);
-    for (let y = 0; y < artistYearsArr.length; y++) {
-      let observedYear = parseInt(artistYearsArr[y]);
-      let yearReleases = releaseSummObj[observedYear];
-      let yearBucket = observedYear - observedYear%5;
-      let relevantBuckets = [];
-      relevantBuckets.push(yearBucket);
-      if(yearBucket == observedYear) {
-        relevantBuckets.push(observedYear - 5);
-      }
-      // console.log("Checking year: "+observedYear+" with "+yearReleases+" releases");
-      for (let z = 0; z < relevantBuckets.length; z++) {
-        let currYear = relevantBuckets[z];
-        // console.log("Assigned to bucket "+currYear);
-        let currYearKeys = Object.keys(artistYearsBucketObj);
-        let currYearArtistKeys = [];
-        // console.log("Checking if "+currYear+"exists in existing "+(currYearKeys.length)+" logged years of:");
-        // console.log(currYearKeys);
-        if(currYearKeys.length >= 0 && currYearKeys.includes(currYear.toString())) { //If year bucket already exists
-          currYearArtistKeys = Object.keys(artistYearsBucketObj[currYear]);
-          if(currYearArtistKeys.length >= 0 && currYearArtistKeys.includes(artistName)) { //And artist exists in that year bucket
-            artistYearsBucketObj[currYear][artistName] += yearReleases; //Increment bucket release count by current year
-            // console.log(currYear+ " & "+artistName+" already exists, incrementing by "+yearReleases);
-          } else { //But if year bucket exists and artist not found, create artist record and set to yearReleases
-            artistYearsBucketObj[currYear][artistName] = yearReleases;
-            // console.log(currYear+" exists, "+artistName+" doesn't already exists, creating & setting to "+yearReleases);
-          }
-        } else { //If year bucket doesn't yet exist, create year and add artist//num release pair
-          artistYearsBucketObj[currYear] = {[artistName]: yearReleases};
-          // console.log(currYear+ " & "+artistName+" don't exist, creating and setting to "+yearReleases);
-        }
-      }
-    }
-  }
-  
-  console.dir(artistYearsBucketObj);
-  return artistYearsBucketObj;
-  // map each year to (artist:numsongs)
-  // generalize to 5 year buckets
-  // rank 5 year buckets by the highest min of artists songs
-  // select top and we can iterate through later
-  // return array of min and max year for year range (or just take min and know it's +5 years)
-  // actually be careful to count songs in a border year towards both (2005 counts for 2000-2005 and 2005-2010)
-}
-
-function selectDateRange(yearRangeData) {
-  let years = Object.keys(yearRangeData);
-  let yearRankObj = {};
-  let maxMin = 0;
-  let yearOfMaxMin = 0;
-  for(var z = 0; z<years.length; z++){
-    let observedYear = years[z];
-    let yearObj = yearRangeData[observedYear];
-    let yearArtists = Object.keys(yearObj);
-    //First check if enough artists even exist for the year
-    console.log("Checking year of "+observedYear);
-    if(yearArtists.length == 3) {
-      console.log(observedYear+" has all artists, checking min count of releases");
-      let minCount = 420;
-      for(var i = 0; i<3; i++) {
-        let currArtist = yearArtists[i];
-        let currCount = yearObj[currArtist];
-        console.log(currArtist+" has count of "+currCount+" in year "+observedYear);
-        if(currCount < minCount) { 
-          minCount = currCount;
-        }
-        console.log("Min releases from valid artist in "+observedYear+" recorded as "+minCount);
-      }
-      if(minCount > maxMin) { 
-        console.log("Min count of "+minCount+" is lower than max min of "+maxMin+" for year "+observedYear+", recording as new maxMin year");
-        maxMin = minCount;
-        yearOfMaxMin = observedYear;
-      }
-    } else {console.log(observedYear+" skipped for not having all artists");}
-  }
-  if(maxMin < 5) {
-    console.log("No years with 5+ releases from all artists found");
-    return null;
-  } else { 
-    console.log("Best year identified as "+yearOfMaxMin+" to "+(parseInt(yearOfMaxMin)+5));
-    return yearOfMaxMin;
+async function revealColumn(index, categories, kinds) {
+  Object.values(categories).forEach(category => {
+    build.labels[category.id] = category.label;
+    build.kinds[category.id] = category.kind;
+    if (!build.order.includes(category.id)) build.order.push(category.id);
+    if (category.id.startsWith("decade-")) addMatrixRow(category.id);
+  });
+  const rows = [...document.querySelectorAll("#checkMatrix tbody tr")].filter(row => kinds.includes(row.dataset.kind === "decade" ? "spotify" : row.dataset.kind));
+  for (const row of rows) {
+    const id = row.id.slice(3);
+    const count = categories[id] ? categories[id].songs.length : 0;
+    const dot = row.querySelector(`i.dot[data-col="${index}"]`);
+    if (!dot) continue;
+    dot.className = count >= MIN_SONGS ? "dot ok" : "dot no";
+    dot.title = `${count} ${count === 1 ? "song" : "songs"}`;
+    if (!reduceMotion) await pause(18);
   }
 }
 
-function selectWordCounts(currIteration,validCountsArr) {
-  let fullArtists = Object.keys(masterArtistDataSumm);
-  let currPattern = currIteration.split(",");
-  // console.log("Checking years for current iteration: ");
-  console.log(currPattern);
-
-  let artists = [];
-  for(let y = 0; y<currPattern.length; y++) {
-    if(currPattern[y] == 1) { 
-      artists.push(fullArtists[y]); 
-      console.log("Adding "+fullArtists[y]+" to list of artists to compare");
-    } else {
-      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
-    }
-  }
-
-  let foundWordCount = false;
-  let artistWordCountBucketObj = {};
-  for(let z = 0; z<validCountsArr.length; z++) {
-    let numValidArtists = 0;
-    if(!foundWordCount) {
-      let currWordCount = validCountsArr[z];
-      for (let x = 0; x < artists.length; x++) {
-        let artistName = artists[x];
-        let countSummObj = masterArtistDataSumm[artistName]["wordCount"];
-        let artistCountArr = Object.keys(countSummObj);
-        console.log("Checking for songs with "+currWordCount+" by "+artistName);
-        let currCountStr = currWordCount.toString();
-        if(artistCountArr.length > 0 && artistCountArr.includes(currCountStr)) {
-          numValidArtists++;
-          console.log("Found songs of matching length for "+artistName+"! Now at "+numValidArtists+" matched for "+currWordCount+" word length songs");
-        }
-        if(numValidArtists == 3) {
-          console.log("All three artists matched, returning");
-          foundWordCount = true;
-          return currWordCount;
-        }
-      }
-    }
-  }
-  console.log("No match found on wordcount, returning null");
-  return null;
-}
-
-
-function selectSongLength(currIteration,validLengthsArr) {
-  let fullArtists = Object.keys(masterArtistDataSumm);
-  let currPattern = currIteration.split(",");
-  // console.log("Checking years for current iteration: ");
-  console.log(currPattern);
-
-  let artists = [];
-  for(let y = 0; y<currPattern.length; y++) {
-    if(currPattern[y] == 1) { 
-      artists.push(fullArtists[y]); 
-      console.log("Adding "+fullArtists[y]+" to list of artists to compare");
-    } else {
-      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
-    }
-  }
-
-  let foundLength = false;
-  let artistLengthsBucketObj = {};
-  for(let z = 0; z<validLengthsArr.length; z++) {
-    let numValidArtists = 0;
-    if(!foundLength) {
-      let currLengthObj = validLengthsArr[z];
-      let comparisonType = currLengthObj.type;
-      let paramLength = currLengthObj.durmin*60000;
-      for (let x = 0; x < artists.length; x++) {
-        let artistName = artists[x];
-        let lengthSummObj = masterArtistDataSumm[artistName]["duration"];
-        let lengthArr = Object.keys(lengthSummObj);
-        let songArtistMatches = 0;
-        for (let a = 0; a < lengthArr.length; a++) { 
-          let dataSetDur = parseInt(lengthArr[a]);
-          let dataSetDurStr = lengthArr[a];
-          if(comparisonType == "under") { 
-            console.log("Checking for songs by "+artistName+" "+comparisonType+"(u) "+paramLength+" ms");
-            if(dataSetDur <= paramLength) { 
-              songArtistMatches += lengthSummObj[dataSetDurStr];
-              console.log("Found match for "+lengthSummObj[dataSetDurStr]+" songs on "+lengthArr[a]+", total matches for artist at: "+songArtistMatches);
-            }
-          } else if(comparisonType == "over") { 
-            let paramLengthTrue=paramLength+60000; // By default we sort songs by the duration they're under, so we need to increment up by 1 here. 
-            console.log("Checking for songs by "+artistName+" "+comparisonType+"(o) "+paramLengthTrue+" ms");
-            if(dataSetDur >= paramLengthTrue) { 
-              songArtistMatches += lengthSummObj[dataSetDurStr];
-              console.log("Found match for "+lengthSummObj[dataSetDurStr]+" songs on "+lengthArr[a]+", total matches for artist at: "+songArtistMatches);
-            } 
-          }
-        }
-        if(songArtistMatches > 1) {
-          numValidArtists++;
-        }
-      }
-      if(numValidArtists==3) {
-        foundLength = true;
-        console.log("Found complete matches for "+comparisonType+" "+paramLength+" ms");
-        return currLengthObj;
-      }
-    }
-  }
-  console.log("No match found on duration, returning null");
-  return null;
-}
-
-function saveCustomGrid(gridOutline, aiTitle) {
-  let customGridDetails = populateGridData(gridOutline, aiTitle);
-}
-
-
-// function assembleGridFrame(gridOutline) {
-//   let currIteration = gridOutline.iteration;
-//   let fullArtists = Object.keys(masterArtistDataSumm);
-//   let currPattern = currIteration.split(",");
-  
-//   // console.log("Checking years for current iteration: ");
-//   console.log(currPattern);
-
-//   let artists = [];
-//   for(let y = 0; y<currPattern.length; y++) {
-//     if(currPattern[y] == 1) { 
-//       artists.push(fullArtists[y]); 
-//     } else {
-//       console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
-//     }
-//   }
-  
-//   for(let z = 0; z<artists.length; z++) {
-//     let artistName = artists[0];
-//     console.log("Adding "+artistName+" to framework");
-//     masterGridOutline[artistName] = {"songLength": [], "wordCount": [], "releaseDate": []};
-//   }   
-// }
-
-function populateGridData(gridOutline, aiTitle) { 
-  // assembleGridFrame(gridOutline);
-  let currIteration = gridOutline.iteration;
-  let fullArtists = Object.keys(masterArtistDataSumm);
-  let currPattern = currIteration.split(",");
-  let paramWordCount = gridOutline.categories.wordCount;
-  let paramLength = gridOutline.categories.songLength.durmin*60000;
-  let comparisonType = gridOutline.categories.songLength.type;
-  let paramYear = parseInt(gridOutline.categories.yearRange);
-  
-  // console.log("Checking years for current iteration: ");
-  console.log(currPattern);
-
-  let artists = [];
-  for(let y = 0; y<currPattern.length; y++) {
-    if(currPattern[y] == 1) { 
-      artists.push(fullArtists[y]); 
-      console.log("Adding "+fullArtists[y]+" to final list of artists to compare");
-    } else {
-      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
-    }
-  }
-  
-  for(let z = 0; z<artists.length; z++) {
-    let artistName = artists[z];
-    let artistDetailsObj = masterArtistDataDetails[artistName];
-    
-    //First lets find the songs matching the final duration category
-    let durationObj = artistDetailsObj.duration;
-    let durationKeys = Object.keys(durationObj);
-    let songsMatchingDuration = [];
-    for(let a=0; a<durationKeys.length; a++) {
-      let dataSetDurStr = durationKeys[a];
-      let dataSetDur = parseInt(dataSetDurStr);
-      if(comparisonType == "under") { 
-        console.log("Finding all songs by "+artistName+" "+comparisonType+"(u) "+paramLength+" ms");
-        if(dataSetDur <= paramLength) {
-          let songDurMatches = durationObj[dataSetDurStr];
-          songDurMatches.forEach(songMatch => {
-            songsMatchingDuration.push(songMatch);
-          });
-          console.log("Adding these songs to master list for "+artistName);
-          console.dir(songDurMatches);
-        }
-      } else if(comparisonType == "over") { 
-        let paramLengthTrue=paramLength+60000; // By default we sort songs by the duration they're under, so we need to increment up by 1 here. 
-        console.log("Finding all songs by "+artistName+" "+comparisonType+"(o) "+paramLengthTrue+" ms");
-        if(dataSetDur >= paramLengthTrue) { 
-          let songDurMatches = durationObj[dataSetDurStr];
-          songDurMatches.forEach(songMatch => {
-            songsMatchingDuration.push(songMatch);
-          });
-          console.log("Adding these songs to master list for "+artistName);
-          console.dir(songDurMatches);
-        } 
-      }
-    }
-  
-    console.log("creating masterGridOutline data for");
-    console.dir(songsMatchingDuration);
-    masterGridOutline[artistName] = {songLength: songsMatchingDuration};
-
-    //Next we find songs matching the final title length count
-    let wordCountObj = artistDetailsObj.wordCount;
-    let songsMatchingWordCount = wordCountObj[paramWordCount];
-    masterGridOutline[artistName]["wordCount"] = songsMatchingWordCount;
-    
-    //Next we find songs matching the date range
-    let yearsObj = artistDetailsObj.releaseDate;
-    let yearKeys = Object.keys(yearsObj);
-    let songsMatchingDate = [];
-    for(let b=0; b<yearKeys.length; b++) {
-      let detailsSetYear = yearKeys[b];
-      let detailsSetYearInt = parseInt(yearKeys[b]);
-      if(detailsSetYearInt >= paramYear && detailsSetYearInt <= paramYear + 5) {
-        let songYearMatches = yearsObj[detailsSetYear];
-        songYearMatches.forEach(songMatch => {
-          songsMatchingDate.push(songMatch);
-        });
-      }
-    }
-    
-    masterGridOutline[artistName]["yearRange"] = songsMatchingDate;
-  }
-  console.log("Final grid outline is:");
-  console.dir(masterGridOutline);
-  storeGridInSql(masterGridOutline, gridOutline.categories, aiTitle);
-}
-
-async function genAiTitle(gridOutline) {
-  console.log("Generating AI Title");
-  let fullArtists = Object.keys(masterArtistDataSumm);
-  let currIteration = gridOutline.iteration;
-  let currPattern = currIteration.split(",");
-  // console.log("Checking years for current iteration: ");
-  console.log(currPattern);
-
-  let artists = [];
-  for(let y = 0; y<currPattern.length; y++) {
-    if(currPattern[y] == 1) { 
-      artists.push(fullArtists[y]); 
-      console.log("Adding "+fullArtists[y]+" to list of artists to compare");
-    } else {
-      console.log("Skipping "+fullArtists[y]+" due to pattern exclusion");
-    }
-  }
-  let artistsJoined = artists.join(", ");
+async function checkArtist(artist, kinds) {
+  const index = build.artists.indexOf(artist);
+  setColumn(index, "checking");
+  let data;
   try {
-    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/fetch-ai-gridname", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ artists: artistsJoined })
-    });
-    const data = await response.json();
-    console.dir(data);
-    let titleSuggestion = data.message.content.trim();
-    console.log(titleSuggestion);
-    console.log("Suggested name: "+titleSuggestion);
-    return titleSuggestion;
+    data = await fetchCategories(artist, ["spotify"]);
   } catch (error) {
-    console.error("Error generating grid title:", error.message);
-    // Same fallback the server uses: the artists themselves
-    return artists.length >= 3 ? `${artists[0]}, ${artists[1]} & ${artists[2]}` : artists.join(" & ") || "Custom MusicGrid";
+    setColumn(index, "error");
+    document.querySelectorAll(`#checkMatrix i.dot[data-col="${index}"]`).forEach(dot => { dot.className = "dot no"; });
+    builderToast(`Couldn't read ${artist.name} from Spotify`);
+    return;
   }
-}
-
-async function storeGridInSql(masterGridOutline, categories, aiTitle) { 
-  try {
-    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/create-custom-table", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({content: masterGridOutline, categories: categories, gridTitle: aiTitle })
-    });
-    if (!response.ok) {
-      throw new Error("Failed to create custom table");
+  build.results[artist.id] = { categories: data.categories, songs: data.songs, checked: ["spotify", "decade"] };
+  await revealColumn(index, data.categories, ["spotify"]);
+  const aiKinds = kinds.filter(kind => kind !== "spotify");
+  if (aiKinds.length) {
+    try {
+      const ai = await fetchCategories(artist, aiKinds);
+      Object.assign(build.results[artist.id].categories, ai.categories);
+      if (ai.aiError) builderToast("AI categories aren't available right now");
+      await revealColumn(index, ai.categories, aiKinds);
+    } catch (error) {
+      await revealColumn(index, {}, aiKinds);
     }
-    const data = await response.json();
-    let responseGridId = data.customGridId;
-    console.log("Custom table created successfully, gridId read as "+responseGridId);
-    encodeCustomAnswers(responseGridId);
-  } catch (error) {
-    console.error("Error creating custom table: ", error);
-    showBuildFailure("Couldn't save your grid. Try again in a moment.");
+    build.results[artist.id].checked.push(...aiKinds);
   }
+  setColumn(index, "done");
 }
 
-async function encodeCustomAnswers(customGridId) {
-  let data = null;
-  try {
-    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/custom-grid-data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ custom_grid_id: customGridId })
-    });
+// ---------- Pick 3 artists and 3 categories ----------
 
-    data = await response.json();
-  } catch (error) {
-    console.error("Error encoding answers for grid:", error);
-  }
-  
-  await fetchGridOutline(customGridId);
-}
-async function fetchGridOutline(customGridId) {
-  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/custom-grid-data", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ custom_grid_id: customGridId })
-  })
-    .then(response => response.json())
-    .then(data => buildGridOutline(data, customGridId))
-    .catch(error => {
-      console.error("Error fetching grid data:", error);
-      showBuildFailure("Your grid was saved, but loading it back failed. Try again in a moment.");
-    });
-}
-async function buildGridOutline(data, customGridId) {
-  const progressContainer = document.getElementById("gridProgressContainer");
-  progressContainer.innerHTML = "";
-  document.getElementById("buildTitle").textContent = builtGridTitle || "Your grid";
-  setBuildStatus("Here's your grid. Now scoring every possible answer, so deeper cuts earn more points.");
-
-  let gridContainer = document.getElementById("grid-container");
-  gridContainer.innerHTML = ""; // Clear existing content
-  gridContainer.hidden = false;
-
-  // Separate the data into categories, artists, and answers
-  const categories = {};
-  const artists = {};
-
-  data.forEach(item => {
-    if (item.field_type === "Category") {
-      categories[item.field] = item.field_value;
-    } else if (item.field_type === "Artist") {
-      artists[item.field] = item.field_value;
-    } 
-  });
-
-  // Create artist row
-  const artistRow = document.createElement("div");
-  artistRow.classList.add("row");
-  artistRow.appendChild(createCell("invisible")); // Invisible cell for alignment
-  Object.keys(artists).forEach(key => artistRow.appendChild(createCell("artist", artists[key], "artist-")));
-  gridContainer.appendChild(artistRow);
-
-  // Create rows for each category
-  Object.keys(categories).forEach(categoryKey => {
-    const categoryRow = document.createElement("div");
-    categoryRow.classList.add("row");
-
-    // Category cell
-    categoryRow.appendChild(createCell("genre-header", categories[categoryKey], "cat-"));
-
-    // Song cells
-    Object.keys(artists).forEach(artistKey => {
-      const cellKey = `${categoryKey} ${artistKey}`;
-      categoryRow.appendChild(createSongCell(cellKey));
-    });
-
-    gridContainer.appendChild(categoryRow);
-  });
-  await answerEncoder(data, customGridId);
-}
-function createCell(className = "dummy1", text = "", classPrefix = "dummy2") {
-  const cell = document.createElement("div");
-  const className2 = classPrefix + text.replaceAll(" ","-");
-  cell.classList.add("cell", className, className2);
-  cell.textContent = text;
-  return cell;
+function songCount(artistId, categoryId) {
+  const result = build.results[artistId];
+  const category = result && result.categories[categoryId];
+  return category ? category.songs.length : 0;
 }
 
-function createSongCell(cellKey) {
-  const cell = document.createElement("div");
-  cell.classList.add("cell", "song-cell",  cellKey.replaceAll(" ","-"), "unstarted");
-  
-  const whitespace = document.createElement("div");
-  cell.appendChild(whitespace);
-  return cell;
+function categoryIds() {
+  const ids = new Set();
+  Object.values(build.results).forEach(result => Object.keys(result.categories).forEach(id => ids.add(id)));
+  const ordered = build.order.filter(id => ids.has(id));
+  ids.forEach(id => { if (!ordered.includes(id)) ordered.push(id); });
+  return ordered.sort((a, b) => KIND_ORDER.indexOf(kindOf(a)) - KIND_ORDER.indexOf(kindOf(b)) || ordered.indexOf(a) - ordered.indexOf(b));
 }
 
-async function answerEncoder(data, customGridId) {
-  console.log("Parsing grid data for grid ID:", customGridId);
-  const answersUnscored = {};
-  const artists = {};
+function worksFor(artistIds, categoryId) {
+  return artistIds.length > 0 && artistIds.every(id => songCount(id, categoryId) >= MIN_SONGS);
+}
 
-  // Parse the answers and artists from the data
-  data.forEach(item => {
-    if (item.field_type === "Answer") {
-      answersUnscored[item.field] = item.field_value.split("\", \"").map(answer => answer.trim().replace(/^'|'$/g, ""));
-    } else if (item.field_type === "Artist") {
-      artists[item.field] = item.field_value;
-    }
-  });
-
-  const answerPops = {};
-  for (const [fieldKey, songs] of Object.entries(answersUnscored)) {
-    //Update frontend to show we're processing the song
-    var nameFieldKey = fieldKey.replaceAll(" ","-");
-    var songProgressElemArr = document.getElementsByClassName(nameFieldKey);
-    var songProgressElem = null;
-    console.log("searching for cell "+nameFieldKey+" to update to in-progress");
-    console.log("found "+songProgressElemArr.length+" matching elements");
-    if(songProgressElemArr.length>0) {
-      console.log("matching to:");
-      songProgressElem = songProgressElemArr[0];
-      console.log(songProgressElem);
-      songProgressElem.classList.remove("finished");
-      songProgressElem.classList.remove("unstarted");
-      songProgressElem.classList.add("in-progress");
-    }
-    const nestedSongPops = [];
-    const [category, artistKey] = fieldKey.split(" ");
-    const artistName = artists[artistKey];
-
-    for (const songData of songs) {
-      let songParsed = songData;
-      if (songParsed.slice(0,1) == "\"") {
-        songParsed = songParsed.slice(1,songParsed.length);
+// The three artists (in their ranked order) that share the most categories
+function bestTrio() {
+  const ids = build.artists.filter(artist => build.results[artist.id]).map(artist => artist.id);
+  const cats = categoryIds();
+  let best = ids.slice(0, 3);
+  let bestScore = -1;
+  for (let a = 0; a < ids.length; a++) {
+    for (let b = a + 1; b < ids.length; b++) {
+      for (let c = b + 1; c < ids.length; c++) {
+        const trio = [ids[a], ids[b], ids[c]];
+        const score = cats.filter(id => worksFor(trio, id)).length;
+        if (score > bestScore) {
+          best = trio;
+          bestScore = score;
+        }
       }
-      if (songParsed.slice(songParsed.length-1,songParsed.length) == "\"") {
-        songParsed = songParsed.slice(0,songParsed.length-1);
-      }
-      try {
-        const searchTerm = `${songParsed}`; 
-        const artistSearch = `${artistName}`;
-        console.log(`Fetching data for ${searchTerm} by ${artistSearch}`);
-        const resultsObj = await searchSpotify(searchTerm, artistSearch);
-        console.log("Received passback resultsObj");
-        console.dir(resultsObj);
-        console.log(resultsObj.popularity);
-        console.log(resultsObj.preview_url);
-        const popularity = resultsObj.popularity || -1;
-        const previewUrl = resultsObj.preview_url || "";
-        nestedSongPops.push({ song: songParsed, popularity, previewUrl });
-      } catch (error) {
-        console.error("Error fetching Spotify data for song:", songParsed, error);
-      }
-    }
-    answerPops[fieldKey] = nestedSongPops;
-    if(songProgressElemArr.length>0) {
-      songProgressElem.classList.remove("in-progress");
-      songProgressElem.classList.remove("unstarted");
-      songProgressElem.classList.add("finished");
     }
   }
-
-  console.log("Encoded answers ready for update:", answerPops);
-  calculateAnswerScores(answerPops, customGridId);
+  return best;
 }
 
-async function searchSpotify(searchTerm, artistSearch) {
-  let easyModeBool = true;
-  let encoderReq = true;
-  const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/search-encoding-answer", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ searchTerm, easyModeBool, artistSearch, encoderReq })
-  });
-  console.log("Received response: "+response);
-  if (!response.ok) throw new Error("Failed to fetch");
-  return response.json();
+function showChoose() {
+  build.chosenArtists = bestTrio();
+  build.chosenCats = [];
+  build.preview = null;
+  renderChoose();
+  showView("choose");
 }
 
-async function calculateAnswerScores(answersUnscored, customGridId) {
-  console.log("Calculating answer scores for Answer pops");
-  let gridIdString = customGridId.toString();
-  const answersWithScores = [];
+function artistById(id) {
+  return build.artists.find(artist => artist.id === id);
+}
 
-  for (const [fieldKey, nestedSongPopsArr] of Object.entries(answersUnscored)) {
-    console.log(`Calculating scores for ${fieldKey}`);
-    const filteredSongPopsArr = [];
-    for (const songPopElement of nestedSongPopsArr) {
-      if(songPopElement.popularity > 0) {
-        filteredSongPopsArr.push(songPopElement);
-      }
+function renderChoose() {
+  const chosenA = build.chosenArtists;
+  const chosenC = build.chosenCats.filter(id => worksFor(chosenA, id));
+  build.chosenCats = chosenC;
+
+  const artistsBox = document.getElementById("chooseArtists");
+  artistsBox.innerHTML = "";
+  build.artists.filter(artist => build.results[artist.id]).forEach(artist => {
+    const on = chosenA.includes(artist.id);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "choose-artist";
+    button.setAttribute("aria-pressed", String(on));
+    const face = document.createElement(artist.img ? "img" : "span");
+    face.className = "cm-face";
+    if (artist.img) {
+      face.src = artist.img;
+      face.alt = "";
+    } else {
+      face.textContent = artist.name.slice(0, 1).toUpperCase();
     }
-    // Calculate max and min popularity in the field
-    let fieldScoreMax = Math.max(...filteredSongPopsArr.map(o => o.popularity));
-    let fieldScoreMin = Math.min(...filteredSongPopsArr.map(o => o.popularity));
-
-    // Calculate scores for each song
-    for (const { song, popularity, previewUrl } of nestedSongPopsArr) {
-      let normedAnswerScore = 11;
-      if( popularity == -1 ) {
-        normedAnswerScore = 11;
-      } else {
-        normedAnswerScore = (fieldScoreMin === fieldScoreMax) ? 11 : 6 + 5 * Math.round(10 * (1 - ((popularity - fieldScoreMin) / (fieldScoreMax - fieldScoreMin)))) / 10;
+    const name = document.createElement("span");
+    name.textContent = artist.name;
+    button.append(face, name);
+    button.addEventListener("click", () => {
+      if (!on && chosenA.length >= 3) {
+        builderToast("That's three. Tap a picked artist to swap it out.");
+        return;
       }
-      answersWithScores.push({
-        fieldKey,
-        song,
-        popularity,
-        normedAnswerScore,
-        previewUrl,
-        customGridId: gridIdString
+      build.chosenArtists = on ? chosenA.filter(id => id !== artist.id) : [...chosenA, artist.id];
+      build.preview = null;
+      renderChoose();
+    });
+    artistsBox.appendChild(button);
+  });
+  document.getElementById("artistCount").textContent = `${chosenA.length} of 3`;
+
+  const catBox = document.getElementById("chooseCategories");
+  catBox.innerHTML = "";
+  let group = null;
+  categoryIds().forEach(id => {
+    const kind = kindOf(id);
+    if (!group || group.dataset.kind !== kind) {
+      group = document.createElement("div");
+      group.className = "choose-group";
+      group.dataset.kind = kind;
+      const title = document.createElement("h3");
+      title.textContent = KIND_INFO[kind].title;
+      group.appendChild(title);
+      if (KIND_INFO[kind].note) {
+        const note = document.createElement("p");
+        note.className = "choose-note";
+        note.textContent = KIND_INFO[kind].note;
+        group.appendChild(note);
+      }
+      catBox.appendChild(group);
+    }
+    const on = chosenC.includes(id);
+    const works = worksFor(chosenA, id);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "choose-cat";
+    button.setAttribute("aria-pressed", String(on));
+    button.disabled = !on && !works;
+    const label = document.createElement("span");
+    label.className = "cc-label";
+    label.textContent = build.labels[id] || id;
+    const counts = document.createElement("span");
+    counts.className = "cc-counts";
+    counts.textContent = chosenA.map(artistId => songCount(artistId, id)).join(" · ");
+    counts.setAttribute("aria-label", chosenA.map(artistId => `${artistById(artistId).name}: ${songCount(artistId, id)} songs`).join(", "));
+    button.append(label, counts);
+    button.addEventListener("click", () => {
+      if (!on && chosenC.length >= 3) {
+        builderToast("That's three. Tap a picked category to swap it out.");
+        return;
+      }
+      build.chosenCats = on ? chosenC.filter(other => other !== id) : [...chosenC, id];
+      build.preview = null;
+      renderChoose();
+    });
+    group.appendChild(button);
+  });
+  document.getElementById("categoryCount").textContent = `${chosenC.length} of 3`;
+
+  renderPreview();
+  const ready = chosenA.length === 3 && chosenC.length === 3;
+  document.getElementById("buildGrid").disabled = !ready;
+  let hint = "Your grid is ready to build.";
+  if (chosenA.length < 3) hint = `Pick ${3 - chosenA.length} more ${3 - chosenA.length === 1 ? "artist" : "artists"}.`;
+  else if (chosenC.length < 3) hint = `Pick ${3 - chosenC.length} more ${3 - chosenC.length === 1 ? "category" : "categories"}.`;
+  document.getElementById("chooseHint").textContent = hint;
+}
+
+function renderPreview() {
+  const box = document.getElementById("choosePreview");
+  const songsBox = document.getElementById("previewSongs");
+  box.innerHTML = "";
+  const artists = build.chosenArtists.map(artistById);
+  if (!artists.length || !build.chosenCats.length) {
+    box.textContent = "Pick artists and categories to see how many songs fit each square.";
+    songsBox.hidden = true;
+    return;
+  }
+  const table = document.createElement("table");
+  const head = document.createElement("tr");
+  head.appendChild(document.createElement("th"));
+  artists.forEach(artist => {
+    const th = document.createElement("th");
+    th.textContent = artist.name;
+    head.appendChild(th);
+  });
+  table.appendChild(head);
+  build.chosenCats.forEach(id => {
+    const row = document.createElement("tr");
+    const th = document.createElement("th");
+    th.textContent = build.labels[id] || id;
+    row.appendChild(th);
+    artists.forEach(artist => {
+      const td = document.createElement("td");
+      const button = document.createElement("button");
+      button.type = "button";
+      const count = songCount(artist.id, id);
+      button.textContent = `${count} ${count === 1 ? "song" : "songs"}`;
+      button.setAttribute("aria-pressed", String(build.preview === `${id}|${artist.id}`));
+      button.addEventListener("click", () => {
+        build.preview = `${id}|${artist.id}`;
+        renderPreview();
       });
-    }
-  }
-
-  const saved = await updateEncodedAnswers(answersWithScores);
-  if (saved) linkToGrid(customGridId);
-}
-
-async function updateEncodedAnswers(encodedAnswers) {
-  try {
-    const response = await fetch("https://music-grid-io-42616e204fd3.herokuapp.com/update-custom-encoded-answers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ encodedAnswers })
+      td.appendChild(button);
+      row.appendChild(td);
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to update encoded answers");
-    }
-
-    console.log("Encoded answers updated successfully");
-    return true;
-  } catch (error) {
-    console.error("Error updating encoded answers:", error);
-    showBuildFailure("Couldn't finish scoring your grid's answers. Try again in a moment.");
-    return false;
+    table.appendChild(row);
+  });
+  box.appendChild(table);
+  if (build.preview) {
+    const [id, artistId] = build.preview.split("|");
+    const result = build.results[artistId];
+    const songs = result && result.categories[id] ? result.categories[id].songs : [];
+    songsBox.textContent = `${artistById(artistId).name}, ${build.labels[id] || id}: ${songs.join(", ")}`;
+    songsBox.hidden = false;
+  } else {
+    songsBox.textContent = "Tap a square to see the songs that count (spoilers).";
+    songsBox.hidden = false;
   }
 }
 
-function linkToGrid(customGridId) {
+function newRequestId() {
+  if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12);
+}
+
+async function saveBuiltGrid() {
+  const button = document.getElementById("buildGrid");
+  button.disabled = true;
+  button.textContent = "Building…";
+  const artists = build.chosenArtists.map(artistById).map(artist => ({ id: artist.id, name: artist.name }));
+  const categories = build.chosenCats.map(id => ({ id, label: build.labels[id] || id, kind: kindOf(id) === "decade" ? "spotify" : kindOf(id) }));
+  const answers = {};
+  build.chosenCats.forEach(id => {
+    answers[id] = {};
+    build.chosenArtists.forEach(artistId => {
+      answers[id][artistById(artistId).name] = build.results[artistId].categories[id].songs;
+    });
+  });
+  // The same picks keep the same request id, so a retry after a dropped
+  // connection returns the grid the server already made instead of a copy
+  const payload = JSON.stringify({ artists, categories, answers });
+  if (!build.save || build.save.payload !== payload) build.save = { payload, id: newRequestId() };
+  try {
+    const data = await postSlow("/custom-grids", { artists, categories, answers, request_id: build.save.id });
+    if (data.edit_token) {
+      try {
+        localStorage.setItem(`musicgrid:edit:${data.custom_grid_id}`, data.edit_token);
+      } catch (error) {
+        // Private mode: the grid still works, it just can't be edited later
+      }
+    }
+    builtGridTitle = data.title || "";
+    linkToGrid(data.custom_grid_id, Boolean(data.edit_token));
+  } catch (error) {
+    console.error("Saving the grid failed:", error);
+    builderToast("Couldn't save your grid. Try again in a moment.");
+    button.disabled = false;
+  } finally {
+    button.textContent = "Build this grid";
+  }
+}
+
+function linkToGrid(customGridId, canEdit) {
   const path = "/play-custom-grid?custom_grid_id=" + encodeURIComponent(customGridId);
   document.getElementById("doneTitle").textContent = builtGridTitle || "Your grid is ready";
   document.getElementById("playLink").href = path;
   document.getElementById("shareUrl").value = "https://musicgrid.stevenhester.com" + path;
+  const edit = document.getElementById("editLink");
+  if (edit) {
+    edit.href = path + "#edit";
+    edit.closest(".done-edit").hidden = !canEdit;
+  }
+  setStep("done");
   showView("done");
 }
 
@@ -1787,17 +1314,14 @@ function linkToGrid(customGridId) {
 // The grid-finding code above keeps its state in these globals, so clear
 // them before every build to let people retry with different artists.
 function resetBuildState() {
-  masterArtistDataSumm = {};
-  masterArtistDataDetails = {};
-  masterGridOutline = {};
-  startIndex = 0;
+  build.artists = [];
+  build.results = {};
+  build.chosenArtists = [];
+  build.chosenCats = [];
+  build.preview = null;
   builtGridTitle = "";
-  document.getElementById("gridProgressContainer").innerHTML = "";
-  const grid = document.getElementById("grid-container");
-  grid.innerHTML = "";
-  grid.hidden = true;
-  document.getElementById("buildTitle").textContent = "Building your grid";
-  setBuildStatus("Checking which of your artists have enough songs in common. This can take a minute.");
+  document.getElementById("checkMatrix").innerHTML = "";
+  setBuildStatus("Reading each artist's songs from Spotify.");
 }
 
 function backToPicking() {
@@ -1834,12 +1358,12 @@ function updatePickState() {
   document.getElementById("pickCount").textContent = count ? `${count} of ${MAX_PICKS}` : "";
   document.getElementById("pickEmpty").hidden = count > 0;
   document.querySelector(".proceed-button").disabled = count < MIN_PICKS || buildStarted;
-  let hint = "We'll try your top three first, then work down the list.";
+  let hint = "Next we check every category, then you pick 3 artists and 3 categories.";
   if (count < MIN_PICKS) {
     const left = MIN_PICKS - count;
     hint = `Pick ${left} more ${left === 1 ? "artist" : "artists"} to build.`;
   } else if (count >= MAX_PICKS) {
-    hint = "That's the most you can add. We'll try your top three first.";
+    hint = "That's the most you can add.";
   }
   document.getElementById("pickHint").textContent = hint;
 }

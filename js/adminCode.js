@@ -10,26 +10,65 @@ function adminHeaders() {
   return { "Content-Type": "application/json", "x-admin-key": localStorage.getItem("musicgrid:adminKey") || "" };
 }
 
+// Slow server work answers 202 ("still working") instead of hitting Heroku's
+// 30-second limit. Sending the same request again picks up the result.
 async function adminFetch(path, options) {
-  const response = await fetch(ADMIN_API + path, Object.assign({ headers: adminHeaders() }, options || {}));
-  if (response.status === 401) throw new Error("Admin key is missing or wrong. Paste ADMIN_KEY from your Heroku config vars above.");
-  if (!response.ok) throw new Error(path + " failed with " + response.status);
-  return response.json();
+  const started = Date.now();
+  for (;;) {
+    const response = await fetch(ADMIN_API + path, Object.assign({ headers: adminHeaders() }, options || {}));
+    if (response.status === 401) throw new Error("Admin key is missing or wrong. Paste ADMIN_KEY from your Heroku config vars above.");
+    if (response.status === 202 && Date.now() - started < 5 * 60000) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      continue;
+    }
+    if (!response.ok || response.status === 202) throw new Error(path + " failed with " + response.status);
+    return response.json();
+  }
 }
 
 function toolOutput(text) {
   document.getElementById("toolOutput").textContent = text;
 }
 
-// Log functionality and ask to fetch grid summary
+// The page stays behind a password screen until the server accepts the key
 function initializeSite() {
-  console.log("Initializing Site");
-  const keyInput = document.getElementById("adminKey");
-  keyInput.value = localStorage.getItem("musicgrid:adminKey") || "";
-  document.getElementById("saveKey").addEventListener("click", () => {
-    localStorage.setItem("musicgrid:adminKey", keyInput.value.trim());
-    document.getElementById("keyNote").textContent = "Saved in this browser";
-    loadModerationLog();
+  document.getElementById("lockForm").addEventListener("submit", event => {
+    event.preventDefault();
+    unlock(document.getElementById("lockKey").value.trim());
+  });
+  const saved = localStorage.getItem("musicgrid:adminKey");
+  if (saved) unlock(saved, true);
+  else document.getElementById("lockKey").focus();
+}
+
+async function unlock(key, quiet) {
+  const note = document.getElementById("lockNote");
+  note.textContent = quiet ? "" : "Checking…";
+  try {
+    const response = await fetch(ADMIN_API + "/admin/verify", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": key } });
+    if (response.status === 503) {
+      note.textContent = "Set ADMIN_KEY in the Heroku config vars first.";
+      return;
+    }
+    if (!response.ok) {
+      localStorage.removeItem("musicgrid:adminKey");
+      note.textContent = quiet ? "" : "That password isn't right.";
+      return;
+    }
+  } catch (error) {
+    note.textContent = "The server didn't answer. It might be waking up, so try again in a few seconds.";
+    return;
+  }
+  localStorage.setItem("musicgrid:adminKey", key);
+  document.getElementById("lock").hidden = true;
+  document.getElementById("adminApp").hidden = false;
+  startAdmin();
+}
+
+function startAdmin() {
+  document.getElementById("lockAgain").addEventListener("click", () => {
+    localStorage.removeItem("musicgrid:adminKey");
+    window.location.reload();
   });
   document.getElementById("retitleBtn").addEventListener("click", retitleCustomGrids);
   document.getElementById("gridFile").addEventListener("change", loadGridFile);
@@ -38,9 +77,85 @@ function initializeSite() {
   document.getElementById("gridJson").addEventListener("input", () => { document.getElementById("createGrids").disabled = true; });
   document.getElementById("screenBtn").addEventListener("click", screenLeaderboard);
   document.getElementById("checkAnswers").addEventListener("click", checkAnswers);
+  document.getElementById("showDecided").addEventListener("change", loadComplaints);
+  document.getElementById("showAdded").addEventListener("change", loadAccessRequests);
+  initMaker();
   loadGridData();
   loadCalendar();
   loadModerationLog();
+  loadComplaints();
+  loadAccessRequests();
+}
+
+// ---------- Spotify sign-in requests ----------
+
+async function loadAccessRequests() {
+  const holder = document.getElementById("accessQueue");
+  const all = document.getElementById("showAdded").checked;
+  try {
+    const data = await adminFetch("/admin/spotify-access-requests" + (all ? "?status=all" : ""));
+    holder.innerHTML = "";
+    if (!data.requests.length) {
+      holder.textContent = all ? "No requests yet." : "No one waiting.";
+      return;
+    }
+    data.requests.forEach(item => {
+      const box = document.createElement("div");
+      box.className = "queue-item";
+      const head = document.createElement("b");
+      head.textContent = item.name;
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const email = document.createElement("span");
+      email.className = "access-email";
+      email.textContent = item.email;
+      meta.append(email, " · asked " + String(item.created_at).slice(0, 10));
+      box.append(head, meta);
+      const row = document.createElement("div");
+      row.className = "tool-row";
+      if (item.status === "pending") {
+        const copy = document.createElement("button");
+        copy.type = "button";
+        copy.textContent = "Copy email";
+        copy.addEventListener("click", () => {
+          navigator.clipboard.writeText(item.email).then(() => toolOutput("Copied " + item.email + "."), () => toolOutput(item.email));
+        });
+        row.appendChild(copy);
+        [["added", "Mark added"], ["delete", "Delete"]].forEach(([action, label]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = label;
+          button.addEventListener("click", () => decideAccessRequest(item, action, box));
+          row.appendChild(button);
+        });
+      } else {
+        const status = document.createElement("span");
+        status.className = "queue-status approved";
+        status.textContent = "Added " + String(item.decided_at || "").slice(0, 10);
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "Delete";
+        remove.addEventListener("click", () => decideAccessRequest(item, "delete", box));
+        row.append(status, remove);
+      }
+      box.appendChild(row);
+      holder.appendChild(box);
+    });
+  } catch (error) {
+    holder.textContent = "Requests didn't load: " + error.message;
+  }
+}
+
+async function decideAccessRequest(item, action, box) {
+  box.querySelectorAll("button").forEach(button => { button.disabled = true; });
+  try {
+    await adminFetch("/admin/spotify-access-requests/decide", { method: "POST", body: JSON.stringify({ id: item.id, action }) });
+    toolOutput((action === "added" ? "Marked " : "Deleted the request from ") + item.name + (action === "added" ? " as added." : "."));
+    loadAccessRequests();
+  } catch (error) {
+    toolOutput("Couldn't update that request: " + error.message);
+    box.querySelectorAll("button").forEach(button => { button.disabled = false; });
+  }
 }
 
 let calendarData = null;
@@ -225,15 +340,19 @@ async function createGrids() {
   const createButton = document.getElementById("createGrids");
   createButton.disabled = true;
   try {
-    const data = await adminFetch("/admin/create-grids", { method: "POST", body: JSON.stringify({ grids: checkedGrids }) });
+    const data = await adminFetch("/admin/create-grids", { method: "POST", body: JSON.stringify({ grids: checkedGrids, score: true }) });
     const lines = data.created.map(grid => "Created grid " + grid.grid_id + " for " + grid.date + (grid.title ? " (" + grid.title + ")" : ""));
     (data.moved || []).forEach(grid => lines.push("Moved grid " + grid.grid_id + (grid.title ? " (" + grid.title + ")" : "") + " from " + grid.from + " to " + grid.to));
-    toolOutput(lines.join("\n") + "\nScoring answers now. This takes a minute or two per grid, so leave this tab open.");
     loadGridData();
     loadCalendar();
-    for (let i = 0; i < data.created.length; i++) {
-      const grid = data.created[i];
-      lines.push("Scoring grid " + grid.grid_id + " (" + (i + 1) + " of " + data.created.length + ")…");
+    // Newer servers score answers themselves; older ones need the browser to
+    const toScore = data.scored ? [] : data.created;
+    if (data.scored === "pending") lines.push("Answers are still being scored on the server. They'll be ready in a minute or two.");
+    else if (data.scored) lines.push("Answers scored.");
+    else toolOutput(lines.join("\n") + "\nScoring answers now. This takes a minute or two per grid, so leave this tab open.");
+    for (let i = 0; i < toScore.length; i++) {
+      const grid = toScore[i];
+      lines.push("Scoring grid " + grid.grid_id + " (" + (i + 1) + " of " + toScore.length + ")…");
       toolOutput(lines.join("\n"));
       const ok = await encodeAnswers(grid.grid_id);
       lines[lines.length - 1] = ok ? "Scored grid " + grid.grid_id : "Scoring grid " + grid.grid_id + " failed; use its Encode button to retry";
@@ -334,8 +453,7 @@ async function loadModerationLog() {
 
 // Grab summary of all grids entered from Heroku
 function loadGridData() {
-  fetch("https://music-grid-io-42616e204fd3.herokuapp.com/fetch-grid-summary")
-    .then(response => response.json())
+  adminFetch("/fetch-grid-summary")
     .then(data => {
       console.log("Grid data summary dump fetched");
       gridSummary = Array.isArray(data) ? data : [];
@@ -696,6 +814,18 @@ async function checkAnswers() {
         list.appendChild(chip);
       });
       box.appendChild(list);
+      const add = document.createElement("div");
+      add.className = "tool-row answer-add";
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = "Add a song that should count";
+      input.size = 32;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = "Add";
+      button.addEventListener("click", () => addAnswer(kind, gridId, square, input.value.trim()));
+      add.append(input, button);
+      box.appendChild(add);
       report.appendChild(box);
     });
   } catch (error) {
@@ -711,5 +841,315 @@ async function removeAnswer(kind, gridId, field, song, chip) {
     toolOutput("Removed \"" + song + "\" from " + (data.grids.length === 1 ? "grid " : "grids ") + data.grids.join(", "));
   } catch (error) {
     toolOutput(error.message);
+  }
+}
+
+async function addAnswer(kind, gridId, square, song) {
+  if (!song) return;
+  try {
+    const songs = square.answers.map(answer => answer.song).concat(song);
+    const data = await adminFetch("/grid-answers/save", { method: "POST", body: JSON.stringify({ kind, grid_id: gridId, cells: { [square.field]: songs } }) });
+    toolOutput("Added \"" + song + "\" to " + square.artist + " / " + square.category + " on " + (data.grids.length === 1 ? "grid " : "grids ") + data.grids.join(", ") + ". Scores updated.");
+    checkAnswers();
+  } catch (error) {
+    toolOutput(error.message);
+  }
+}
+
+// ---------- Flagged answers ----------
+
+async function loadComplaints() {
+  const holder = document.getElementById("complaintQueue");
+  const all = document.getElementById("showDecided").checked;
+  try {
+    const data = await adminFetch("/admin/complaints" + (all ? "?status=all" : ""));
+    holder.innerHTML = "";
+    if (!data.complaints.length) {
+      holder.textContent = all ? "No flags yet." : "Nothing waiting for review.";
+      return;
+    }
+    data.complaints.forEach(item => {
+      const box = document.createElement("div");
+      box.className = "queue-item";
+      const head = document.createElement("b");
+      head.textContent = "“" + item.song + "” for " + item.artist + " × " + item.category;
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = (item.kind === "daily" ? "Daily grid " : "Player-made grid ") + item.grid_id + " · " + item.players
+        + (item.players === 1 ? " player" : " players") + " · " + (item.first_day === item.last_day ? item.first_day : item.first_day + " to " + item.last_day);
+      const answers = document.createElement("details");
+      const summary = document.createElement("summary");
+      summary.textContent = "Current answers (" + item.answers.length + ")";
+      answers.append(summary, item.answers.join(", "));
+      box.append(head, meta, answers);
+      const row = document.createElement("div");
+      row.className = "tool-row";
+      if (item.status === "pending") {
+        [["approve", "Approve: it counts"], ["reject", "Reject"]].forEach(([decision, label]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = label;
+          button.addEventListener("click", () => decideComplaint(item, decision, box));
+          row.appendChild(button);
+        });
+      } else {
+        const status = document.createElement("span");
+        status.className = "queue-status " + item.status;
+        status.textContent = item.status === "approved" ? "Approved" : "Rejected";
+        row.appendChild(status);
+      }
+      box.appendChild(row);
+      holder.appendChild(box);
+    });
+  } catch (error) {
+    holder.textContent = "Flags didn't load: " + error.message;
+  }
+}
+
+async function decideComplaint(item, decision, box) {
+  box.querySelectorAll("button").forEach(button => { button.disabled = true; });
+  try {
+    const data = await adminFetch("/admin/complaints/decide", { method: "POST", body: JSON.stringify({ kind: item.kind, grid_id: item.grid_id, field: item.field, song_key: item.song_key, decision }) });
+    toolOutput(decision === "approve"
+      ? "Approved \"" + data.song + "\"" + (data.added ? " and added it as an answer." : ".")
+      : "Rejected \"" + data.song + "\".");
+    loadComplaints();
+  } catch (error) {
+    toolOutput(error.message);
+    box.querySelectorAll("button").forEach(button => { button.disabled = false; });
+  }
+}
+
+// ---------- Make a daily grid from categories ----------
+
+const maker = { picks: [], results: {}, chosen: [], timer: null };
+const MAKER_MIN = 2;
+const KIND_RANK = { opinion: 0, ai: 1, spotify: 2 };
+
+function initMaker() {
+  const search = document.getElementById("makerSearch");
+  search.addEventListener("input", () => {
+    clearTimeout(maker.timer);
+    const query = search.value.trim();
+    if (query.length < 2) {
+      document.getElementById("makerResults").innerHTML = "";
+      return;
+    }
+    maker.timer = setTimeout(() => makerSearch(query), 250);
+  });
+  document.getElementById("makerCheck").addEventListener("click", makerCheck);
+  document.getElementById("makerSuggest").addEventListener("click", makerSuggestTitle);
+  document.getElementById("makerCreate").addEventListener("click", makerCreate);
+}
+
+async function makerSearch(query) {
+  const holder = document.getElementById("makerResults");
+  try {
+    const artists = await adminFetch("/search-artists", { method: "POST", body: JSON.stringify({ query }) });
+    holder.innerHTML = "";
+    artists.slice(0, 8).forEach(artist => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = "+ " + artist.name;
+      button.disabled = maker.picks.length >= 3 || maker.picks.some(pick => pick.id === artist.id);
+      button.addEventListener("click", () => {
+        maker.picks.push({ id: artist.id, name: artist.name });
+        document.getElementById("makerSearch").value = "";
+        holder.innerHTML = "";
+        renderMakerPicks();
+      });
+      holder.appendChild(button);
+    });
+  } catch (error) {
+    holder.textContent = error.message;
+  }
+}
+
+function renderMakerPicks() {
+  const holder = document.getElementById("makerPicks");
+  holder.innerHTML = "";
+  maker.picks.forEach(pick => {
+    const chip = document.createElement("span");
+    chip.className = "answer-chip";
+    chip.append(pick.name);
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "×";
+    remove.setAttribute("aria-label", "Remove " + pick.name);
+    remove.addEventListener("click", () => {
+      maker.picks = maker.picks.filter(other => other !== pick);
+      renderMakerPicks();
+    });
+    chip.appendChild(remove);
+    holder.appendChild(chip);
+  });
+  document.getElementById("makerCheck").disabled = maker.picks.length !== 3;
+}
+
+async function makerCheck() {
+  const holder = document.getElementById("makerCategories");
+  document.getElementById("makerAnswers").innerHTML = "";
+  document.getElementById("makerFinish").hidden = true;
+  maker.results = {};
+  maker.chosen = [];
+  const kinds = [];
+  if (document.getElementById("makerAi").checked) kinds.push("ai");
+  if (document.getElementById("makerOpinion").checked) kinds.push("opinion");
+  try {
+    const clips = await adminFetch("/artist-clips", { method: "POST", body: JSON.stringify({ artists: maker.picks.map(pick => pick.name) }) });
+    const missing = clips.artists.filter(item => item.clips === false).map(item => item.name);
+    if (missing.length) toolOutput("Heads up: " + missing.join(" and ") + (missing.length === 1 ? " has" : " have") + " no song clips, so daily uploads will skip this grid. Pick someone else.");
+  } catch (error) {
+    // Older server: skip the clip check
+  }
+  for (const pick of maker.picks) {
+    holder.textContent = "Checking " + pick.name + "…";
+    const spotify = await adminFetch("/artist-categories", { method: "POST", body: JSON.stringify({ artistId: pick.id, artistName: pick.name, kinds: ["spotify"] }) });
+    maker.results[pick.id] = spotify.categories;
+    if (kinds.length) {
+      holder.textContent = "Asking the AI about " + pick.name + "…";
+      const ai = await adminFetch("/artist-categories", { method: "POST", body: JSON.stringify({ artistId: pick.id, artistName: pick.name, kinds }) });
+      Object.assign(maker.results[pick.id], ai.categories);
+      if (ai.aiError) toolOutput("AI categories aren't available right now.");
+    }
+  }
+  renderMakerCategories();
+}
+
+function makerCount(pick, id) {
+  const category = maker.results[pick.id][id];
+  return category ? category.songs.length : 0;
+}
+
+function renderMakerCategories() {
+  const holder = document.getElementById("makerCategories");
+  holder.innerHTML = "";
+  const ids = [...new Set([].concat(...maker.picks.map(pick => Object.keys(maker.results[pick.id]))))];
+  const info = id => maker.results[maker.picks.find(pick => maker.results[pick.id][id]).id][id];
+  const works = id => maker.picks.every(pick => makerCount(pick, id) >= MAKER_MIN);
+  // Fun ones first: opinion, AI, then the Spotify ones with the fewest answers
+  ids.sort((a, b) => (works(b) - works(a)) || (KIND_RANK[info(a).kind] - KIND_RANK[info(b).kind])
+    || (Math.min(...maker.picks.map(pick => makerCount(pick, a))) - Math.min(...maker.picks.map(pick => makerCount(pick, b)))));
+  const table = document.createElement("table");
+  table.className = "maker-table";
+  const head = document.createElement("tr");
+  ["", "Category", ...maker.picks.map(pick => pick.name)].forEach(text => {
+    const th = document.createElement("th");
+    th.textContent = text;
+    head.appendChild(th);
+  });
+  table.appendChild(head);
+  ids.forEach(id => {
+    const row = document.createElement("tr");
+    if (!works(id)) row.className = "off";
+    const pickCell = document.createElement("td");
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.disabled = !works(id);
+    box.checked = maker.chosen.includes(id);
+    box.addEventListener("change", () => {
+      if (box.checked && maker.chosen.length >= 3) {
+        box.checked = false;
+        toolOutput("Pick 3 categories. Untick one first.");
+        return;
+      }
+      maker.chosen = box.checked ? [...maker.chosen, id] : maker.chosen.filter(other => other !== id);
+      renderMakerAnswers();
+    });
+    pickCell.appendChild(box);
+    const label = document.createElement("td");
+    label.append(info(id).label + " ");
+    if (info(id).kind !== "spotify") {
+      const tag = document.createElement("span");
+      tag.className = "kind";
+      tag.textContent = info(id).kind === "ai" ? "AI" : "Opinion";
+      label.appendChild(tag);
+    }
+    row.append(pickCell, label);
+    maker.picks.forEach(pick => {
+      const td = document.createElement("td");
+      td.textContent = makerCount(pick, id);
+      const category = maker.results[pick.id][id];
+      td.title = category ? category.songs.join(", ") : "";
+      row.appendChild(td);
+    });
+    table.appendChild(row);
+  });
+  holder.appendChild(table);
+}
+
+function renderMakerAnswers() {
+  const holder = document.getElementById("makerAnswers");
+  holder.innerHTML = "";
+  document.getElementById("makerFinish").hidden = maker.chosen.length !== 3;
+  if (maker.chosen.length !== 3) return;
+  const grid = document.createElement("div");
+  grid.className = "maker-cells";
+  maker.chosen.forEach(id => {
+    maker.picks.forEach(pick => {
+      const category = maker.results[pick.id][id];
+      const label = document.createElement("label");
+      label.textContent = pick.name + " × " + category.label;
+      const area = document.createElement("textarea");
+      area.dataset.cat = id;
+      area.dataset.artist = pick.id;
+      area.value = category.songs.join("\n");
+      label.appendChild(area);
+      grid.appendChild(label);
+    });
+  });
+  holder.append("Answers, one per line. Edit before creating:", grid);
+  const date = document.getElementById("makerDate");
+  if (!date.value && calendarData) {
+    const open = calendarData.calendar.find(day => day.date > calendarData.today && (!day.scheduled || day.rerun));
+    if (open) date.value = open.date;
+  }
+}
+
+async function makerSuggestTitle() {
+  try {
+    const data = await adminFetch("/fetch-ai-gridname", { method: "POST", body: JSON.stringify({ artists: maker.picks.map(pick => pick.name).join(", ") }) });
+    document.getElementById("makerTitle").value = data.message.content;
+  } catch (error) {
+    toolOutput(error.message);
+  }
+}
+
+async function makerCreate() {
+  const date = document.getElementById("makerDate").value;
+  const title = document.getElementById("makerTitle").value.trim();
+  if (!date) {
+    toolOutput("Pick a date for the grid.");
+    return;
+  }
+  const labels = {};
+  const kinds = {};
+  maker.chosen.forEach(id => {
+    const pick = maker.picks.find(p => maker.results[p.id][id]);
+    labels[id] = maker.results[pick.id][id].label;
+    kinds[labels[id]] = maker.results[pick.id][id].kind;
+  });
+  const answers = {};
+  document.querySelectorAll("#makerAnswers textarea").forEach(area => {
+    const label = labels[area.dataset.cat];
+    const artist = maker.picks.find(pick => pick.id === area.dataset.artist).name;
+    answers[label] = answers[label] || {};
+    answers[label][artist] = area.value.split("\n").map(line => line.trim().replace(/"/g, "'")).filter(Boolean);
+  });
+  const grid = { date, title: title || undefined, artists: maker.picks.map(pick => pick.name), categories: maker.chosen.map(id => labels[id]), kinds, answers };
+  const button = document.getElementById("makerCreate");
+  button.disabled = true;
+  try {
+    const data = await adminFetch("/admin/create-grids", { method: "POST", body: JSON.stringify({ grids: [grid], score: true }) });
+    const made = data.created[0];
+    const lines = ["Created grid " + made.grid_id + " for " + made.date + (made.title ? " (" + made.title + ")" : "") + (data.scored === "pending" ? ". Answers are still being scored on the server; they'll be ready in a minute or two." : data.scored ? ". Answers scored." : ". Use its Encode button to score the answers.")];
+    (data.moved || []).forEach(item => lines.push("Moved grid " + item.grid_id + (item.title ? " (" + item.title + ")" : "") + " from " + item.from + " to " + item.to));
+    toolOutput(lines.join("\n"));
+    loadCalendar();
+    loadGridData();
+  } catch (error) {
+    toolOutput(error.message);
+  } finally {
+    button.disabled = false;
   }
 }

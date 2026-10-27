@@ -53,9 +53,69 @@ function renderLogin(message) {
     }
     node.querySelector("#login-button").addEventListener("click", loginWithSpotifyClick);
   });
+  showAccessCard(true);
+}
+
+// ---------- Asking for access ----------
+// Spotify only lets a Development Mode app connect accounts the developer
+// added by hand, so people who aren't on the list can ask here.
+
+const API = "https://music-grid-io-42616e204fd3.herokuapp.com";
+
+function showAccessCard(show) {
+  const card = document.getElementById("request-access");
+  if (!card) return;
+  card.hidden = !show;
+  if (show && window.location.hash === "#request-access") {
+    card.scrollIntoView({ block: "start" });
+  }
+}
+
+async function sendAccessRequest(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const note = document.getElementById("accessNote");
+  const button = document.getElementById("accessSend");
+  const body = {
+    name: form.elements.name.value.trim(),
+    email: form.elements.email.value.trim(),
+    website: form.elements.website.value
+  };
+  if (!body.name) {
+    note.textContent = "Add your name so Steven knows who's asking.";
+    form.elements.name.focus();
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
+    note.textContent = "Add the email address your Spotify account uses.";
+    form.elements.email.focus();
+    return;
+  }
+  button.disabled = true;
+  note.textContent = "Sending…";
+  try {
+    const response = await fetch(API + "/spotify-access-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "Request failed");
+    note.textContent = data.status === "added"
+      ? "Steven already added that account. Try connecting above."
+      : data.status === "already"
+        ? "You've already asked. Steven adds accounts by hand, so hang tight."
+        : "Sent. Steven adds accounts by hand, so it may take a while. You can pick any artists in the meantime.";
+    if (data.status !== "added") form.reset();
+  } catch (error) {
+    note.textContent = error.message && error.message !== "Request failed" ? error.message : "Couldn't send that. Try again in a moment.";
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function renderLoggedIn(user) {
+  showAccessCard(false);
   render("logged-in-template", node => {
     const name = user && user.display_name ? user.display_name : "your Spotify account";
     node.querySelector("[data-slot='name']").textContent = name;
@@ -129,7 +189,11 @@ async function getUserData() {
   const response = await fetch("https://api.spotify.com/v1/me", {
     headers: { "Authorization": "Bearer " + currentToken.access_token }
   });
-  if (!response.ok) throw new Error("Profile request failed: " + response.status);
+  if (!response.ok) {
+    const error = new Error("Profile request failed: " + response.status);
+    error.status = response.status;
+    throw error;
+  }
   return response.json();
 }
 
@@ -186,8 +250,12 @@ async function start() {
     renderLoggedIn(await getUserData());
   } catch (error) {
     currentToken.clear();
-    renderLogin("Your Spotify connection expired. Connect again to keep going.");
+    // Spotify answers 403 for accounts that aren't on the app's approved list
+    renderLogin(error.status === 403
+      ? "Spotify hasn't approved this account for MusicGrid yet. Ask Steven to add you below."
+      : "Your Spotify connection expired. Connect again to keep going.");
   }
 }
 
+document.getElementById("accessForm").addEventListener("submit", sendAccessRequest);
 start();

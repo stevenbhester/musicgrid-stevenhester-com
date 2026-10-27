@@ -596,7 +596,124 @@ async function lookUp() {
   await Promise.all(jobs);
 }
 
+// ---------- Player code ----------
+// The game saves a random id in this browser ("musicgrid:player") and sends
+// it with scores. Leaderboards group by it, never by name, and never show
+// it. Linking moves this browser onto another device's id.
+
+const PLAYER_KEY = "musicgrid:player";
+const CODE_RE = /^[A-Za-z0-9-]{8,64}$/;
+
+function playerCode() {
+  let code = null;
+  try { code = JSON.parse(store.get(PLAYER_KEY)); } catch (error) { code = null; }
+  if (typeof code !== "string" || !CODE_RE.test(code)) {
+    code = window.crypto && window.crypto.randomUUID
+      ? window.crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+    store.set(PLAYER_KEY, JSON.stringify(code));
+  }
+  return code;
+}
+
+function deviceLink() {
+  return `${window.location.origin}/stats#code=${encodeURIComponent(playerCode())}`;
+}
+
+// Returns a sentence for the page
+async function linkTo(rawCode) {
+  const code = String(rawCode || "").trim();
+  if (!CODE_RE.test(code)) return "That doesn't look like a player code. Copy it again from the other device.";
+  const current = playerCode();
+  if (code === current) return "That's already this browser's code.";
+  const response = await fetch(`${API}/link-player`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ from_id: current, to_id: code })
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || `link-player returned ${response.status}`);
+  store.set(PLAYER_KEY, JSON.stringify(code));
+  $("#codeText").textContent = code;
+  const moved = result.moved ? ` ${plural(result.moved, "score")} from this browser moved over.` : "";
+  return `Linked. This browser now counts as the same player as your other device.${moved}`;
+}
+
+function wirePlayerCode() {
+  $("#codeText").textContent = playerCode();
+  $("#showCode").addEventListener("click", () => {
+    const box = $("#codeBox");
+    box.hidden = !box.hidden;
+    $("#showCode").setAttribute("aria-expanded", String(!box.hidden));
+    $("#showCode").textContent = box.hidden ? "Show code" : "Hide code";
+  });
+  $("#sendLink").addEventListener("click", async () => {
+    const note = $("#deviceNote");
+    try {
+      await navigator.clipboard.writeText(deviceLink());
+      note.textContent = "Link copied. Send it to yourself and open it on your other device.";
+    } catch (error) {
+      $("#codeBox").hidden = false;
+      $("#showCode").setAttribute("aria-expanded", "true");
+      $("#showCode").textContent = "Hide code";
+      note.textContent = "Couldn't copy automatically. Copy the code above and paste it on your other device.";
+    }
+  });
+  $("#useCodeForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const note = $("#deviceNote");
+    note.textContent = "Linking…";
+    try {
+      note.textContent = await linkTo($("#codeInput").value);
+      $("#codeInput").value = "";
+    } catch (error) {
+      note.textContent = "Couldn't link right now. Try again in a moment.";
+    }
+  });
+
+  // Arriving from another device's link: ask before switching
+  let pendingCode = null;
+  const panel = $("#linkConfirm");
+  $("#linkNo").addEventListener("click", () => {
+    panel.hidden = true;
+    pendingCode = null;
+  });
+  $("#linkYes").addEventListener("click", async () => {
+    if (!pendingCode) return;
+    $("#linkYes").disabled = true;
+    $("#linkConfirmNote").textContent = "Linking…";
+    try {
+      const message = await linkTo(pendingCode);
+      panel.hidden = true;
+      pendingCode = null;
+      $("#deviceNote").textContent = message;
+      $("#player-code").scrollIntoView({ block: "center" });
+    } catch (error) {
+      $("#linkConfirmNote").textContent = "Couldn't link right now. Try again in a moment.";
+    } finally {
+      $("#linkYes").disabled = false;
+    }
+  });
+  const checkHash = () => {
+    const match = window.location.hash.match(/^#code=([A-Za-z0-9-]{8,64})$/);
+    if (!match) return;
+    // Keep the code out of the address bar and browser history
+    try { history.replaceState(null, "", window.location.pathname + window.location.search); } catch (error) { /* ignore */ }
+    if (match[1] === playerCode()) {
+      $("#deviceNote").textContent = "That link is for this browser already.";
+      return;
+    }
+    pendingCode = match[1];
+    $("#linkConfirmNote").textContent = "";
+    panel.hidden = false;
+    panel.scrollIntoView({ block: "start" });
+  };
+  window.addEventListener("hashchange", checkHash);
+  checkHash();
+}
+
 function boot() {
+  wirePlayerCode();
   data.games = readGames();
   const savedView = store.get(VIEW_KEY);
   if (["daily", "custom", "all"].includes(savedView)) data.view = savedView;

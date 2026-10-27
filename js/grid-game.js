@@ -21,9 +21,17 @@ async function request(path, body, signal) {
   const options = body === undefined
     ? { signal }
     : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal };
-  const response = await fetch(API + path, options);
-  if (!response.ok) throw new Error(`${path} returned ${response.status}`);
-  return response.json();
+  const started = Date.now();
+  for (;;) {
+    const response = await fetch(API + path, options);
+    // 202: slow work (like re-scoring) is still running; asking again picks it up
+    if (response.status === 202 && Date.now() - started < 3 * 60000) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      continue;
+    }
+    if (!response.ok || response.status === 202) throw new Error(`${path} returned ${response.status}`);
+    return response.json();
+  }
 }
 
 const modes = {
@@ -216,9 +224,12 @@ function totalCells() {
 function parseGrid(data) {
   const categories = {};
   const artists = {};
+  const kinds = {};
   let title = null;
   data.forEach(item => {
-    if (item.field_type === "Category") {
+    if (item.field_type === "CategoryKind") {
+      kinds[item.field] = item.field_value;
+    } else if (item.field_type === "Category") {
       categories[item.field] = item.field_value;
     } else if (item.field_type === "Artist") {
       artists[item.field] = item.field_value;
@@ -227,7 +238,7 @@ function parseGrid(data) {
     }
     if (item.grid_title) title = item.grid_title;
   });
-  game.categories = Object.keys(categories).map(key => ({ key, name: categories[key] }));
+  game.categories = Object.keys(categories).map(key => ({ key, name: categories[key], kind: kinds[key] || "spotify" }));
   game.artists = Object.keys(artists).map(key => ({ key, name: artists[key] }));
   game.title = title || api.fallbackTitle(game.id);
 }
@@ -253,6 +264,14 @@ function renderHead() {
     dateLine.hidden = false;
   }
   document.title = `${game.title} | MusicGrid`;
+  const judged = game.categories.filter(category => category.kind === "ai" || category.kind === "opinion");
+  const note = $("#gridNote");
+  if (note && judged.length) {
+    note.textContent = "Categories marked AI or Opinion had their answers picked by AI. If a song you know fits gets rejected, flag it.";
+    note.hidden = false;
+  }
+  const editButton = $("#editAnswers");
+  if (editButton && editToken()) editButton.hidden = false;
 }
 
 let shownScore = 1;
@@ -352,7 +371,16 @@ function buildBoard() {
     board.append(el("div", { class: "head head-artist", "data-c": c, text: artist.name }));
   });
   game.categories.forEach((category, r) => {
-    board.append(el("div", { class: "head head-cat", "data-r": r, text: category.name }));
+    const head = el("div", { class: "head head-cat", "data-r": r }, [el("span", { text: category.name })]);
+    if (category.kind === "ai" || category.kind === "opinion") {
+      head.classList.add("has-kind");
+      head.append(el("span", {
+        class: "kind-tag",
+        text: category.kind === "ai" ? "AI" : "Opinion",
+        title: category.kind === "ai" ? "AI decided which songs count" : "A judgment call: AI picked the songs"
+      }));
+    }
+    board.append(head);
     game.artists.forEach((artist, c) => {
       const holder = el("div", { class: "slot", "data-key": cellKey(category, artist), "data-r": r, "data-c": c });
       board.append(holder);
@@ -490,9 +518,24 @@ function renderTried(cell) {
   }
   node.hidden = false;
   node.append("Already tried: ");
+  const flagged = cell.flags || [];
   cell.misses.forEach((song, i) => {
     if (i) node.append(", ");
     node.append(el("s", { text: song }));
+    if (flagged.includes(song)) {
+      node.append(el("span", { class: "flag-done", text: " (flagged)" }));
+    } else {
+      node.append(" ", el("button", {
+        class: "flag-link", type: "button", text: "I think it fits",
+        "aria-label": `Flag ${song}: I think it fits`,
+        onclick: async event => {
+          event.currentTarget.disabled = true;
+          const data = await sendFlag(sheet.key, song);
+          renderTried(cell);
+          toast(data ? flagMessage(data) : "Couldn't send that. Try again in a moment.");
+        }
+      }));
+    }
   });
 }
 
@@ -753,7 +796,7 @@ async function submitGuess(key, songName) {
     renderHud(false, game.state.livesLost <= HEARTS ? popIndex : undefined);
     const left = HEARTS - game.state.livesLost;
     announce(left > 0 ? `${songName} doesn't fit. ${left} ${left === 1 ? "heart" : "hearts"} left.` : `${songName} doesn't fit.`);
-    if (game.state.livesLost === HEARTS) toast("Out of hearts. Your next miss ends the game.");
+    offerFlag(key, songName, game.state.livesLost === HEARTS ? "Out of hearts: your next miss ends the game." : "");
   }
 
   if (game.state.livesLost >= MAX_MISSES) endGame("lives");
@@ -833,6 +876,7 @@ function renderEndPanel() {
     });
   });
 
+  loadFlags();
   const form = $("#submitForm");
   const done = $("#submitDone");
   form.hidden = state.submitted;
@@ -936,6 +980,252 @@ async function submitScore(event) {
   } finally {
     button.disabled = false;
     button.textContent = "Submit score";
+  }
+}
+
+// ---------- "I think it fits": flag a rejected guess ----------
+
+let flagTimer = null;
+let flagTarget = null;
+
+function flagMessage(data) {
+  return data.status === "approved"
+    ? "That one counts now. Thanks!"
+    : "Sent for review. You'll see the verdict when you finish.";
+}
+
+function hideFlagBar() {
+  $("#flagBar").hidden = true;
+  flagTarget = null;
+}
+
+function offerFlag(key, song, extra) {
+  const bar = $("#flagBar");
+  if (!bar) {
+    if (extra) toast(extra);
+    return;
+  }
+  flagTarget = { key, song };
+  $("#flagText").textContent = `“${song}” doesn't count here.${extra ? " " + extra : ""}`;
+  const button = $("#flagBtn");
+  button.hidden = false;
+  button.disabled = false;
+  bar.hidden = false;
+  window.clearTimeout(flagTimer);
+  flagTimer = window.setTimeout(hideFlagBar, 9000);
+}
+
+async function sendFlag(key, song) {
+  const cell = game.state.cells[key];
+  cell.flags = cell.flags || [];
+  try {
+    const data = await request("/complaints", { kind: mode, grid_id: game.id, field: key, song, player_id: playerId() });
+    if (!cell.flags.includes(song)) cell.flags.push(song);
+    save();
+    return data;
+  } catch (error) {
+    return null;
+  }
+}
+
+async function flagFromBar() {
+  if (!flagTarget) return;
+  const { key, song } = flagTarget;
+  const button = $("#flagBtn");
+  button.disabled = true;
+  const data = await sendFlag(key, song);
+  $("#flagText").textContent = data ? flagMessage(data) : "Couldn't send that. You can flag it from the square.";
+  button.hidden = true;
+  window.clearTimeout(flagTimer);
+  flagTimer = window.setTimeout(hideFlagBar, 4000);
+}
+
+const FLAG_STATUS = {
+  pending: { text: "Waiting for review", cls: "pending" },
+  approved: { text: "Approved: now counts", cls: "approved" },
+  rejected: { text: "Rejected", cls: "rejected" }
+};
+
+// After the game: the songs players flagged most on this grid, with verdicts
+async function loadFlags() {
+  const box = $("#flagged");
+  if (!box) return;
+  let data;
+  try {
+    data = await request(`/complaints?kind=${mode}&grid_id=${encodeURIComponent(game.id)}`);
+  } catch (error) {
+    return;
+  }
+  const list = $("#flagList");
+  list.innerHTML = "";
+  const items = (data.complaints || []).slice(0, 8);
+  box.hidden = !items.length;
+  items.forEach(item => {
+    const where = cellLabel(item.field);
+    const mine = ((game.state.cells[item.field] || {}).flags || []).some(song => song.toLowerCase() === String(item.song).toLowerCase());
+    const status = FLAG_STATUS[item.status] || FLAG_STATUS.pending;
+    const who = `${item.players} ${item.players === 1 ? "player" : "players"}${mine ? ", including you" : ""}`;
+    list.append(el("li", {}, [
+      el("span", { class: "fl-main" }, [
+        el("b", { text: item.song }),
+        el("span", { text: where ? `${where.artist} · ${where.category}` : item.field })
+      ]),
+      el("span", { class: "fl-side" }, [
+        el("span", { class: `fl-status ${status.cls}`, text: status.text }),
+        el("small", { text: who })
+      ])
+    ]));
+  });
+}
+
+// ---------- Editing answers (whoever built this grid) ----------
+
+const editor = { squares: [], complaints: [], lists: {}, changed: new Set(), timer: null, seq: 0 };
+
+function editToken() {
+  if (mode !== "custom" || !game.id) return null;
+  try {
+    return window.localStorage.getItem(`musicgrid:edit:${game.id}`);
+  } catch (error) {
+    return null;
+  }
+}
+
+function looseKey(text) {
+  return String(text || "").toLowerCase().replace(/\s*[([][^)\]]*[)\]]/g, "").replace(/\s+-\s+.*$/, "").replace(/[^a-z0-9]/g, "");
+}
+
+function plainSongName(name) {
+  return String(name || "")
+    .replace(/\s+-\s+(\d{4}\s+)?(remaster(ed)?|re-?recorded|single version|radio edit|album version|mono|stereo|edit)\b.*$/i, "")
+    .replace(/\s*[([](feat\.?|ft\.?|with|featuring|from)\s[^)\]]*[)\]]/gi, "")
+    .replace(/"/g, "'")
+    .trim();
+}
+
+async function openEditor() {
+  const dialog = $("#editSheet");
+  if (!dialog) return;
+  if (!dialog.open) dialog.showModal();
+  $("#editBody").textContent = "Loading answers…";
+  $("#saveEdit").disabled = true;
+  try {
+    const data = await request("/grid-answers", { kind: "custom", grid_id: game.id, token: editToken(), clips: false });
+    editor.squares = data.squares || [];
+    editor.complaints = data.complaints || [];
+    editor.lists = {};
+    editor.squares.forEach(square => { editor.lists[square.field] = square.answers.map(answer => answer.song); });
+    editor.changed = new Set();
+    renderEditor();
+  } catch (error) {
+    $("#editBody").textContent = "Couldn't load the answers. Try again in a moment.";
+  }
+}
+
+function changeSquare(field, songs) {
+  if (!songs.length) {
+    toast("Every square needs at least one answer.");
+    return;
+  }
+  editor.lists[field] = songs;
+  editor.changed.add(field);
+  renderEditor(field);
+}
+
+function renderEditor(focusField) {
+  const body = $("#editBody");
+  body.innerHTML = "";
+  editor.squares.forEach(square => {
+    const songs = editor.lists[square.field];
+    const box = el("section", { class: "edit-square", "data-field": square.field });
+    box.append(el("h3", { text: `${square.artist} · ${square.category}` }));
+    const chips = el("div", { class: "edit-chips" });
+    songs.forEach(song => {
+      chips.append(el("span", { class: "edit-chip" }, [
+        el("span", { text: song }),
+        el("button", {
+          type: "button", "aria-label": `Remove ${song}`, html: icon("close", "icon"),
+          onclick: () => changeSquare(square.field, songs.filter(other => other !== song))
+        })
+      ]));
+    });
+    box.append(chips);
+    const flags = editor.complaints.filter(item => item.field === square.field && !songs.some(song => looseKey(song) === looseKey(item.song)));
+    if (flags.length) {
+      const suggest = el("div", { class: "edit-suggest" }, [el("span", { text: "Players think these fit:" })]);
+      flags.forEach(item => suggest.append(el("button", {
+        type: "button", class: "edit-add", text: `+ ${item.song} (${item.players})`,
+        onclick: () => changeSquare(square.field, [...songs, item.song])
+      })));
+      box.append(suggest);
+    }
+    const input = el("input", {
+      class: "field edit-input", type: "text", autocomplete: "off", spellcheck: "false",
+      placeholder: `Add a ${square.artist} song`, "aria-label": `Add a ${square.artist} song for ${square.category}`
+    });
+    const results = el("div", { class: "edit-results" });
+    input.addEventListener("input", () => {
+      window.clearTimeout(editor.timer);
+      const query = input.value.trim();
+      if (query.length < 2) {
+        results.innerHTML = "";
+        return;
+      }
+      editor.timer = window.setTimeout(() => searchForEditor(square, query, results), 250);
+    });
+    box.append(input, results);
+    body.append(box);
+    if (focusField === square.field) input.focus();
+  });
+  const count = editor.changed.size;
+  $("#saveEdit").disabled = count === 0;
+  $("#editNote").textContent = count ? `${count} ${count === 1 ? "square" : "squares"} changed` : "No changes yet";
+}
+
+async function searchForEditor(square, query, results) {
+  const seq = ++editor.seq;
+  results.textContent = "Searching…";
+  let songs = [];
+  try {
+    songs = await request("/search", { searchTerm: query, easyModeBool: true, artistName: square.artist });
+  } catch (error) {
+    results.textContent = "Search isn't responding right now.";
+    return;
+  }
+  if (seq !== editor.seq) return;
+  results.innerHTML = "";
+  const current = editor.lists[square.field].map(looseKey);
+  const seen = new Set();
+  (Array.isArray(songs) ? songs : []).forEach(song => {
+    const name = plainSongName(song.name);
+    const key = looseKey(name);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    const added = current.includes(key);
+    results.append(el("button", {
+      type: "button", class: "edit-add", text: added ? `${name} (already in)` : `+ ${name}`, disabled: added,
+      onclick: () => changeSquare(square.field, [...editor.lists[square.field], name])
+    }));
+  });
+  if (!results.children.length) results.textContent = `No ${square.artist} songs match that.`;
+}
+
+async function saveEditor() {
+  const button = $("#saveEdit");
+  button.disabled = true;
+  button.textContent = "Saving…";
+  const cells = {};
+  editor.changed.forEach(field => { cells[field] = editor.lists[field]; });
+  try {
+    await request("/grid-answers/save", { kind: "custom", grid_id: game.id, token: editToken(), cells });
+    editor.changed = new Set();
+    $("#editSheet").close();
+    toast("Saved. Scores for those squares were updated.");
+  } catch (error) {
+    toast("Couldn't save right now. Try again in a moment.");
+    button.disabled = false;
+  } finally {
+    button.textContent = "Save changes";
   }
 }
 
@@ -1127,6 +1417,7 @@ async function boot() {
   loadLeaderboard();
   startCountdown();
   if (game.notice) toast(game.notice);
+  if (window.location.hash === "#edit" && editToken()) openEditor();
 }
 
 function wire() {
@@ -1181,6 +1472,20 @@ function wire() {
     });
   }
   $("#giveUp").addEventListener("click", () => giveUp.click());
+  if ($("#flagBtn")) $("#flagBtn").addEventListener("click", flagFromBar);
+  if ($("#flagClose")) $("#flagClose").addEventListener("click", hideFlagBar);
+  if ($("#atInfoBtn")) {
+    $("#atInfoBtn").addEventListener("click", () => {
+      const info = $("#atInfo");
+      info.hidden = !info.hidden;
+      $("#atInfoBtn").setAttribute("aria-expanded", String(!info.hidden));
+    });
+  }
+  if ($("#editAnswers")) $("#editAnswers").addEventListener("click", openEditor);
+  if ($("#editSheet")) {
+    $("#closeEdit").addEventListener("click", () => $("#editSheet").close());
+    $("#saveEdit").addEventListener("click", saveEditor);
+  }
   $("#shareBtn").addEventListener("click", share);
   $("#submitForm").addEventListener("submit", submitScore);
 }
