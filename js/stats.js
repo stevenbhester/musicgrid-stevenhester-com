@@ -84,11 +84,13 @@ function cellOrder(a, b) {
   return ca.localeCompare(cb, undefined, { numeric: true }) || aa.localeCompare(ab, undefined, { numeric: true });
 }
 
+// Same shades as the share text; a square solved in easy mode is a circle
 function shade(cell) {
   if (cell.status === "solved") {
-    if (cell.points >= 10) return "deep";
-    if (cell.points >= 8) return "on";
-    return "easy";
+    const ez = cell.easy ? " ez" : "";
+    if (cell.points >= 10) return `deep${ez}`;
+    if (cell.points >= 8) return `on${ez}`;
+    return `low${ez}`;
   }
   return cell.misses.length ? "miss" : "";
 }
@@ -104,6 +106,7 @@ function parseGame(mode, id, state) {
       key: k,
       status: cell.status,
       points: Number(cell.points) || 0,
+      easy: Boolean(cell.easy),
       misses: Array.isArray(cell.misses) ? cell.misses : []
     };
   });

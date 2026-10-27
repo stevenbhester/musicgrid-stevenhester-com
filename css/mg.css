@@ -666,7 +666,8 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
 
 /* Results mini grid matches the share squares */
 .mini i.deep { background: #2fb36b; }
-.mini i.easy { background: #ff9f43; }
+.mini i.low { background: #ff9f43; }
+.mini i.ez, .mini.small i.ez { border-radius: 50%; }
 .mini i.miss { background: var(--miss); }
 
 /* ---------- Browse ---------- */

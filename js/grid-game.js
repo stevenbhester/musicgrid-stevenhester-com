@@ -911,8 +911,9 @@ function renderEndPanel() {
   game.categories.forEach(category => {
     game.artists.forEach(artist => {
       const cell = game.state.cells[cellKey(category, artist)];
-      const shade = cell.status === "solved" ? (cell.points >= 10 ? "deep" : cell.points >= 8 ? "on" : "easy") : (cell.misses.length ? "miss" : "");
-      mini.append(el("i", { class: shade }));
+      // Same shades as the share text; a square solved in easy mode is a circle
+      const shade = cell.status === "solved" ? (cell.points >= 10 ? "deep" : cell.points >= 8 ? "on" : "low") : (cell.misses.length ? "miss" : "");
+      mini.append(el("i", { class: `${shade}${cell.status === "solved" && cell.easy ? " ez" : ""}`.trim() }));
     });
   });
 

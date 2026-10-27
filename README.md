@@ -20,6 +20,8 @@ Static site on GitHub Pages. All data comes from the MusicGrid API on Heroku (`m
 | `/grid-builder/apple-music` | `grid-builder/apple-music.html` | `js/gb-appleMusic.js` (artists from Apple Music) |
 | `/admin.html` | `admin.html` | `js/adminCode.js` (password-locked: flagged answers, daily grid maker, uploads, answers and clips, leaderboard screening) |
 
+Icons: `img/logo.svg` is the logo (gold tile, blue beamed notes with square heads for the grid). `/favicon.ico` (16, 32, 48), `img/favicon.png` (64), `img/logo-96.png`, `img/apple-touch-icon.png` (180, full-bleed) and `img/og-card.png` (the link preview) are made from it. Pages link the icons with `?v=2` so browsers drop the old cached ones; bump it when the logo changes.
+
 All of these share one stylesheet, `css/mg.css`, and the self-hosted Archivo font in `fonts/` (SIL Open Font License, see `fonts/ARCHIVO-OFL.txt`).
 
 Older pages (`old.html`, `v2.html`, `grid-builder/interactTest.html`) still use their original CSS and scripts.
@@ -38,7 +40,7 @@ Older pages (`old.html`, `v2.html`, `grid-builder/interactTest.html`) still use 
 
 Search (`POST /search`), scores (`POST /scores`) and score submission (`POST /submit-score`) are shared.
 
-On phones (under 600px) the header is compact so the whole board fits on the first screen, and once a browser has played a grid (`returning` on `<body>`) the intro sentence is hidden, leaving the no-repeats line. The share text shades each square by points (🟩 🟨 🟧, 🟥 missed, ⬛ untried); a square solved in easy mode is a circle of the same color (🟢 🟡 🟠).
+On phones (under 600px) the header is compact so the whole board fits on the first screen, and once a browser has played a grid (`returning` on `<body>`) the intro sentence is hidden, leaving the no-repeats line. The share text shades each square by points (🟩 🟨 🟧, 🟥 missed, ⬛ untried); a square solved in easy mode is a circle of the same color (🟢 🟡 🟠). The results panel and the Stats history draw their little grids the same way (`.mini i.ez` is round).
 
 Game progress is saved in `localStorage` under `musicgrid:<mode>:<gridId>`, so a refresh doesn't lose a game in progress. Each saved game also records its grid's date, title and the day it was finished (`playedOn`). The stats page reads every saved game back, so stats are per browser. A daily grid counts toward a streak when it was finished before the next daily grid went live, so days with no new grid don't break a streak.
 
@@ -92,7 +94,7 @@ Heroku drops any request that takes 30 seconds. Checking an artist's categories,
 
 ## AI (Claude)
 
-Grid titles, AI and opinion categories, and name screening use Claude when the Heroku config var `ANTHROPIC_API_KEY` is set (`ANTHROPIC_MODEL` overrides the default, `claude-haiku-5-5`). OpenAI is the fallback while `OPENAI_API_KEY` is set, and its free moderation check keeps screening names. With only the Anthropic key, Claude screens names too. The older `/fetch-ai-weddingresponse` endpoint still uses an OpenAI Assistant.
+Claude is the only AI the server uses. Grid titles, AI and opinion categories, leaderboard name screening and the wedding Q&A (`/fetch-ai-weddingresponse`) all need the Heroku config var `ANTHROPIC_API_KEY` (`ANTHROPIC_MODEL` overrides the default, `claude-haiku-5-5`). Without it, titles fall back to the artist names, AI and opinion categories are skipped, and names only go through the word list. The wedding Q&A takes its instructions from `WEDDING_ASSISTANT_PROMPT` and keeps each conversation in memory for `WEDDING_THREAD_HOURS` (default 6).
 
 ## Apple Music sign-in
 
