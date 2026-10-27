@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>musicgrid.io game of royalty</title>
     <link rel="icon" type="image/x-icon" href="/img/favicon.png">
-    <script src="/js/adminCode.js"></script>
+    <script src="/js/adminCode.js?v=20261027"></script>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -180,6 +180,18 @@
                 padding: 1px 1px;
             }
         }
+        .admin-tools { width: 95%; max-width: 1100px; margin: 10px auto; padding: 16px 20px; background: #FFFAD5; border-radius: 4px; }
+        .admin-tools h2 { margin: 18px 0 6px; font-size: 1.2em; }
+        .tool-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+        .tool-note { margin: 0 0 8px; font-size: 0.9em; color: #555; }
+        .cal-row { padding: 4px 0; border-bottom: 1px solid #e6dfa8; font-size: 0.95em; }
+        .cal-repeat { color: #8a8460; }
+        #data-dump { display: block; overflow-x: auto; flex-shrink: 0; }
+        .admin-tools { flex-shrink: 0; }
+        #data-dump .row { min-width: 1500px; }
+        #data-dump .cell { font-size: 1em; padding: 10px 8px; }
+        #data-dump input[type=date] { margin-right: 6px; }
+        #toolOutput { white-space: pre-wrap; background: #fff; padding: 8px; border-radius: 4px; min-height: 1.2em; }
     </style>
 </head>
 <body>
@@ -188,6 +200,24 @@
         <br>
     </div>
     <br>
+    <div class="admin-tools">
+        <div class="tool-row">
+            <label>Admin key <input type="password" id="adminKey" placeholder="ADMIN_KEY from Heroku config vars" autocomplete="off"></label>
+            <button type="button" id="saveKey">Save key</button>
+            <span id="keyNote"></span>
+        </div>
+        <h2>Next three weeks</h2>
+        <p class="tool-note">Each day plays the grid with the latest date on or before it. Faded days repeat an earlier grid, so schedule something for them.</p>
+        <div id="calendar">Loading…</div>
+        <h2>Cleanups</h2>
+        <div class="tool-row">
+            <button type="button" id="retitleBtn">Retitle custom grids with broken titles</button>
+            <button type="button" id="screenBtn">Screen existing leaderboard names</button>
+        </div>
+        <pre id="toolOutput"></pre>
+        <h2>Renamed leaderboard names</h2>
+        <div id="modLog">Loading…</div>
+    </div>
     <!-- Grid list data field headers -->
     <div class="container" id="data-dump">
     </div>

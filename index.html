@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/archivo-latin.woff" as="font" type="font/woff" crossorigin>
   <link rel="preconnect" href="https://music-grid-io-42616e204fd3.herokuapp.com" crossorigin>
-  <link rel="stylesheet" href="/css/mg.css">
+  <link rel="stylesheet" href="/css/mg.css?v=20261027">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://musicgrid.stevenhester.com/">
@@ -35,6 +35,7 @@
 
   <main class="game" id="main">
     <section class="game-head">
+      <p class="grid-date" id="gridDate" hidden></p>
       <h1 class="title" id="gridTitle">Today's grid</h1>
       <p class="subtitle">Name a song for every square that fits both its artist and its category. Deeper cuts score more, up to 11 points a square.</p>
     </section>
@@ -88,9 +89,15 @@
 
     <aside class="side">
       <section class="card" aria-labelledby="lbTitle">
-        <h2 id="lbTitle">Leaderboard</h2>
+        <div class="lb-head"><h2 id="lbTitle">Today</h2><span class="lb-count" id="lbCount"></span></div>
         <p class="empty-note" id="leaderboardNote">Loading scores…</p>
         <div class="lb-scroll"><ol class="board-list" id="leaderboardList"></ol></div>
+      </section>
+      <section class="card" id="allTimeCard" aria-labelledby="atTitle">
+        <div class="lb-head"><h2 id="atTitle">All-time</h2><span class="lb-count" id="atCount"></span></div>
+        <p class="lb-sub">Each player's best score on every daily grid, added up.</p>
+        <p class="empty-note" id="allTimeNote">Loading scores…</p>
+        <div class="lb-scroll"><ol class="board-list" id="allTimeList"></ol></div>
       </section>
     </aside>
   </main>
@@ -129,6 +136,6 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <div class="sr-only" id="announcer" aria-live="assertive"></div>
 
-  <script type="module" src="/js/grid-game.js"></script>
+  <script type="module" src="/js/grid-game.js?v=20261027"></script>
 </body>
 </html>
