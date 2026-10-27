@@ -703,8 +703,9 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
 .grid-card.custom .gc-status.started { color: var(--gold); }
 .more { margin-top: 18px; }
 
-/* Narrow phones: logo only, so three nav links fit */
-@media (max-width: 420px) {
+/* Phones: logo only, so the four nav links fit beside it */
+.brand, .topnav { flex: none; }
+@media (max-width: 560px) {
   .brand span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .topnav a { padding: 8px 10px; }
 }
@@ -806,3 +807,23 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
   .topnav { gap: 2px; }
   .topnav a { padding: 8px 8px; font-size: 14px; }
 }
+
+/* Difficulty on Browse cards: four bars, filled up to the level */
+.gc-diff { display: inline-flex; align-items: center; gap: 6px; font-weight: 650; white-space: nowrap; }
+.gc-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.gc-bars i { width: 4px; border-radius: 2px; }
+.gc-bars i:nth-child(1) { height: 5px; }
+.gc-bars i:nth-child(2) { height: 7px; }
+.gc-bars i:nth-child(3) { height: 10px; }
+.gc-bars i:nth-child(4) { height: 12px; }
+.grid-card.daily .gc-diff { color: var(--muted); }
+.grid-card.daily .gc-bars i { background: var(--line); }
+.grid-card.daily .gc-bars i.on { background: var(--series); }
+.grid-card.custom .gc-diff { color: var(--stage-soft); }
+.grid-card.custom .gc-bars i { background: var(--stage-faint); }
+.grid-card.custom .gc-bars i.on { background: var(--stage-ink); }
+
+/* Toggles on white cards (the builder's song-clip option) */
+.toggle.on-card .toggle-track { background: var(--line); }
+.toggle.on-card .toggle-note { color: var(--muted); }
+.clip-opt { margin-top: 18px; }
