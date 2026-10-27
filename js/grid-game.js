@@ -155,6 +155,19 @@ const storage = {
   }
 };
 
+// Has this browser played a grid before? Phones then skip the intro text.
+function playedBefore() {
+  try {
+    for (let i = 0; i < window.localStorage.length; i += 1) {
+      const key = window.localStorage.key(i);
+      if (!/^musicgrid:(daily|custom):\d+$/.test(key || "")) continue;
+      const state = storage.get(key);
+      if (state && state.cells && Object.values(state.cells).some(cell => cell && (cell.status === "solved" || (cell.misses || []).length))) return true;
+    }
+  } catch (e) { /* storage blocked */ }
+  return false;
+}
+
 // Anonymous per-device id. All-time totals follow this instead of the typed
 // name, so two people called "Sam" don't share a score. Never shown.
 function playerId() {
@@ -919,12 +932,12 @@ function renderEndPanel() {
 }
 
 // Share squares: shade by points (deeper cuts score more), red for a square
-// you guessed wrong on, black for one you never tried.
+// you guessed wrong on, black for one you never tried. A square solved in
+// easy mode is a circle of the same color.
 function shareSquare(cell) {
   if (cell.status === "solved") {
-    if (cell.points >= 10) return "🟩";
-    if (cell.points >= 8) return "🟨";
-    return "🟧";
+    const [square, circle] = cell.points >= 10 ? ["🟩", "🟢"] : cell.points >= 8 ? ["🟨", "🟡"] : ["🟧", "🟠"];
+    return cell.easy ? circle : square;
   }
   return cell.misses.length ? "🟥" : "⬛";
 }
@@ -1607,6 +1620,7 @@ async function boot() {
   if (mode === "daily" && game.day) game.state.day = game.day;
   if (hadSave) save();
   shownScore = game.state.score;
+  document.body.classList.toggle("returning", playedBefore());
   renderHead();
   buildBoard();
   renderHud(false);
