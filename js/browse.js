@@ -40,8 +40,22 @@ function prettyDate(day) {
   return new Date(`${day}T12:00:00`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: day.slice(0, 4) === today().slice(0, 4) ? undefined : "numeric" });
 }
 
-function playersText(n) {
-  return n ? `${n} ${n === 1 ? "player" : "players"}` : "No scores yet";
+// Four bars, filled up to the level, then the word
+function difficultyBadge(difficulty) {
+  if (!difficulty || !difficulty.level) return null;
+  const level = Math.max(1, Math.min(4, Number(difficulty.level)));
+  const badge = el("span", "gc-diff");
+  badge.dataset.level = String(level);
+  const bars = el("span", "gc-bars");
+  bars.setAttribute("aria-hidden", "true");
+  for (let i = 1; i <= 4; i += 1) bars.append(el("i", i <= level ? "on" : ""));
+  badge.append(bars, el("span", null, difficulty.label));
+  const basis = difficulty.basis === "scores"
+    ? `Difficulty: ${difficulty.label}, from ${difficulty.players} players' scores`
+    : `Difficulty: ${difficulty.label}, estimated from the answers`;
+  badge.title = basis;
+  badge.setAttribute("aria-label", basis);
+  return badge;
 }
 
 function card(kind, grid) {
@@ -49,12 +63,15 @@ function card(kind, grid) {
   const top = el("div", "gc-top");
   if (kind === "daily") {
     link.href = `/?grid=${encodeURIComponent(grid.grid_id)}`;
-    top.append(el("span", "gc-tag", grid.day === today() ? "Today" : prettyDate(grid.day)));
+    let tag = grid.day === today() ? "Today" : prettyDate(grid.day);
+    if (grid.rerun_of_day) tag += " · Rerun";
+    top.append(el("span", "gc-tag", tag));
   } else {
     link.href = `/play-custom-grid?custom_grid_id=${encodeURIComponent(grid.custom_grid_id)}`;
     top.append(el("span", "gc-tag", "Player-made"));
   }
-  top.append(el("span", "gc-players", playersText(grid.players)));
+  const badge = difficultyBadge(grid.difficulty);
+  if (badge) top.append(badge);
   link.append(top);
   link.append(el("b", "gc-title", grid.title || (kind === "daily" ? "Daily grid" : "Custom grid")));
   link.append(el("span", "gc-artists", (grid.artists || []).join(", ")));

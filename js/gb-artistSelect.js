@@ -795,10 +795,53 @@ function buildCustomGrid() {
 }
 
 // Tell the users how we're doing building their grid
+// Easy-mode hints need song clips. With the toggle on, leave out artists
+// that have none (checked by the server against iTunes and Deezer).
+async function artistsWithClips(artists) {
+  const box = document.getElementById("clipsOnly");
+  if (!box || !box.checked) return { kept: artists, dropped: [] };
+  setBuildStatus("Checking which artists have song clips for easy mode…");
+  const clips = {};
+  for (let i = 0; i < artists.length; i += 12) {
+    try {
+      const response = await fetch(BUILDER_API + "/artist-clips", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ artists: artists.slice(i, i + 12).map(artist => artist.artistName) })
+      });
+      if (!response.ok) continue;
+      const data = await response.json();
+      (data.artists || []).forEach(item => { clips[String(item.name).trim().toLowerCase()] = item.clips; });
+    } catch (error) {
+      // Couldn't check: keep everyone rather than block the build
+    }
+  }
+  const dropped = artists.filter(artist => clips[artist.artistName.trim().toLowerCase()] === false);
+  return { kept: artists.filter(artist => !dropped.includes(artist)), dropped };
+}
+
+function joinNames(names) {
+  if (names.length <= 1) return names.join("");
+  return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+}
+
 async function buildProgressReport(artists) {
   // Delete the frontend artist list now that we're done with it
   const listContainer = document.getElementsByClassName("sortable-list");
   listContainer[0].innerHTML = "";
+
+  const { kept, dropped } = await artistsWithClips(artists);
+  if (dropped.length) {
+    const names = joinNames(dropped.map(artist => artist.artistName));
+    const verb = dropped.length === 1 ? "has" : "have";
+    if (kept.length < 3) {
+      showBuildFailure(`${names} ${verb} no song clips, so easy-mode hints wouldn't work for them, and that leaves fewer than three artists. Add a few more, or turn off "Only artists with song clips".`);
+      return;
+    }
+    builderToast(`Left out ${names}: no song clips for easy mode`);
+    artists = kept;
+  }
+  setBuildStatus("Checking which of your artists have enough songs in common. This can take a minute.");
 
   // Build our progress reporter container
   const progressContainer = document.getElementById("gridProgressContainer");

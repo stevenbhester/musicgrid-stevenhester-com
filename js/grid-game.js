@@ -33,6 +33,7 @@ const modes = {
         try {
           const data = await request(`/latest-grid?grid_id=${encodeURIComponent(requested)}`);
           game.day = data.reportingDay || null;
+          game.rerunOf = data.rerunOf || null;
           game.past = Boolean(game.day && game.day < chicagoToday());
           return data.latestGridId;
         } catch (error) {
@@ -41,12 +42,13 @@ const modes = {
       }
       const data = await request("/latest-grid");
       game.day = data.reportingDay || null;
+      game.rerunOf = data.rerunOf || null;
       game.past = false;
       return data.latestGridId;
     },
     loadGrid: id => request("/grid-data", { grid_id: id }),
     check: (id, song, field) => request("/check-answer", { songGuess: song, fieldGuessed: field, gridId: id }),
-    hint: (id, field) => request("/get-cheat-preview-url", { gridId: id, fieldKey: field }),
+    hint: (id, field, fresh) => request("/get-cheat-preview-url", { gridId: id, fieldKey: field, fresh: Boolean(fresh) }),
     leaderboardId: id => id,
     shareUrl: id => (game.past ? `${SITE}/?grid=${encodeURIComponent(id)}` : SITE + "/"),
     fallbackTitle: () => (game.past ? "Daily grid" : "Today's grid"),
@@ -57,7 +59,7 @@ const modes = {
     resolveId: () => Promise.resolve(params.get("custom_grid_id") || 1),
     loadGrid: id => request("/custom-grid-data", { custom_grid_id: id }),
     check: (id, song, field) => request("/check-custom-answer", { songGuess: song, fieldGuessed: field, customGridId: id }),
-    hint: (id, field) => request("/get-custom-cheat-preview-url", { customGridId: id, fieldKey: field }),
+    hint: (id, field, fresh) => request("/get-custom-cheat-preview-url", { customGridId: id, fieldKey: field, fresh: Boolean(fresh) }),
     // Kept identical to the original client. The id from the URL is a string,
     // so this concatenates ("12" + 100 -> "12100"), and existing custom-grid
     // leaderboards are stored under those ids.
@@ -162,6 +164,7 @@ function playerId() {
 const game = {
   id: null,
   day: null,
+  rerunOf: null,
   past: false,
   notice: null,
   title: "",
@@ -240,7 +243,12 @@ function renderHead() {
   const dateLine = $("#gridDate");
   if (dateLine && game.day) {
     const date = new Date(`${game.day}T12:00:00`);
-    dateLine.textContent = date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    let line = date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    if (game.rerunOf) {
+      const first = new Date(`${game.rerunOf}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      line += ` · Rerun of the ${first} grid`;
+    }
+    dateLine.textContent = line;
     dateLine.hidden = false;
   }
   document.title = `${game.title} | MusicGrid`;
@@ -581,12 +589,28 @@ function stopAudio() {
 
 audio.addEventListener("ended", stopAudio);
 
-async function previewUrl(key) {
-  if (hintCache.has(key)) return hintCache.get(key);
-  const data = await api.hint(game.id, key);
+async function previewUrl(key, fresh) {
+  if (!fresh && hintCache.has(key)) return hintCache.get(key);
+  let data = null;
+  try {
+    data = await api.hint(game.id, key, fresh);
+  } catch (error) {
+    data = null; // 404: no clip for this square
+  }
   const url = data && data.previewUrl ? data.previewUrl : null;
   hintCache.set(key, url);
   return url;
+}
+
+function noPreview(owner) {
+  audioOwner = null;
+  if (owner === "sheet") {
+    setHintButton("idle");
+    $("#hintNote").textContent = "No preview is available for this square.";
+  } else {
+    updateListenButton(owner, false);
+    toast("No preview is available for this square.");
+  }
 }
 
 async function playPreview(key, owner) {
@@ -606,23 +630,28 @@ async function playPreview(key, owner) {
   }
   if (audioOwner !== owner) return;
   if (!url) {
-    audioOwner = null;
-    if (owner === "sheet") {
-      setHintButton("idle");
-      $("#hintNote").textContent = "No preview is available for this square.";
-    } else {
-      updateListenButton(owner, false);
-      toast("No preview is available for this square.");
-    }
+    noPreview(owner);
     return;
   }
-  audio.src = url;
-  audio.play().then(() => {
-    if (owner === "sheet") setHintButton("playing");
-  }).catch(() => {
-    stopAudio();
-    toast("Your browser blocked the preview. Tap again to play it.");
-  });
+  const start = (src, retried) => {
+    audio.src = src;
+    audio.play().then(() => {
+      if (owner === "sheet") setHintButton("playing");
+    }).catch(async error => {
+      if (audioOwner !== owner) return;
+      if (error && error.name === "NotAllowedError") {
+        stopAudio();
+        toast("Your browser blocked the preview. Tap again to play it.");
+        return;
+      }
+      // The saved clip is gone or won't play here: ask for a fresh one once
+      const next = retried ? null : await previewUrl(key, true).catch(() => null);
+      if (audioOwner !== owner) return;
+      if (next && next !== src) start(next, true);
+      else noPreview(owner);
+    });
+  };
+  start(url, false);
 }
 
 function setHintButton(status) {
@@ -977,10 +1006,11 @@ let countdownTimer = null;
 
 async function startCountdown() {
   if (mode !== "daily" || game.past) return;
-  // Only count down when tomorrow actually has a new grid scheduled
+  // Only count down when tomorrow brings a new grid (scheduled, or a rerun)
   try {
     const data = await request("/grid-calendar?days=2");
-    if (data.calendar && data.calendar[1] && !data.calendar[1].scheduled) return;
+    const tomorrow = data.calendar && data.calendar[1];
+    if (tomorrow && !tomorrow.scheduled && !tomorrow.rerun) return;
   } catch (error) {
     // Older server without the calendar: count down anyway
   }

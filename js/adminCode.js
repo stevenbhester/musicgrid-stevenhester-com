@@ -44,6 +44,8 @@ function initializeSite() {
 
 let calendarData = null;
 let checkedGrids = null;
+let gridSummary = [];
+let checkRun = 0;
 
 // ---------- Add daily grids (paste or upload JSON) ----------
 
@@ -77,7 +79,35 @@ function gridProblems(grid, index) {
   return problems;
 }
 
-function checkGrids() {
+// The grid summary joins names with ", " (and names can contain commas),
+// so check that every name is in there and nothing else is
+function sameNames(joined, names) {
+  const text = String(joined || "").toLowerCase();
+  const wanted = names.map(name => String(name).trim().toLowerCase());
+  const length = wanted.reduce((sum, name) => sum + name.length, 0) + 2 * (wanted.length - 1);
+  return text.length === length && wanted.every(name => text.includes(name));
+}
+
+function findDuplicate(grid) {
+  return gridSummary.find(row => sameNames(row.num_artist_cells, grid.artists) && sameNames(row.num_category_cells, grid.categories));
+}
+
+// Artists with no song clips anywhere can't use easy mode, so daily grids skip them
+async function clipCheck(artists) {
+  const results = {};
+  for (let i = 0; i < artists.length; i += 12) {
+    try {
+      const data = await adminFetch("/artist-clips", { method: "POST", body: JSON.stringify({ artists: artists.slice(i, i + 12) }) });
+      data.artists.forEach(item => { results[item.name.trim().toLowerCase()] = item.clips; });
+    } catch (error) {
+      // Older server or a hiccup: leave these unknown
+    }
+  }
+  return results;
+}
+
+async function checkGrids() {
+  const run = ++checkRun;
   const preview = document.getElementById("gridPreview");
   const createButton = document.getElementById("createGrids");
   createButton.disabled = true;
@@ -100,30 +130,65 @@ function checkGrids() {
     preview.textContent = problems.join("\n");
     return;
   }
-  const today = calendarData ? calendarData.today : "";
+
+  toolOutput("Checking song clips for each artist…");
+  const artists = [...new Set([].concat(...grids.map(grid => grid.artists.map(name => name.trim()))))];
+  const [clips, calendar] = await Promise.all([
+    clipCheck(artists),
+    fetch(ADMIN_API + "/grid-calendar?days=90", { headers: adminHeaders() }).then(r => r.json()).catch(() => calendarData)
+  ]);
+  if (run !== checkRun) return;
+
+  const today = calendar ? calendar.today : "";
+  const uploadDays = new Set(grids.map(grid => grid.date));
+  const ready = [];
+  const skipped = [];
   grids.forEach(grid => {
     const box = document.createElement("div");
     box.className = "grid-preview";
     const date = new Date(grid.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
-    const taken = calendarData && calendarData.calendar.find(day => day.date === grid.date && day.scheduled);
     const heading = document.createElement("b");
     heading.textContent = date + ": " + (grid.title || "Untitled grid");
     box.appendChild(heading);
+
+    const stops = [];
     const notes = [];
+    const noClips = grid.artists.filter(name => clips[name.trim().toLowerCase()] === false);
+    const unknown = grid.artists.filter(name => clips[name.trim().toLowerCase()] === undefined || clips[name.trim().toLowerCase()] === null);
+    if (noClips.length) stops.push(noClips.join(" and ") + (noClips.length === 1 ? " has" : " have") + " no song clips, so easy mode wouldn't work");
+    const duplicate = findDuplicate(grid);
+    if (duplicate) stops.push("this grid is already uploaded as grid " + duplicate.grid_id);
+    if (unknown.length) notes.push("couldn't check song clips for " + unknown.join(", "));
     if (today && grid.date < today) notes.push("this date is in the past");
-    if (taken) notes.push("grid " + taken.grid_id + " is already scheduled that day; the new one will win");
-    if (notes.length) {
-      const warn = document.createElement("div");
-      warn.className = "grid-warn";
-      warn.textContent = "Heads up: " + notes.join(", ");
-      box.appendChild(warn);
+    const taken = calendar && calendar.calendar && calendar.calendar.find(day => day.date === grid.date && day.scheduled && !day.rerun);
+    if (taken && grid.date > today) {
+      // The server moves the old grid to the next open day
+      let next = new Date(grid.date + "T00:00:00Z");
+      let nextDay = "";
+      do {
+        next = new Date(next.getTime() + 86400000);
+        nextDay = next.toISOString().slice(0, 10);
+      } while (uploadDays.has(nextDay) || (calendar.calendar.find(day => day.date === nextDay && day.scheduled && !day.rerun)));
+      const label = new Date(nextDay + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      notes.push((taken.title || "grid " + taken.grid_id) + " is already on this day and will move to " + label);
+    } else if (taken) {
+      notes.push("grid " + taken.grid_id + " already plays that day; the new one will win");
     }
+    [[stops, "grid-stop", "Won't be created: "], [notes, "grid-warn", "Heads up: "]].forEach(([list, cls, lead]) => {
+      if (!list.length) return;
+      const line = document.createElement("div");
+      line.className = cls;
+      line.textContent = lead + list.join("; ");
+      box.appendChild(line);
+    });
+
     const table = document.createElement("table");
     const head = document.createElement("tr");
     head.appendChild(document.createElement("th"));
     grid.artists.forEach(artist => {
       const th = document.createElement("th");
-      th.textContent = artist;
+      const mark = clips[artist.trim().toLowerCase()];
+      th.textContent = artist + (mark === true ? " ✓ clips" : mark === false ? " ✗ no clips" : "");
       head.appendChild(th);
     });
     table.appendChild(head);
@@ -142,11 +207,16 @@ function checkGrids() {
       table.appendChild(row);
     });
     box.appendChild(table);
+    if (stops.length) box.classList.add("is-skipped");
     preview.appendChild(box);
+    (stops.length ? skipped : ready).push(grid);
   });
-  checkedGrids = grids;
-  createButton.disabled = false;
-  toolOutput(grids.length + (grids.length === 1 ? " grid looks good." : " grids look good.") + " Hover a count to see the answers.");
+  checkedGrids = ready.length ? ready : null;
+  createButton.disabled = !ready.length;
+  const summary = ready.length + (ready.length === 1 ? " grid is" : " grids are") + " ready to create."
+    + (skipped.length ? " " + skipped.length + " won't be created (see the red notes)." : "")
+    + " Hover a count to see the answers.";
+  toolOutput(summary);
 }
 
 async function createGrids() {
@@ -156,6 +226,7 @@ async function createGrids() {
   try {
     const data = await adminFetch("/admin/create-grids", { method: "POST", body: JSON.stringify({ grids: checkedGrids }) });
     const lines = data.created.map(grid => "Created grid " + grid.grid_id + " for " + grid.date + (grid.title ? " (" + grid.title + ")" : ""));
+    (data.moved || []).forEach(grid => lines.push("Moved grid " + grid.grid_id + (grid.title ? " (" + grid.title + ")" : "") + " from " + grid.from + " to " + grid.to));
     toolOutput(lines.join("\n") + "\nScoring answers now. This takes a minute or two per grid, so leave this tab open.");
     loadGridData();
     loadCalendar();
@@ -191,9 +262,12 @@ async function loadCalendar() {
       const row = document.createElement("div");
       row.className = "cal-row" + (day.scheduled ? "" : " cal-repeat");
       const date = new Date(day.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
-      const what = day.grid_id === null
-        ? "Nothing scheduled"
-        : (day.scheduled ? "Grid " + day.grid_id : "Repeats grid " + day.grid_id) + (day.title ? ": " + day.title : "") + (day.artists ? " (" + day.artists + ")" : "");
+      const details = (day.title ? ": " + day.title : "") + (day.artists ? " (" + day.artists + ")" : "");
+      let what;
+      if (day.rerun && day.grid_id === null) what = "Nothing scheduled, so an older grid reruns (picked at midnight)";
+      else if (day.grid_id === null) what = "Nothing scheduled";
+      else if (day.rerun) what = "Rerun of grid " + day.rerun_of + " as grid " + day.grid_id + details;
+      else what = (day.scheduled ? "Grid " + day.grid_id : "Repeats grid " + day.grid_id) + details;
       row.textContent = date + (day.date === data.today ? " (today)" : "") + " \u2014 " + what;
       holder.appendChild(row);
     });
@@ -261,6 +335,7 @@ function loadGridData() {
     .then(response => response.json())
     .then(data => {
       console.log("Grid data summary dump fetched");
+      gridSummary = Array.isArray(data) ? data : [];
       displayGridsSumm(data);
     })
     .catch(error => console.error("Error fetching live grid id:", error));
