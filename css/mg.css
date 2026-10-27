@@ -827,3 +827,13 @@ a.choice:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--stage-de
 .toggle.on-card .toggle-track { background: var(--line); }
 .toggle.on-card .toggle-note { color: var(--muted); }
 .clip-opt { margin-top: 18px; }
+
+/* The board takes focus after the guess sheet closes; no ring around it */
+.board:focus { outline: none; }
+
+/* Easy mode confirmation */
+.sheet.confirm { width: min(440px, calc(100vw - 32px)); margin: auto; }
+.confirm-inner { padding: 22px; }
+.confirm-inner b { display: block; font-size: 22px; font-weight: 800; font-stretch: 110%; line-height: 1.2; }
+.confirm-inner p { margin: 8px 0 18px; color: var(--muted); }
+.confirm-actions { display: flex; flex-wrap: wrap; gap: 10px; }
