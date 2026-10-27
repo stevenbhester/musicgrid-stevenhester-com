@@ -1073,6 +1073,67 @@ function worksFor(artistIds, categoryId) {
   return artistIds.length > 0 && artistIds.every(id => songCount(id, categoryId) >= MIN_SONGS);
 }
 
+// ---------- One song, one square ----------
+// Each song counts once per grid, so the picks have to be fillable with a
+// different song in every square (a matching from squares to songs, same
+// check as the server). Returns the first group of squares that share too
+// few songs, or null.
+function songKey(text) {
+  return String(text || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
+    .replace(/\s*[([][^)\]]*[)\]]/g, " ").replace(/\s+[-–—]\s+.*$/, "").replace(/\s(feat|ft)\.?\s.*$/, "")
+    .replace(/&/g, " and ").trim().replace(/^the\s+/, "").replace(/[^a-z0-9]/g, "");
+}
+
+function repeatClash(artistIds, categoryIds) {
+  const songsOf = {};
+  artistIds.forEach(artistId => categoryIds.forEach(id => {
+    const result = build.results[artistId];
+    const songs = result && result.categories[id] ? result.categories[id].songs : [];
+    // Compared within the artist's column: two artists' same-titled songs differ
+    songsOf[`${id}|${artistId}`] = [...new Set(songs.map(songKey).filter(Boolean).map(song => `${artistId}|${song}`))];
+  }));
+  const owner = new Map();
+  const place = (key, seen) => {
+    for (const song of songsOf[key]) {
+      if (seen.has(song)) continue;
+      seen.add(song);
+      if (!owner.has(song) || place(owner.get(song), seen)) {
+        owner.set(song, key);
+        return true;
+      }
+    }
+    return false;
+  };
+  for (const key of Object.keys(songsOf)) {
+    if (!songsOf[key].length || place(key, new Set())) continue;
+    const squares = new Set([key]);
+    const songs = new Set();
+    const queue = [key];
+    while (queue.length) {
+      songsOf[queue.shift()].forEach(song => {
+        if (songs.has(song)) return;
+        songs.add(song);
+        const holder = owner.get(song);
+        if (holder && !squares.has(holder)) {
+          squares.add(holder);
+          queue.push(holder);
+        }
+      });
+    }
+    return { squares: Object.keys(songsOf).filter(other => squares.has(other)), songs: songs.size };
+  }
+  return null;
+}
+
+function clashText(clash) {
+  const names = clash.squares.map(key => {
+    const [id, artistId] = key.split("|");
+    return `${artistById(artistId).name} · ${build.labels[id] || id}`;
+  });
+  const list = names.length <= 2 ? names.join(" and ") : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+  return `Each song counts once, and ${list} only have ${clash.songs} ${clash.songs === 1 ? "song" : "songs"} between them. Swap one of those categories.`;
+}
+
 // The three artists (in their ranked order) that share the most categories
 function bestTrio() {
   const ids = build.artists.filter(artist => build.results[artist.id]).map(artist => artist.id);
@@ -1165,11 +1226,14 @@ function renderChoose() {
     }
     const on = chosenC.includes(id);
     const works = worksFor(chosenA, id);
+    // Adding it would leave a square without a song of its own
+    const clashes = !on && works && chosenC.length < 3 && Boolean(repeatClash(chosenA, [...chosenC, id]));
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "choose-cat";
+    button.className = "choose-cat" + (clashes ? " clash" : "");
     button.setAttribute("aria-pressed", String(on));
-    button.disabled = !on && !works;
+    button.disabled = !on && (!works || clashes);
+    if (clashes) button.title = "Would need the same song in two squares with your other picks";
     const label = document.createElement("span");
     label.className = "cc-label";
     label.textContent = build.labels[id] || id;
@@ -1191,13 +1255,18 @@ function renderChoose() {
   });
   document.getElementById("categoryCount").textContent = `${chosenC.length} of 3`;
 
+  const clash = chosenA.length && chosenC.length ? repeatClash(chosenA, chosenC) : null;
+  build.clash = clash;
   renderPreview();
-  const ready = chosenA.length === 3 && chosenC.length === 3;
+  const ready = chosenA.length === 3 && chosenC.length === 3 && !clash;
   document.getElementById("buildGrid").disabled = !ready;
   let hint = "Your grid is ready to build.";
-  if (chosenA.length < 3) hint = `Pick ${3 - chosenA.length} more ${3 - chosenA.length === 1 ? "artist" : "artists"}.`;
+  if (clash) hint = clashText(clash);
+  else if (chosenA.length < 3) hint = `Pick ${3 - chosenA.length} more ${3 - chosenA.length === 1 ? "artist" : "artists"}.`;
   else if (chosenC.length < 3) hint = `Pick ${3 - chosenC.length} more ${3 - chosenC.length === 1 ? "category" : "categories"}.`;
-  document.getElementById("chooseHint").textContent = hint;
+  const hintNode = document.getElementById("chooseHint");
+  hintNode.textContent = hint;
+  hintNode.classList.toggle("clash-note", Boolean(clash));
 }
 
 function renderPreview() {
@@ -1231,6 +1300,7 @@ function renderPreview() {
       const count = songCount(artist.id, id);
       button.textContent = `${count} ${count === 1 ? "song" : "songs"}`;
       button.setAttribute("aria-pressed", String(build.preview === `${id}|${artist.id}`));
+      if (build.clash && build.clash.squares.includes(`${id}|${artist.id}`)) button.classList.add("clash");
       button.addEventListener("click", () => {
         build.preview = `${id}|${artist.id}`;
         renderPreview();
@@ -1288,6 +1358,13 @@ async function saveBuiltGrid() {
     linkToGrid(data.custom_grid_id, Boolean(data.edit_token));
   } catch (error) {
     console.error("Saving the grid failed:", error);
+    if (/counts once/.test(error.message || "")) {
+      // The server's one-song-per-grid check: say why, and keep Build off
+      const hintNode = document.getElementById("chooseHint");
+      hintNode.textContent = error.message;
+      hintNode.classList.add("clash-note");
+      return;
+    }
     builderToast("Couldn't save your grid. Try again in a moment.");
     button.disabled = false;
   } finally {
@@ -1395,7 +1472,34 @@ function initArtistSearch() {
   });
   document.getElementById("changeArtists").addEventListener("click", backToPicking);
   addEventListeners();
+  loadImportedArtists();
   updatePickState();
+}
+
+// Artists handed over by another sign-in (Apple Music), already matched to
+// Spotify artists. They fill the list; the player can still change it.
+const IMPORT_KEY = "musicgrid:importedArtists";
+
+function loadImportedArtists() {
+  let data = null;
+  try {
+    data = JSON.parse(sessionStorage.getItem(IMPORT_KEY));
+    sessionStorage.removeItem(IMPORT_KEY);
+  } catch (error) {
+    return;
+  }
+  if (!data || !Array.isArray(data.artists)) return;
+  const list = document.querySelector(".sortable-list");
+  let added = 0;
+  data.artists.slice(0, MAX_PICKS).forEach(artist => {
+    if (!artist || typeof artist.id !== "string" || typeof artist.name !== "string" || pickedIds().includes(artist.id)) return;
+    list.appendChild(createArtistItem(artist.id, artist.name, typeof artist.img === "string" ? artist.img : ""));
+    added += 1;
+  });
+  if (!added) return;
+  renumberArtists();
+  const source = typeof data.source === "string" ? data.source : "your music";
+  setArtistMsg(`Added your top ${added} ${source} ${added === 1 ? "artist" : "artists"}. Remove any you don't want, or search to add more.`);
 }
 
 async function runArtistSearch(query) {

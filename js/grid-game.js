@@ -57,7 +57,7 @@ const modes = {
     },
     loadGrid: id => request("/grid-data", { grid_id: id }),
     check: (id, song, field) => request("/check-answer", { songGuess: song, fieldGuessed: field, gridId: id }),
-    hint: (id, field, fresh) => request("/get-cheat-preview-url", { gridId: id, fieldKey: field, fresh: Boolean(fresh) }),
+    hint: (id, field, fresh, exclude) => request("/get-cheat-preview-url", { gridId: id, fieldKey: field, fresh: Boolean(fresh), exclude }),
     leaderboardId: id => id,
     shareUrl: id => (game.past ? `${SITE}/?grid=${encodeURIComponent(id)}` : SITE + "/"),
     fallbackTitle: () => (game.past ? "Daily grid" : "Today's grid"),
@@ -68,7 +68,7 @@ const modes = {
     resolveId: () => Promise.resolve(params.get("custom_grid_id") || 1),
     loadGrid: id => request("/custom-grid-data", { custom_grid_id: id }),
     check: (id, song, field) => request("/check-custom-answer", { songGuess: song, fieldGuessed: field, customGridId: id }),
-    hint: (id, field, fresh) => request("/get-custom-cheat-preview-url", { customGridId: id, fieldKey: field, fresh: Boolean(fresh) }),
+    hint: (id, field, fresh, exclude) => request("/get-custom-cheat-preview-url", { customGridId: id, fieldKey: field, fresh: Boolean(fresh), exclude }),
     // Kept identical to the original client. The id from the URL is a string,
     // so this concatenates ("12" + 100 -> "12100"), and existing custom-grid
     // leaderboards are stored under those ids.
@@ -306,7 +306,11 @@ function renderLives(popIndex) {
     wrap.append(heart);
     if (popIndex === i) replay(heart, "pop");
   }
-  $("#sudden").hidden = !(game.state.livesLost === HEARTS && !game.state.over);
+  const sudden = game.state.livesLost === HEARTS && !game.state.over;
+  $("#sudden").hidden = !sudden;
+  if ($("#suddenBanner")) $("#suddenBanner").hidden = !sudden;
+  if ($("#sheetWarn")) $("#sheetWarn").hidden = !sudden;
+  document.querySelector(".board-wrap").classList.toggle("danger", sudden);
   const left = Math.max(0, HEARTS - game.state.livesLost);
   wrap.setAttribute("aria-label", game.state.livesLost >= HEARTS ? "No hearts left. Next miss ends the game." : `${left} of ${HEARTS} hearts left`);
 }
@@ -607,17 +611,19 @@ function renderSearchResults(songs, query) {
   setSheetMessage("");
   songs.forEach(song => {
     const tried = cell.misses.includes(song.name);
+    const used = !tried && usedElsewhere(sheet.key, song.name, (song.artists || []).map(artist => artist.name));
     const art = albumArt(song);
     const artNode = art
       ? el("img", { class: "art", src: art, alt: "", loading: "lazy", width: 44, height: 44 })
       : el("span", { class: "art art-blank", html: icon("note") });
     const button = el("button", {
-      class: "result", type: "button", disabled: tried,
+      class: "result", type: "button", disabled: tried || Boolean(used),
+      title: used ? `Already used in ${cellLabel(used).artist} · ${cellLabel(used).category}` : null,
       onclick: () => chooseSong(song)
     }, [
       artNode,
       el("span", { class: "result-text" }, [el("b", { text: song.name }), el("span", { text: artistNames(song) })]),
-      tried ? el("span", { class: "result-tag", text: "Already tried" }) : null
+      tried ? el("span", { class: "result-tag", text: "Already tried" }) : used ? el("span", { class: "result-tag", text: "Used in another square" }) : null
     ]);
     list.append(el("li", {}, [button]));
   });
@@ -626,7 +632,7 @@ function renderSearchResults(songs, query) {
 function chooseSong(song) {
   const key = sheet.key;
   closeSheet();
-  submitGuess(key, song.name);
+  submitGuess(key, song.name, (song.artists || []).map(artist => artist.name));
 }
 
 function onSheetKeydown(event) {
@@ -665,15 +671,19 @@ function stopAudio() {
 audio.addEventListener("ended", stopAudio);
 
 async function previewUrl(key, fresh) {
-  if (!fresh && hintCache.has(key)) return hintCache.get(key);
+  // While playing, skip songs already used in other squares (each song
+  // counts once), so the cache depends on which songs those are
+  const exclude = game.state.over ? [] : usedSongs(key);
+  const cacheKey = `${key}|${exclude.map(looseKey).sort().join(",")}`;
+  if (!fresh && hintCache.has(cacheKey)) return hintCache.get(cacheKey);
   let data = null;
   try {
-    data = await api.hint(game.id, key, fresh);
+    data = await api.hint(game.id, key, fresh, exclude);
   } catch (error) {
     data = null; // 404: no clip for this square
   }
   const url = data && data.previewUrl ? data.previewUrl : null;
-  hintCache.set(key, url);
+  hintCache.set(cacheKey, url);
   return url;
 }
 
@@ -744,9 +754,15 @@ function updateListenButton(key, playing) {
 
 // ---------- Guessing ----------
 
-async function submitGuess(key, songName) {
+async function submitGuess(key, songName, songArtists) {
   const cell = game.state.cells[key];
   if (game.state.over || cell.status !== "open" || pending.has(key)) return;
+  const used = usedElsewhere(key, songName, songArtists);
+  if (used) {
+    const where = cellLabel(used);
+    toast(`“${songName}” is already in ${where.artist} · ${where.category}. Each song counts once.`);
+    return;
+  }
   pending.add(key);
   renderCell(key);
 
@@ -775,6 +791,7 @@ async function submitGuess(key, songName) {
     const earned = game.state.easy ? Math.max(0, points - EASY_PENALTY) : points;
     cell.status = "solved";
     cell.song = songName;
+    if (Array.isArray(songArtists) && songArtists.length) cell.songArtists = songArtists.slice(0, 6);
     cell.points = earned;
     if (game.state.easy) {
       cell.easy = true;
@@ -796,7 +813,8 @@ async function submitGuess(key, songName) {
     renderHud(false, game.state.livesLost <= HEARTS ? popIndex : undefined);
     const left = HEARTS - game.state.livesLost;
     announce(left > 0 ? `${songName} doesn't fit. ${left} ${left === 1 ? "heart" : "hearts"} left.` : `${songName} doesn't fit.`);
-    offerFlag(key, songName, game.state.livesLost === HEARTS ? "Out of hearts: your next miss ends the game." : "");
+    flashMiss();
+    offerFlag(key, songName);
   }
 
   if (game.state.livesLost >= MAX_MISSES) endGame("lives");
@@ -818,13 +836,22 @@ function endGame(reason) {
     if (cell.status === "open") cell.status = "missed";
   });
   save();
+  syncFinishedGame();
   Object.keys(game.state.cells).forEach(key => { if (!pending.has(key)) renderCell(key); });
   renderHud(false);
   renderEndPanel();
+  refreshBoards();
   const panel = $("#results");
   if (window.matchMedia("(max-width: 959px)").matches) {
     window.setTimeout(() => panel.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" }), 450);
   }
+}
+
+// Finished games are also saved under the player's code, so devices linked
+// on the Stats page share one history (the higher score wins per grid)
+function syncFinishedGame() {
+  if (!game.state.over || !game.id) return;
+  request("/player-games/sync", { player_id: playerId(), games: [{ mode, grid_id: String(game.id), state: game.state }] }).catch(() => {});
 }
 
 const giveUp = {
@@ -881,9 +908,11 @@ function renderEndPanel() {
   const done = $("#submitDone");
   form.hidden = state.submitted;
   done.hidden = !state.submitted;
-  done.textContent = state.renamed
+  $("#submitDoneText").textContent = state.renamed && state.appeal !== "restored"
     ? `That name isn't allowed on the leaderboard, so you're on it as ${state.name}.`
-    : "Your score is on the leaderboard.";
+    : `You're on the leaderboard as ${state.name}.`;
+  renderAppeal();
+  checkAppeal();
   if (!state.submitted) {
     $("#playerName").value = state.name || storage.get("musicgrid:name") || "";
   }
@@ -970,6 +999,8 @@ async function submitScore(event) {
     game.state.submitted = true;
     game.state.name = finalName;
     game.state.renamed = Boolean(result && result.renamed);
+    game.state.typedName = game.state.renamed ? name : null;
+    game.state.appeal = null;
     if (!game.state.renamed) storage.set("musicgrid:name", finalName);
     save();
     renderEndPanel();
@@ -979,7 +1010,67 @@ async function submitScore(event) {
     $("#submitNote").textContent = "Couldn't submit right now. Try again in a moment.";
   } finally {
     button.disabled = false;
-    button.textContent = "Submit score";
+    button.textContent = "Add my score";
+  }
+}
+
+// ---------- Name reviews ----------
+// If the leaderboard changed a player's name, they can ask Steven to review
+// it, and the verdict shows here when they come back.
+
+const APPEAL_TEXT = {
+  pending: () => "Sent to Steven for a review. Check back here for his call.",
+  restored: () => "Steven reviewed it and restored your name.",
+  kept: () => "Steven reviewed it and kept the change."
+};
+let appealChecked = false;
+
+function renderAppeal() {
+  const button = $("#appealBtn");
+  const note = $("#appealNote");
+  if (!button || !note) return;
+  const state = game.state;
+  const canAppeal = Boolean(state.submitted && state.renamed && state.typedName);
+  button.hidden = !canAppeal || Boolean(state.appeal);
+  button.disabled = false;
+  const text = state.appeal && APPEAL_TEXT[state.appeal] ? APPEAL_TEXT[state.appeal]() : "";
+  note.textContent = text;
+  note.hidden = !text;
+  note.className = "appeal-note" + (state.appeal ? ` ${state.appeal}` : "");
+}
+
+async function sendAppeal() {
+  const button = $("#appealBtn");
+  button.disabled = true;
+  try {
+    const data = await request("/name-appeal", { player_id: playerId(), name: game.state.typedName });
+    game.state.appeal = data.status === "restored" || data.status === "kept" ? data.status : "pending";
+    save();
+    renderEndPanel();
+  } catch (error) {
+    button.disabled = false;
+    toast("Couldn't send that. Try again in a moment.");
+  }
+}
+
+// Once per visit, see whether Steven has decided
+async function checkAppeal() {
+  if (appealChecked || game.state.appeal !== "pending" || !game.state.typedName) return;
+  appealChecked = true;
+  try {
+    const data = await request(`/name-appeal?player_id=${encodeURIComponent(playerId())}`);
+    const mine = (data.appeals || []).find(item => String(item.original_name).toLowerCase() === game.state.typedName.toLowerCase());
+    if (!mine || mine.status === "pending") return;
+    game.state.appeal = mine.status;
+    if (mine.status === "restored") {
+      game.state.name = game.state.typedName;
+      storage.set("musicgrid:name", game.state.typedName);
+      loadLeaderboard();
+    }
+    save();
+    renderEndPanel();
+  } catch (error) {
+    // Try again next visit
   }
 }
 
@@ -999,20 +1090,46 @@ function hideFlagBar() {
   flagTarget = null;
 }
 
-function offerFlag(key, song, extra) {
+// A quick red flash around the screen (and a buzz on phones) so a miss
+// can't go unnoticed
+function flashMiss() {
+  const flash = $("#missFlash");
+  if (flash && reduceMotion) {
+    // No animation: a brief still tint instead
+    flash.classList.add("static");
+    window.setTimeout(() => flash.classList.remove("static"), 450);
+  } else if (flash) {
+    replay(flash, "on");
+  }
+  if (navigator.vibrate && !reduceMotion) {
+    try { navigator.vibrate(game.state.livesLost >= HEARTS ? [90, 60, 90] : 90); } catch (error) { /* not allowed */ }
+  }
+}
+
+function offerFlag(key, song) {
+  const left = Math.max(0, HEARTS - game.state.livesLost);
+  const sudden = game.state.livesLost >= HEARTS && game.state.livesLost < MAX_MISSES;
+  const extraText = game.state.over ? "" : sudden
+    ? "Last chance: your next miss ends the game."
+    : `${left} ${left === 1 ? "heart" : "hearts"} left`;
   const bar = $("#flagBar");
   if (!bar) {
-    if (extra) toast(extra);
+    if (extraText) toast(extraText);
     return;
   }
   flagTarget = { key, song };
-  $("#flagText").textContent = `“${song}” doesn't count here.${extra ? " " + extra : ""}`;
+  $("#flagText").textContent = `“${song}” doesn't count here.`;
+  const extra = $("#flagExtra");
+  extra.textContent = extraText;
+  extra.hidden = !extraText;
+  bar.classList.toggle("danger", sudden);
   const button = $("#flagBtn");
   button.hidden = false;
   button.disabled = false;
   bar.hidden = false;
+  replay(bar, "enter");
   window.clearTimeout(flagTimer);
-  flagTimer = window.setTimeout(hideFlagBar, 9000);
+  flagTimer = window.setTimeout(hideFlagBar, sudden ? 14000 : 10000);
 }
 
 async function sendFlag(key, song) {
@@ -1092,15 +1209,62 @@ function editToken() {
 }
 
 function looseKey(text) {
-  return String(text || "").toLowerCase().replace(/\s*[([][^)\]]*[)\]]/g, "").replace(/\s+-\s+.*$/, "").replace(/[^a-z0-9]/g, "");
+  return String(text || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
+    .replace(/\s*[([][^)\]]*[)\]]/g, "").replace(/\s+[-–—]\s+.*$/, "").replace(/\s(feat|ft)\.?\s.*$/, "").replace(/[^a-z0-9]/g, "");
 }
 
+// Same rules as the server's cleanSongName: drop "- Live at Fenway",
+// "(Ceelo Version)", "(feat. X)" and other version notes, keep real titles
+const TAIL_STARTS = /^(feat\.?|ft\.?|featuring|with|from|prod\.?|produced by|recorded (at|live)|live (at|from|in|on)|theme from|music from|as heard|taken from|bonus)\b/i;
+const TAIL_WORDS = /\b(version|remix(ed)?|mix|edit|live|remaster(ed)?|re-?recorded|re-?record|acoustic|demo|mono|stereo|instrumental|sessions?|deluxe|extended|radio|unplugged|stripped|orchestral|a ?cappella|sped up|slowed|reverb|reprise|anniversary|soundtrack|ost|vault|karaoke|cover|single|explicit|clean|bonus track|director'?s cut|from the vault)\b|^\s*(19|20)\d{2}\s*$/i;
+
 function plainSongName(name) {
-  return String(name || "")
-    .replace(/\s+-\s+(\d{4}\s+)?(remaster(ed)?|re-?recorded|single version|radio edit|album version|mono|stereo|edit)\b.*$/i, "")
-    .replace(/\s*[([](feat\.?|ft\.?|with|featuring|from)\s[^)\]]*[)\]]/gi, "")
-    .replace(/"/g, "'")
-    .trim();
+  let title = String(name || "").replace(/\s+/g, " ").trim();
+  const dash = title.search(/\s[-–—]\s/);
+  if (dash > 0) title = title.slice(0, dash).trim();
+  title = title.replace(/\s+(feat|ft|featuring)\.?\s.*$/i, "").trim();
+  for (;;) {
+    const tail = title.match(/\s*[([]([^()[\]]*)[)\]]\s*$/);
+    if (!tail || tail.index === 0 || !(TAIL_STARTS.test(tail[1].trim()) || TAIL_WORDS.test(tail[1].trim()))) break;
+    title = title.slice(0, tail.index).trim();
+  }
+  return title.replace(/"/g, "'").trim();
+}
+
+// ---------- One song, one square ----------
+// A song used in a solved square can't be entered in another one. Same
+// title in the same artist's column is the same song. Across columns it's
+// only the same song when the track credits both artists (a collab), since
+// "Stay" by Rihanna and "Stay" by Justin Bieber are different songs.
+
+const columnOf = key => String(key).split(" ")[1];
+
+function creditedArtists(key, artists) {
+  const names = Array.isArray(artists) && artists.length ? artists : [cellLabel(key).artist];
+  return names.map(name => looseKey(name)).filter(Boolean);
+}
+
+function usedElsewhere(key, songName, songArtists) {
+  const wanted = looseKey(songName);
+  if (!wanted) return null;
+  const mine = creditedArtists(key, songArtists);
+  return Object.keys(game.state.cells).find(other => {
+    const cell = game.state.cells[other];
+    if (other === key || cell.status !== "solved" || looseKey(cell.song) !== wanted) return false;
+    if (columnOf(other) === columnOf(key)) return true;
+    const theirs = creditedArtists(other, cell.songArtists);
+    return mine.some(name => theirs.includes(name));
+  }) || null;
+}
+
+// Songs used elsewhere that can't go in this square (for hints)
+function usedSongs(key) {
+  const artist = looseKey(cellLabel(key).artist);
+  return Object.keys(game.state.cells).filter(other => {
+    const cell = game.state.cells[other];
+    if (other === key || cell.status !== "solved" || !cell.song) return false;
+    return columnOf(other) === columnOf(key) || creditedArtists(other, cell.songArtists).includes(artist);
+  }).map(other => game.state.cells[other].song);
 }
 
 async function openEditor() {
@@ -1250,21 +1414,48 @@ function boardRows(list, entries, valueOf, detailOf) {
   });
 }
 
+// A quiet day shouldn't look like an empty room: player counts only show
+// once a board is busy, and a thin daily board shows recent top scores
+// from other daily grids under it. Every name and score shown is real.
+const COUNT_FROM = 25; // show "N players" from this many players
+const THIN_BOARD = 5; // fewer players than this on today's grid: add recent top scores
+let lastBoards = null;
+
 function boardCount(node, players, noun) {
-  node.textContent = players ? `${players} ${players === 1 ? "player" : "players"}${noun ? " " + noun : ""}` : "";
+  node.textContent = players >= COUNT_FROM ? `${players} players${noun ? " " + noun : ""}` : "";
 }
 
-function renderBoards(grid, allTime) {
+function shortDay(day) {
+  return day ? new Date(`${day}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+}
+
+function renderBoards(grid, allTime, recent) {
+  lastBoards = { grid, allTime, recent };
   const list = $("#leaderboardList");
   const note = $("#leaderboardNote");
-  boardCount($("#lbCount"), grid.players, mode === "daily" && !game.past ? "today" : "");
-  if (grid.entries.length) {
+  const isToday = mode === "daily" && !game.past;
+  const over = Boolean(game.state && game.state.over);
+  const thin = grid.players < THIN_BOARD;
+  boardCount($("#lbCount"), grid.players, isToday ? "today" : "");
+  // Before finishing today's grid, a thin board waits until you've played
+  const holdBack = isToday && thin && !over && !grid.entries.some(entry => entry.me);
+  if (grid.entries.length && !holdBack) {
     note.hidden = true;
     boardRows(list, grid.entries, entry => entry.player_score);
   } else {
     list.innerHTML = "";
     note.hidden = false;
-    note.textContent = "No scores yet. Finish the grid to claim the top spot.";
+    if (!over) note.textContent = isToday ? "Finish the grid to see where you rank." : "Finish this grid to claim the top spot.";
+    else note.textContent = "Add your score to see where you rank.";
+  }
+
+  const recentBox = $("#recentBoard");
+  if (recentBox) {
+    const showRecent = isToday && thin && recent && recent.entries.length > 0;
+    recentBox.hidden = !showRecent;
+    if (showRecent) {
+      boardRows($("#recentList"), recent.entries, entry => entry.player_score, entry => entry.title || shortDay(entry.day));
+    }
   }
 
   const atList = $("#allTimeList");
@@ -1277,7 +1468,7 @@ function renderBoards(grid, allTime) {
   boardCount($("#atCount"), allTime.players, "");
   if (allTime.entries.length) {
     atNote.hidden = true;
-    boardRows(atList, allTime.entries, entry => entry.total, entry => `${entry.grids} ${entry.grids === 1 ? "grid" : "grids"}`);
+    boardRows(atList, allTime.entries, entry => entry.total);
   } else {
     atList.innerHTML = "";
     atNote.hidden = false;
@@ -1285,11 +1476,17 @@ function renderBoards(grid, allTime) {
   }
 }
 
+// The game just ended: show the board that was held back
+function refreshBoards() {
+  if (lastBoards) renderBoards(lastBoards.grid, lastBoards.allTime, lastBoards.recent);
+}
+
 async function loadLeaderboard() {
   const lbId = api.leaderboardId(game.id);
   try {
-    const data = await request("/leaderboards", { lb_id: lbId, board: api.board, player_id: playerId() });
-    renderBoards(data.grid, data.allTime);
+    const recent = mode === "daily" && !game.past;
+    const data = await request("/leaderboards", { lb_id: lbId, board: api.board, player_id: playerId(), recent });
+    renderBoards(data.grid, data.allTime, data.recent || null);
     return;
   } catch (error) {
     // Older server without /leaderboards: fall back to the single board.
@@ -1474,6 +1671,7 @@ function wire() {
   $("#giveUp").addEventListener("click", () => giveUp.click());
   if ($("#flagBtn")) $("#flagBtn").addEventListener("click", flagFromBar);
   if ($("#flagClose")) $("#flagClose").addEventListener("click", hideFlagBar);
+  if ($("#appealBtn")) $("#appealBtn").addEventListener("click", sendAppeal);
   if ($("#atInfoBtn")) {
     $("#atInfoBtn").addEventListener("click", () => {
       const info = $("#atInfo");

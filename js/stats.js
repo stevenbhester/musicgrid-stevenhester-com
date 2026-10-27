@@ -93,49 +93,60 @@ function shade(cell) {
   return cell.misses.length ? "miss" : "";
 }
 
-function readGames() {
-  const games = [];
+// One saved game (from this browser or from the server) -> stats row
+function parseGame(mode, id, state) {
+  if (!state || typeof state !== "object" || !state.cells || typeof state.cells !== "object") return null;
+  const keys = Object.keys(state.cells).filter(k => state.cells[k] && typeof state.cells[k] === "object").sort(cellOrder);
+  if (!keys.length) return null;
+  const cells = keys.map(k => {
+    const cell = state.cells[k];
+    return {
+      key: k,
+      status: cell.status,
+      points: Number(cell.points) || 0,
+      misses: Array.isArray(cell.misses) ? cell.misses : []
+    };
+  });
+  const solved = cells.filter(cell => cell.status === "solved");
+  const started = solved.length > 0 || cells.some(cell => cell.misses.length);
+  if (!state.over && !started) return null;
+  const columns = new Set(keys.map(k => k.split(" ")[1])).size || 3;
+  const title = typeof state.title === "string" && state.title && state.title !== "Today's grid" ? state.title : null;
+  const finishedAt = Date.parse(state.finishedAt) || null;
+  return {
+    mode,
+    id,
+    title,
+    day: mode === "daily" ? validDay(state.day) : null,
+    playedOn: validDay(state.playedOn) || dayOf(finishedAt),
+    finishedAt,
+    over: Boolean(state.over),
+    score: Number(state.score) || 0,
+    solved: solved.length,
+    total: cells.length,
+    points: solved.map(cell => cell.points),
+    easy: Boolean(state.easy),
+    columns,
+    shades: cells.map(shade)
+  };
+}
+
+function localStates() {
+  const states = [];
   store.keys().forEach(key => {
     const match = /^musicgrid:(daily|custom):(\d+)$/.exec(key || "");
     if (!match) return;
-    let state = null;
-    try { state = JSON.parse(store.get(key)); } catch (error) { return; }
-    if (!state || typeof state !== "object" || !state.cells || typeof state.cells !== "object") return;
-    const keys = Object.keys(state.cells).filter(k => state.cells[k] && typeof state.cells[k] === "object").sort(cellOrder);
-    if (!keys.length) return;
-    const cells = keys.map(k => {
-      const cell = state.cells[k];
-      return {
-        key: k,
-        status: cell.status,
-        points: Number(cell.points) || 0,
-        misses: Array.isArray(cell.misses) ? cell.misses : []
-      };
-    });
-    const solved = cells.filter(cell => cell.status === "solved");
-    const started = solved.length > 0 || cells.some(cell => cell.misses.length);
-    if (!state.over && !started) return;
-    const columns = new Set(keys.map(k => k.split(" ")[1])).size || 3;
-    const title = typeof state.title === "string" && state.title && state.title !== "Today's grid" ? state.title : null;
-    const finishedAt = Date.parse(state.finishedAt) || null;
-    games.push({
-      mode: match[1],
-      id: match[2],
-      title,
-      day: match[1] === "daily" ? validDay(state.day) : null,
-      playedOn: validDay(state.playedOn) || dayOf(finishedAt),
-      finishedAt,
-      over: Boolean(state.over),
-      score: Number(state.score) || 0,
-      solved: solved.length,
-      total: cells.length,
-      points: solved.map(cell => cell.points),
-      easy: Boolean(state.easy),
-      columns,
-      shades: cells.map(shade)
-    });
+    try {
+      states.push({ mode: match[1], grid_id: match[2], state: JSON.parse(store.get(key)) });
+    } catch (error) {
+      // Skip a damaged save
+    }
   });
-  return games;
+  return states;
+}
+
+function readGames() {
+  return localStates().map(item => parseGame(item.mode, item.grid_id, item.state)).filter(Boolean);
 }
 
 // ---------- Server lookups ----------
@@ -170,7 +181,9 @@ async function fetchCustomTitles(ids) {
 function streaks(dailyGrids, finished) {
   if (!dailyGrids.length) return { current: 0, best: 0, currentDone: false };
   const onTime = index => {
-    const game = finished.get(String(dailyGrids[index].grid_id));
+    // A day can have more than one grid (a rerun replaced in the archive); any of them counts
+    const ids = [dailyGrids[index].grid_id, ...(dailyGrids[index].also || [])].map(String);
+    const game = ids.map(id => finished.get(id)).find(Boolean);
     if (!game) return false;
     const nextDay = index > 0 ? dailyGrids[index - 1].day : null;
     return !game.playedOn || !nextDay || game.playedOn < nextDay;
@@ -602,7 +615,12 @@ async function lookUp() {
 // it. Linking moves this browser onto another device's id.
 
 const PLAYER_KEY = "musicgrid:player";
+const PHRASE_KEY = "musicgrid:playerPhrase";
 const CODE_RE = /^[A-Za-z0-9-]{8,64}$/;
+// Codes the site makes: a random UUID, the older fallback, or a hashed made-up code
+const MADE_RE = /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|\d{13}-[a-z0-9]{6,12}|p-[0-9a-f]{40})$/i;
+const MIN_PHRASE = 8;
+const MAX_PHRASE = 100;
 
 function playerCode() {
   let code = null;
@@ -620,12 +638,53 @@ function deviceLink() {
   return `${window.location.origin}/stats#code=${encodeURIComponent(playerCode())}`;
 }
 
-// Returns a sentence for the page
+// A made-up code the player chose, kept only in this browser so "Show code"
+// can show it. The server only ever sees its hash.
+function savedPhrase() {
+  try {
+    const saved = JSON.parse(store.get(PHRASE_KEY));
+    return saved && saved.id === playerCode() && typeof saved.phrase === "string" ? saved.phrase : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function showCode() {
+  $("#codeText").textContent = savedPhrase() || playerCode();
+}
+
+// Same words, same player: case and extra spaces don't matter
+function normalPhrase(text) {
+  return String(text || "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+async function phraseId(phrase) {
+  if (!window.crypto || !window.crypto.subtle) throw new Error("no-crypto");
+  const bytes = new TextEncoder().encode(`musicgrid:${normalPhrase(phrase)}`);
+  const hash = new Uint8Array(await window.crypto.subtle.digest("SHA-256", bytes));
+  return `p-${[...hash].map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 40)}`;
+}
+
+// Returns { ok, text } for the page. A code copied from another device is
+// used as it is; anything else is a made-up code, hashed first.
 async function linkTo(rawCode) {
-  const code = String(rawCode || "").trim();
-  if (!CODE_RE.test(code)) return "That doesn't look like a player code. Copy it again from the other device.";
+  const typed = String(rawCode || "").trim();
+  const madeUp = !MADE_RE.test(typed);
+  if (madeUp && normalPhrase(typed).length < MIN_PHRASE) {
+    return { ok: false, text: `Make your code at least ${MIN_PHRASE} characters, so nobody else lands on it by accident.` };
+  }
+  if (madeUp && typed.length > MAX_PHRASE) return { ok: false, text: `Keep your code under ${MAX_PHRASE} characters.` };
+  let code = typed;
+  if (madeUp) {
+    try {
+      code = await phraseId(typed);
+    } catch (error) {
+      return { ok: false, text: "This browser can't set a made-up code. Try another browser." };
+    }
+  }
+  if (!CODE_RE.test(code)) return { ok: false, text: "That doesn't look like a player code. Copy it again from the other device." };
   const current = playerCode();
-  if (code === current) return "That's already this browser's code.";
+  if (code === current) return { ok: false, text: "That's already this browser's code." };
   const response = await fetch(`${API}/link-player`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -634,13 +693,55 @@ async function linkTo(rawCode) {
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || `link-player returned ${response.status}`);
   store.set(PLAYER_KEY, JSON.stringify(code));
-  $("#codeText").textContent = code;
+  if (madeUp) store.set(PHRASE_KEY, JSON.stringify({ id: code, phrase: typed }));
+  showCode();
   const moved = result.moved ? ` ${plural(result.moved, "score")} from this browser moved over.` : "";
-  return `Linked. This browser now counts as the same player as your other device.${moved}`;
+  if (madeUp) return { ok: true, text: `Your code is set. Type the same code on any other device to play as you there too.${moved}` };
+  return { ok: true, text: `Linked. This browser now counts as the same player as your other device.${moved}` };
+}
+
+// Send this browser's finished games and get back every game saved under
+// the player code, from any linked device. Where a grid was finished in
+// more than one place, the higher score counts.
+async function syncGames() {
+  const local = localStates().filter(item => item.state && item.state.over === true);
+  let saved = null;
+  try {
+    for (let i = 0; i === 0 || i < local.length; i += 25) {
+      const response = await fetch(`${API}/player-games/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ player_id: playerCode(), games: local.slice(i, i + 25) })
+      });
+      if (!response.ok) return false;
+      saved = (await response.json()).games || [];
+    }
+  } catch (error) {
+    return false;
+  }
+  (saved || []).forEach(row => {
+    const game = parseGame(row.mode, String(row.grid_id), row.state);
+    if (!game || !game.over) return;
+    const index = data.games.findIndex(other => other.mode === game.mode && other.id === game.id);
+    if (index < 0) {
+      data.games.push(game);
+    } else {
+      const mine = data.games[index];
+      if (!mine.over || game.score > mine.score) data.games[index] = { ...game, title: game.title || mine.title, day: game.day || mine.day };
+    }
+  });
+  return true;
+}
+
+// Pull in games from linked devices, then fill in titles and dates
+async function refresh() {
+  await syncGames();
+  if (data.games.length) await lookUp().catch(() => {});
+  render();
 }
 
 function wirePlayerCode() {
-  $("#codeText").textContent = playerCode();
+  showCode();
   $("#showCode").addEventListener("click", () => {
     const box = $("#codeBox");
     box.hidden = !box.hidden;
@@ -664,8 +765,12 @@ function wirePlayerCode() {
     const note = $("#deviceNote");
     note.textContent = "Linking…";
     try {
-      note.textContent = await linkTo($("#codeInput").value);
-      $("#codeInput").value = "";
+      const result = await linkTo($("#codeInput").value);
+      note.textContent = result.text;
+      if (result.ok) {
+        refresh();
+        $("#codeInput").value = "";
+      }
     } catch (error) {
       note.textContent = "Couldn't link right now. Try again in a moment.";
     }
@@ -683,10 +788,11 @@ function wirePlayerCode() {
     $("#linkYes").disabled = true;
     $("#linkConfirmNote").textContent = "Linking…";
     try {
-      const message = await linkTo(pendingCode);
+      const result = await linkTo(pendingCode);
+      if (result.ok) refresh();
       panel.hidden = true;
       pendingCode = null;
-      $("#deviceNote").textContent = message;
+      $("#deviceNote").textContent = result.text;
       $("#player-code").scrollIntoView({ block: "center" });
     } catch (error) {
       $("#linkConfirmNote").textContent = "Couldn't link right now. Try again in a moment.";
@@ -731,7 +837,7 @@ function boot() {
   });
   wireChart();
   render();
-  if (data.games.length) lookUp().then(render);
+  refresh();
 }
 
 boot();

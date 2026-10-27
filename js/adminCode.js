@@ -21,9 +21,72 @@ async function adminFetch(path, options) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       continue;
     }
-    if (!response.ok || response.status === 202) throw new Error(path + " failed with " + response.status);
+    if (!response.ok || response.status === 202) {
+      let detail = "";
+      try {
+        detail = (await response.json()).error || "";
+      } catch (error) {
+        detail = "";
+      }
+      throw new Error(detail || path + " failed with " + response.status);
+    }
     return response.json();
   }
+}
+
+// ---------- One song, one square ----------
+// Each song counts once per grid, so a grid has to be fillable with 9
+// different songs (a matching from squares to songs). Same check as the
+// server's repeatProblems. cells: { label: [songs] }, columnOf(label) names
+// the square's artist (two artists' same-titled songs are different songs).
+// Returns a list of messages.
+function songKey(text) {
+  return String(text || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
+    .replace(/\s*[([][^)\]]*[)\]]/g, " ").replace(/\s+[-–—]\s+.*$/, "").replace(/\s(feat|ft)\.?\s.*$/, "")
+    .replace(/&/g, " and ").trim().replace(/^the\s+/, "").replace(/[^a-z0-9]/g, "");
+}
+
+function repeatProblems(cells, columnOf) {
+  const keys = Object.keys(cells);
+  const songsOf = {};
+  keys.forEach(key => {
+    const column = columnOf ? String(columnOf(key)).toLowerCase() : "";
+    songsOf[key] = [...new Set((cells[key] || []).map(songKey).filter(Boolean).map(song => column + "|" + song))];
+  });
+  const owner = new Map();
+  const place = (key, seen) => {
+    for (const song of songsOf[key]) {
+      if (seen.has(song)) continue;
+      seen.add(song);
+      if (!owner.has(song) || place(owner.get(song), seen)) {
+        owner.set(song, key);
+        return true;
+      }
+    }
+    return false;
+  };
+  const messages = [];
+  keys.forEach(key => {
+    if (!songsOf[key].length || place(key, new Set())) return;
+    const squares = new Set([key]);
+    const songs = new Set();
+    const queue = [key];
+    while (queue.length) {
+      songsOf[queue.shift()].forEach(song => {
+        if (songs.has(song)) return;
+        songs.add(song);
+        const holder = owner.get(song);
+        if (holder && !squares.has(holder)) {
+          squares.add(holder);
+          queue.push(holder);
+        }
+      });
+    }
+    const names = keys.filter(other => squares.has(other));
+    const list = names.length <= 2 ? names.join(" and ") : names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+    messages.push(list + " only have " + songs.size + (songs.size === 1 ? " song" : " songs") + " between them, so one square would need a repeat");
+  });
+  return messages;
 }
 
 function toolOutput(text) {
@@ -60,6 +123,7 @@ async function unlock(key, quiet) {
     return;
   }
   localStorage.setItem("musicgrid:adminKey", key);
+  note.textContent = "";
   document.getElementById("lock").hidden = true;
   document.getElementById("adminApp").hidden = false;
   startAdmin();
@@ -79,12 +143,74 @@ function startAdmin() {
   document.getElementById("checkAnswers").addEventListener("click", checkAnswers);
   document.getElementById("showDecided").addEventListener("change", loadComplaints);
   document.getElementById("showAdded").addEventListener("change", loadAccessRequests);
+  document.getElementById("showReviewed").addEventListener("change", loadNameAppeals);
   initMaker();
   loadGridData();
   loadCalendar();
   loadModerationLog();
   loadComplaints();
   loadAccessRequests();
+  loadNameAppeals();
+}
+
+// ---------- Name appeals ----------
+
+async function loadNameAppeals() {
+  const holder = document.getElementById("nameAppeals");
+  const all = document.getElementById("showReviewed").checked;
+  try {
+    const data = await adminFetch("/admin/name-appeals" + (all ? "?status=all" : ""));
+    holder.innerHTML = "";
+    if (!data.appeals.length) {
+      holder.textContent = all ? "No appeals yet." : "No one waiting.";
+      return;
+    }
+    data.appeals.forEach(item => {
+      const box = document.createElement("div");
+      box.className = "queue-item";
+      const head = document.createElement("b");
+      head.textContent = "“" + item.original_name + "” became “" + item.renamed_to + "”";
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = (item.reason || "screening") + " · " + item.players + (item.players === 1 ? " player asked" : " players asked") + " · " + String(item.first_asked).slice(0, 10);
+      box.append(head, meta);
+      const row = document.createElement("div");
+      row.className = "tool-row";
+      if (item.status === "pending") {
+        [["restore", "Restore the name"], ["keep", "Keep the change"]].forEach(([decision, label]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = label;
+          button.addEventListener("click", () => reviewName(item.original_name, decision, button));
+          row.appendChild(button);
+        });
+      } else {
+        const status = document.createElement("span");
+        status.className = "queue-status " + (item.status === "restored" ? "approved" : "rejected");
+        status.textContent = item.status === "restored" ? "Restored" : "Kept the change";
+        row.appendChild(status);
+      }
+      box.appendChild(row);
+      holder.appendChild(box);
+    });
+  } catch (error) {
+    holder.textContent = "Appeals didn't load: " + error.message;
+  }
+}
+
+async function reviewName(name, decision, button) {
+  if (button) button.disabled = true;
+  try {
+    const data = await adminFetch("/admin/name-review", { method: "POST", body: JSON.stringify({ name, decision }) });
+    toolOutput(decision === "restore"
+      ? "Restored “" + name + "” on " + data.restored + (data.restored === 1 ? " score" : " scores") + ". It's allowed from now on."
+      : "Kept the change for “" + name + "”.");
+    loadNameAppeals();
+    loadModerationLog();
+  } catch (error) {
+    toolOutput("Couldn't save that: " + error.message);
+    if (button) button.disabled = false;
+  }
 }
 
 // ---------- Spotify sign-in requests ----------
@@ -274,8 +400,11 @@ async function checkGrids() {
     if (noClips.length) stops.push(noClips.join(" and ") + (noClips.length === 1 ? " has" : " have") + " no song clips, so easy mode wouldn't work");
     const duplicate = findDuplicate(grid);
     if (duplicate) stops.push("this grid is already uploaded as grid " + duplicate.grid_id);
+    const cells = {};
+    grid.categories.forEach(category => grid.artists.forEach(artist => { cells[artist + " / " + category] = grid.answers[category][artist]; }));
+    repeatProblems(cells, key => key.split(" / ")[0]).forEach(text => stops.push(text));
     if (unknown.length) notes.push("couldn't check song clips for " + unknown.join(", "));
-    if (today && grid.date < today) notes.push("this date is in the past");
+    if (today && grid.date < today) notes.push("this date is in the past, so it goes in the archive (if someone already made a grid for that day, it takes the nearest earlier free day)");
     const taken = calendar && calendar.calendar && calendar.calendar.find(day => day.date === grid.date && day.scheduled && !day.rerun);
     if (taken && grid.date > today) {
       // The server moves the old grid to the next open day
@@ -343,6 +472,7 @@ async function createGrids() {
     const data = await adminFetch("/admin/create-grids", { method: "POST", body: JSON.stringify({ grids: checkedGrids, score: true }) });
     const lines = data.created.map(grid => "Created grid " + grid.grid_id + " for " + grid.date + (grid.title ? " (" + grid.title + ")" : ""));
     (data.moved || []).forEach(grid => lines.push("Moved grid " + grid.grid_id + (grid.title ? " (" + grid.title + ")" : "") + " from " + grid.from + " to " + grid.to));
+    (data.shifted || []).forEach(grid => lines.push((grid.title || "A grid") + " went on " + grid.to + " instead: " + grid.from + " already had a grid"));
     loadGridData();
     loadCalendar();
     // Newer servers score answers themselves; older ones need the browser to
@@ -442,8 +572,19 @@ async function loadModerationLog() {
     }
     rows.forEach(entry => {
       const row = document.createElement("div");
-      row.className = "cal-row";
-      row.textContent = entry.original_name + " \u2192 " + entry.player_name + " (" + entry.moderation_reason + ", grid " + entry.owning_grid_id + ")";
+      row.className = "cal-row mod-row";
+      const text = document.createElement("span");
+      text.textContent = entry.restored
+        ? entry.original_name + " (restored, was " + entry.player_name + ", grid " + entry.owning_grid_id + ")"
+        : entry.original_name + " \u2192 " + entry.player_name + " (" + entry.moderation_reason + ", grid " + entry.owning_grid_id + ")";
+      row.appendChild(text);
+      if (!entry.restored) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "Restore name";
+        button.addEventListener("click", () => reviewName(entry.original_name, "restore", button));
+        row.appendChild(button);
+      }
       holder.appendChild(row);
     });
   } catch (error) {
@@ -778,6 +919,13 @@ async function checkAnswers() {
       report.textContent = "That grid has no scored answers.";
       return;
     }
+    // Each song counts once per grid: flag grids that can't be filled with 9 different songs
+    (data.repeats || []).forEach(text => {
+      const warn = document.createElement("div");
+      warn.className = "grid-stop";
+      warn.textContent = "Needs a repeated song: " + text + ". Add answers to one of those squares (reruns skip this grid until then).";
+      report.appendChild(warn);
+    });
     data.squares.forEach(square => {
       const box = document.createElement("div");
       box.className = "answer-square";

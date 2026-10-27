@@ -51,7 +51,7 @@ function difficultyBadge(difficulty) {
   for (let i = 1; i <= 4; i += 1) bars.append(el("i", i <= level ? "on" : ""));
   badge.append(bars, el("span", null, difficulty.label));
   const basis = difficulty.basis === "scores"
-    ? `Difficulty: ${difficulty.label}, from ${difficulty.players} players' scores`
+    ? `Difficulty: ${difficulty.label}, from players' scores`
     : `Difficulty: ${difficulty.label}, estimated from the answers`;
   badge.title = basis;
   badge.setAttribute("aria-label", basis);
